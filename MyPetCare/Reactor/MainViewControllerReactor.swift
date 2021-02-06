@@ -26,8 +26,9 @@ class MainViewControllerReactor: Reactor {
     }
     
     var initialState: State
+    var provider: ServiceProviderType
     
-    init() {
+    init(provider: ServiceProviderType) {
         let petData = Pet(name: "멍멍이",
                           male: .boy,
                           age: 10,
@@ -46,6 +47,8 @@ class MainViewControllerReactor: Reactor {
         
         initialState = State(petList: [petData, petData2],
                              selectedPet: petData)
+        
+        self.provider = provider
     }
     
     func mutate(action: Action) -> Observable<Mutation> {

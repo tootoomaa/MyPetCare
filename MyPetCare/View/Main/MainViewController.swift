@@ -13,7 +13,7 @@ import RxCocoa
 import Then
 import SnapKit
 
-enum ServiceType: String, CaseIterable {
+enum MainServiceType: String, CaseIterable {
     case pelseCheck = "심박수 측정"
     case hospital = "병원 찾기"
 }
@@ -26,7 +26,7 @@ class MainViewController: UIViewController, View {
     
     let mainView = MainView()
     
-    var serviceMuneList: [ServiceType] = [.pelseCheck, .hospital, .pelseCheck, .hospital, .pelseCheck, .hospital]
+    var serviceMuneList: [MainServiceType] = [.pelseCheck, .hospital, .pelseCheck, .hospital, .pelseCheck, .hospital]
     
     // MARK: - Life Cycle
     
@@ -36,7 +36,6 @@ class MainViewController: UIViewController, View {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configureServiceCollecionViewBind()
     }
     

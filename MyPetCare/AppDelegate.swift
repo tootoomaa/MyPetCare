@@ -13,15 +13,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        let reactor = MainViewControllerReactor()
-        let mainVC = MainViewController()
-        mainVC.reactor = reactor
-        
+    
         configureNavigation()
         
+        let provider = ServiceProvider()
+        let tabBarC = MyPetCustomNavigationController(provider: provider)
+        
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.rootViewController = UINavigationController(rootViewController: mainVC)
+        window?.rootViewController = UINavigationController(rootViewController: tabBarC)
         window?.makeKeyAndVisible()
         
         return true

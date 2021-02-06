@@ -21,13 +21,17 @@ class ServiceCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        contentView.backgroundColor = .white
-        
+        configureContentView()
         configureLayout()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configureContentView() {
+        contentView.backgroundColor = .white
+        contentView.layer.cornerRadius = 20
     }
     
     private func configureLayout() {
