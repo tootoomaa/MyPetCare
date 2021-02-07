@@ -11,7 +11,15 @@ import UIKit
 extension UIColor {
     
     static var lightBlue: UIColor {
-        return #colorLiteral(red: 0.8718398809, green: 0.9310402274, blue: 0.9473993182, alpha: 1)
+        return #colorLiteral(red: 0.835852325, green: 0.9097235799, blue: 0.9434450269, alpha: 1)
+    }
+    
+    static var extraLightBlue: UIColor {
+        return #colorLiteral(red: 0.8776692152, green: 0.9336753488, blue: 0.9409034848, alpha: 1)
+    }
+    
+    static var lightDeepBlue: UIColor {
+        return #colorLiteral(red: 0.8251276612, green: 0.9183631539, blue: 0.9833192229, alpha: 1)
     }
     
     static var color10: UIColor {

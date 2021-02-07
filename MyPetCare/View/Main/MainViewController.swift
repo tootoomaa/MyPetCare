@@ -42,6 +42,7 @@ class MainViewController: UIViewController, View {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         self.navigationController?.navigationBar.isHidden = true
     }
     
@@ -89,7 +90,12 @@ class MainViewController: UIViewController, View {
             .subscribe(onNext: { [unowned self] pet in
                 
                 guard pet.name != Pet.empty().name else {
-                    
+                    let vc = PetAddViewController(false)
+                    let naviC = UINavigationController(rootViewController: vc).then{
+                        $0.modalPresentationStyle = .overFullScreen
+                    }
+                    vc.reactor = reactor
+                    present(naviC, animated: true, completion: nil)
                     return
                 }
                 
