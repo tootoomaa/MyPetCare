@@ -11,6 +11,7 @@ import UIKit
 class MainView: UIView {
     
     let padding: CGFloat = 8
+    var petNameWidth: CGFloat = 0
     
     // MARK: - Properties
     let titleLabel = UILabel().then {
@@ -27,18 +28,13 @@ class MainView: UIView {
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
     
-    lazy var topCategorySelectSegControl = UISegmentedControl(items: topSelectCategoryList).then {
-        $0.removeBorder()
-        $0.selectedSegmentIndex = 0
-    }
-    
     var petProfileView = UIView().then {
         $0.backgroundColor = .systemGray6
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
     }
     
-    var imageView = UIImageView().then {
+    var petImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
@@ -47,6 +43,9 @@ class MainView: UIView {
     var petName = UILabel().then {
         $0.textColor = .black
         $0.font = .systemFont(ofSize: 25, weight: .bold)
+        $0.textAlignment = .center
+        $0.adjustsFontSizeToFitWidth = true
+        $0.minimumScaleFactor = 0.5
     }
     
     var petMaleImageView = UIImageView().then {
@@ -135,9 +134,9 @@ class MainView: UIView {
         self.layoutMargins = UIEdgeInsets(top: padding*2, left: padding, bottom: padding, right: padding)
         let marginGuide = self.layoutMarginsGuide
         
-        [titleLabel, petProfileCollectionView, //topCategorySelectSegControl, // TopView
-         petProfileView,
-         serviceTitle, serviceColectionView,                                   // List UI
+        [titleLabel, petProfileCollectionView,                      // TopView
+         petProfileView,                                            // Pet View
+         serviceTitle, serviceColectionView,                        // List UI
          petEmtpyImage, petEmptyLabel                               // Empty
         ].forEach {
             addSubview($0)
@@ -154,48 +153,38 @@ class MainView: UIView {
             $0.height.equalTo(PetProfileCollecionViewFlowLayout.BaseLayout.height)
         }
         
-//        topCategorySelectSegControl.snp.makeConstraints {
-//            $0.top.equalTo(collectionView.snp.bottom).offset(padding/2)
-//            $0.leading.trailing.equalTo(marginGuide)
-//            $0.height.equalTo(40)
-//        }
         // pet Profile
-        let petProfileImageViewWidth = (Constants.viewWeigth-padding*2)
+        let petProfileImageViewWidth = (Constants.viewWeigth-padding*4)
         petProfileView.snp.makeConstraints {
             $0.top.equalTo(petProfileCollectionView.snp.bottom).offset(padding)
-            $0.leading.equalToSuperview().offset(16)
-            $0.trailing.equalToSuperview().offset(-16)
+            $0.leading.equalTo(self.safeAreaLayoutGuide).offset(padding*2)
+            $0.trailing.equalTo(self.safeAreaLayoutGuide).offset(-padding*2)
             $0.height.equalTo(petProfileImageViewWidth/2)
         }
         
-        [imageView, petName, petMaleImageView,
+        [petImageView, petName, petMaleImageView,
          ageLabel, ageValueLabel, weightLabel, weightValueLabel,
          heightLabel, heightValueLabel].forEach {
             petProfileView.addSubview($0)
         }
         
-        imageView.snp.makeConstraints {
-            $0.top.leading.bottom.equalTo(petProfileView)
-            $0.trailing.equalTo(petProfileView.snp.centerX)
+        petImageView.snp.makeConstraints {
+            $0.top.leading.bottom.equalToSuperview()
+            $0.width.equalTo(petProfileImageViewWidth/2)
         }
         
         let axisXPadding = petProfileImageViewWidth/2/4
         petName.snp.makeConstraints {
             $0.top.equalTo(petProfileView).offset(25)
-            $0.centerX.equalTo(imageView.snp.trailing).offset(axisXPadding)
-            $0.height.equalTo(25)
+            $0.leading.equalTo(petImageView.snp.trailing).offset(10)
+            $0.trailing.equalTo(petProfileView.snp.trailing).offset(-10)
         }
         
-        petMaleImageView.snp.makeConstraints {
-            $0.leading.equalTo(petName.snp.trailing).offset(padding)
-            $0.centerY.equalTo(petName)
-            $0.height.equalTo(petName)
-            $0.width.equalTo(10)
-        }
+        petNameWidth = petProfileImageViewWidth/2 - 20
         
         ageLabel.snp.makeConstraints {
             $0.top.equalTo(petName.snp.bottom).offset(20)
-            $0.centerX.equalTo(imageView.snp.trailing).offset(axisXPadding*0.8)
+            $0.centerX.equalTo(petImageView.snp.trailing).offset(axisXPadding*0.8)
         }
         
         ageValueLabel.snp.makeConstraints {
@@ -205,15 +194,14 @@ class MainView: UIView {
         
         weightLabel.snp.makeConstraints {
             $0.centerY.equalTo(ageLabel)
-            $0.centerX.equalTo(imageView.snp.trailing).offset(axisXPadding*2.5)
+            $0.centerX.equalTo(petImageView.snp.trailing).offset(axisXPadding*2.5)
         }
         
         weightValueLabel.snp.makeConstraints {
             $0.centerY.equalTo(ageValueLabel)
             $0.leading.equalTo(weightLabel)
         }
-
-
+        
         heightLabel.snp.makeConstraints {
             $0.top.equalTo(ageValueLabel.snp.bottom).offset(20)
             $0.leading.equalTo(ageLabel)
@@ -227,7 +215,7 @@ class MainView: UIView {
         ///-----------------------------------------------
         /// Service
         serviceTitle.snp.makeConstraints {
-            $0.top.equalTo(imageView.snp.bottom).offset(padding*2)
+            $0.top.equalTo(petImageView.snp.bottom).offset(padding*2)
             $0.leading.trailing.equalTo(marginGuide)
         }
         
@@ -250,9 +238,32 @@ class MainView: UIView {
     
     func configurePetView(pet: Pet) {
         
-        imageView.image = UIImage(data: pet.profileImage)
+        petImageView.image = UIImage(data: pet.profileImage)
         
-        petName.text = pet.name
+        petName.text = pet.name                 // 값 입력
+        petName.sizeToFit()                     // 순서 변경 X
+//        petName.text = "안녕하세요댕댕이입니다"
+//        petName.text = "댕댕이"
+        
+//        print(petNameWidth)
+//        print(petName.intrinsicContentSize.width)
+//        print(petName.frame)
+        
+        //Pet 이름 길이에 따른 성별 마크 위치 수정
+        petMaleImageView.snp.makeConstraints {
+            $0.centerY.equalTo(petName)
+            if petNameWidth > petName.intrinsicContentSize.width {
+                // 정상 길이 처리
+                $0.centerX.equalTo(petName.snp.centerX).offset(-petName.intrinsicContentSize.width/2-10)
+            } else {
+                // 긴 이름 처리
+                $0.leading.equalTo(petImageView.snp.trailing)
+                $0.trailing.equalTo(petName.snp.leading)
+            }
+            $0.width.equalTo(10.4)
+            $0.height.equalTo(20)
+        }
+        
         petMaleImageView.image = UIImage(named: pet.male.rawValue)
         
         ageValueLabel.text = "\(pet.age ?? 0) yrs"

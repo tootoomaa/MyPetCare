@@ -45,7 +45,7 @@ class MainViewControllerReactor: Reactor {
                            profileImage: UIImage(named: "cat")!.pngData()!,
                            birthday: nil)
         
-        initialState = State(petList: [petData, petData2],
+        initialState = State(petList: [petData, petData2, Pet.empty()],
                              selectedPet: petData)
         
         self.provider = provider

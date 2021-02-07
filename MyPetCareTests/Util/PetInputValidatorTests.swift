@@ -27,7 +27,7 @@ class PetInputValidatorTests: XCTestCase {
         XCTAssertTrue(isNameValid, "The isNameValid should return true when name is String Type")
     }
     // pet name
-    func testPetInputValidator_WhenNameProvided_ShouldReturnFalse() {
+    func testPetInputValidator_WhenEmptyNameProvided_ShouldReturnFalse() {
         
         let isNameValid = sut.isNameValid(name: "")
 

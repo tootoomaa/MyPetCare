@@ -36,12 +36,18 @@ class MainViewController: UIViewController, View {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         configureServiceCollecionViewBind()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.navigationBar.isHidden = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.navigationBar.isHidden = false
     }
     
     private func configureServiceCollecionViewBind() {
@@ -82,6 +88,11 @@ class MainViewController: UIViewController, View {
             .distinctUntilChanged()
             .subscribe(onNext: { [unowned self] pet in
                 
+                guard pet.name != Pet.empty().name else {
+                    
+                    return
+                }
+                
                 mainView.configurePetView(pet: pet)
                 
             }).disposed(by: disposeBag)
@@ -92,7 +103,21 @@ class MainViewController: UIViewController, View {
                     .items(cellIdentifier: PetProfileImageCell.identifier,
                            cellType: PetProfileImageCell.self)) { row, data , cell in
                 
-                cell.petProfileImageView.image = UIImage(data: data.profileImage)
+                if data.name == Pet.empty().name {
+                    // pet 추가 버튼
+                    let plusImage = UIImage(systemName: "plus.circle.fill")?
+                                        .withRenderingMode(.alwaysOriginal)
+                                        .withTintColor(.lightBlue)
+                    cell.petProfileImageView.image = plusImage
+                    cell.petProfileImageView.clipsToBounds = true
+                    cell.petProfileImageView.backgroundColor = .white
+                    
+                } else {
+                    
+                    cell.petProfileImageView.image = UIImage(data: data.profileImage)
+                    
+                }
+                cell.setNeedsLayout()
                 
             }.disposed(by: disposeBag)
         
@@ -100,8 +125,6 @@ class MainViewController: UIViewController, View {
             .map{Reactor.Action.selectPet($0.item)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        
         
     }
     

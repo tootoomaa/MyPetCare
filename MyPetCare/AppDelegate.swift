@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let tabBarC = MyPetCustomNavigationController(provider: provider)
         
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.rootViewController = UINavigationController(rootViewController: tabBarC)
+        window?.rootViewController = tabBarC
         window?.makeKeyAndVisible()
         
         return true

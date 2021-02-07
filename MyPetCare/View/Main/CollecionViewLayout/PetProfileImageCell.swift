@@ -39,4 +39,9 @@ class PetProfileImageCell: UICollectionViewCell {
         }
         
     }
+    
+    override func prepareForReuse() {
+        self.backgroundColor = .none
+        petProfileImageView.image = nil
+    }
 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 enum Male: String {
     case boy
@@ -44,4 +45,9 @@ struct Pet: Equatable {
     static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.id == rhs.id
     }
+    
+    static func empty() -> Pet {
+        return Pet(name: "EmptyPet", male: .boy, profileImage: (UIImage(systemName: "plus")?.pngData())!, birthday: nil)
+    }
 }
+
