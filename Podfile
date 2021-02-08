@@ -9,6 +9,7 @@ target 'MyPetCare' do
   pod 'RxSwift'
   pod 'RxCocoa'
   pod 'ReactorKit'
+  pod 'RxGesture'
 
   # UI Util
   pod 'SnapKit'

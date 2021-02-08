@@ -10,6 +10,9 @@ import UIKit
 
 class Constants {
     
+    // Locale
+    static let currentLocale = Locale(identifier: "ko_KR")
+    
     // UI
     static var viewHeigth = UIScreen.main.bounds.height
     static var viewWeigth = UIScreen.main.bounds.width
