@@ -1,20 +1,18 @@
 //
-//  PetAddViewController.swift
+//  NewPetAddViewController.swift
 //  MyPetCare
 //
-//  Created by 김광수 on 2021/02/07.
+//  Created by 김광수 on 2021/02/08.
 //
 
 import Foundation
 import UIKit
 import ReactorKit
 
-
-class PetAddViewController: UIViewController, View {
-    // MARK: - Properties
-    var disposeBag: DisposeBag = DisposeBag()
+class NewPetAddViewController: UIViewController, View {
     
-    let mainView = PetAddView()
+    var disposeBag: DisposeBag = DisposeBag()
+    let mainView = NewPetAddView()
     
     lazy var imagePicker = UIImagePickerController().then {
         $0.delegate = self
@@ -22,39 +20,48 @@ class PetAddViewController: UIViewController, View {
         $0.modalPresentationStyle = .overFullScreen
     }
     
-    let isEditingMode: Bool
-    
     let addNaviButton = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: nil)
     let closeNanviButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
     
-    
-    // MARK: - Life cycle
-    init(_ isEditingMode: Bool) {
-        self.isEditingMode = isEditingMode
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
+    // MARK: - Life Cycle
     override func loadView() {
-        view = self.mainView
-        mainView.frame = view.bounds
+        view = mainView
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureNavigationBar()
+        
         mainViewButtonBinding()
         
-        configureNavigationBar()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        mainView.nameTextField.becomeFirstResponder()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        view.endEditing(true)
+        mainView.endEditing(true)
     }
     
+    private func configureNavigationBar() {
+        self.navigationController?.configureNavigationBarAppearance(.lightBlue)
+        self.navigationItem.title = "펫 등록"
+        
+        self.navigationItem.leftBarButtonItem = closeNanviButton
+        self.navigationItem.rightBarButtonItem = addNaviButton
+        self.navigationController?.navigationBar.backgroundColor = .lightDeepBlue
+            
+        closeNanviButton.rx.tap
+            .subscribe(onNext: { [unowned self] in
+                self.dismiss(animated: true, completion: nil)
+            }).disposed(by: disposeBag)
+    }
+    
+    // MARK: - MainView Button Binding
     private func mainViewButtonBinding() {
         // done버튼 터치시 키보드 내리기
         mainView.nameTextField.rx.controlEvent(.editingDidEndOnExit)
@@ -64,7 +71,7 @@ class PetAddViewController: UIViewController, View {
         
         
         let petImageSelectTapGuesture =  UITapGestureRecognizer(target: nil, action: nil)
-        mainView.petImage.addGestureRecognizer(petImageSelectTapGuesture)
+        mainView.petImageView.addGestureRecognizer(petImageSelectTapGuesture)
         petImageSelectTapGuesture.rx.event
             .subscribe(onNext: { [unowned self] _ in
                 
@@ -91,34 +98,23 @@ class PetAddViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
     }
-    
-    private func configureNavigationBar() {
-        self.navigationController?.configureNavigationBarAppearance(.lightBlue)
-        self.navigationItem.title = "펫 등록"
-        
-        self.navigationItem.leftBarButtonItem = closeNanviButton
-        self.navigationItem.rightBarButtonItem = addNaviButton
-        self.navigationController?.navigationBar.backgroundColor = .lightDeepBlue
-            
-        closeNanviButton.rx.tap
-            .subscribe(onNext: { [unowned self] in
-                self.dismiss(animated: true, completion: nil)
-            }).disposed(by: disposeBag)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        self.navigationController?.navigationBar.isHidden = true
-    }
-    
-    
+
     // MARK: - Reactor Binder
     func bind(reactor: MainViewControllerReactor) {
+        
+        Observable.just(["몸무게","혈액형","BSC"])
+            .bind(to: mainView.tableView.rx.items(cellIdentifier: HealthDataCell.identifier,
+                                                  cellType: HealthDataCell.self)) { row, data, cell in
+                
+                cell.titleLabel.text = data
+                
+            }.disposed(by: disposeBag)
         
     }
 }
 
-extension PetAddViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
+// MARK: - UIImagePickerControllerDelegate & UINavigationControllerDelegate
+extension NewPetAddViewController: UIImagePickerControllerDelegate & UINavigationControllerDelegate {
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         imagePicker.dismiss(animated: true, completion: nil)
@@ -134,7 +130,9 @@ extension PetAddViewController: UIImagePickerControllerDelegate & UINavigationCo
             newImage = image
         }
         
-        self.mainView.petImage.image = newImage
+        self.mainView.petImageView.image = newImage
+        self.mainView.petImageView.layer.cornerRadius = self.mainView.petImageView.frame.width/2
+        self.mainView.petImageView.clipsToBounds = true
         
         print(info)
         
@@ -153,3 +151,39 @@ extension PetAddViewController: UIImagePickerControllerDelegate & UINavigationCo
     }
     
 }
+
+// MARK: - HealthDataCell
+class HealthDataCell: UITableViewCell {
+    
+    static let identifier = "HealthDataCell"
+    
+    let titleLabel = UILabel().then {
+        $0.font = .systemFont(ofSize: 15, weight: .bold)
+    }
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        contentView.backgroundColor = .lightBlue
+
+        configureLayout()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func configureLayout() {
+        
+        [titleLabel].forEach {
+            contentView.addSubview($0)
+        }
+        
+        titleLabel.snp.makeConstraints {
+            $0.leading.equalTo(contentView.safeAreaLayoutGuide).offset(8)
+            $0.centerY.equalTo(contentView.safeAreaLayoutGuide)
+        }
+    }
+}
+
+

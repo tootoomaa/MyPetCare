@@ -90,12 +90,7 @@ class MainViewController: UIViewController, View {
             .subscribe(onNext: { [unowned self] pet in
                 
                 guard pet.name != Pet.empty().name else {
-                    let vc = PetAddViewController(false)
-                    let naviC = UINavigationController(rootViewController: vc).then{
-                        $0.modalPresentationStyle = .overFullScreen
-                    }
-                    vc.reactor = reactor
-                    present(naviC, animated: true, completion: nil)
+                    
                     return
                 }
                 
@@ -128,9 +123,26 @@ class MainViewController: UIViewController, View {
             }.disposed(by: disposeBag)
         
         mainView.petProfileCollectionView.rx.itemSelected
-            .map{Reactor.Action.selectPet($0.item)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
+            .subscribe(onNext: { index in
+              
+                let selectedPet = reactor.currentState.petList?[index.row]
+                
+                guard selectedPet?.name != Pet.empty().name else {
+                    
+//                    let vc = PetAddViewController(false)
+                    let vc = NewPetAddViewController()
+                    vc.reactor = reactor
+                    
+                    let naviC = UINavigationController(rootViewController: vc)
+                    naviC.modalPresentationStyle = .overFullScreen
+                    
+                    self.present(naviC, animated: true, completion: nil)
+                    return
+                }
+                
+                reactor.action.onNext(.selectPet(index.row))
+                
+            }).disposed(by: disposeBag)
         
     }
     
