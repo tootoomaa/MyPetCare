@@ -79,32 +79,25 @@ class MainViewController: UIViewController, View {
         
         reactor.state.map{$0.selectedPet}
             .observeOn(MainScheduler.instance)
-            .do(onNext: {
-                let isEmtpy = ($0 == nil)
-                self.mainView.petProfileCollectionView.isHidden = isEmtpy
-                self.mainView.petEmtpyImage.isHidden = !isEmtpy
-                self.mainView.petEmptyLabel.isHidden = !isEmtpy
-            })
+            .do(onNext: { self.mainView.configureViewComponentsByPetList($0 == nil) }) // 상태에 따른 UI 변화
             .compactMap{$0}
+            .filter{$0.uuid != nil}
             .distinctUntilChanged()
             .subscribe(onNext: { [unowned self] pet in
-                
-                guard pet.name != Pet.empty().name else {
-                    
-                    return
-                }
                 
                 mainView.configurePetView(pet: pet)
                 
             }).disposed(by: disposeBag)
         
         reactor.state.map{$0.petList}
+            .distinctUntilChanged()
             .compactMap{$0}
             .bind(to: mainView.petProfileCollectionView.rx
                     .items(cellIdentifier: PetProfileImageCell.identifier,
                            cellType: PetProfileImageCell.self)) { row, data , cell in
                 
-                if data.name == Pet.empty().name {
+                print(row)
+                if data.name == nil {
                     // pet 추가 버튼
                     let plusImage = UIImage(systemName: "plus.circle.fill")?
                                         .withRenderingMode(.alwaysOriginal)
@@ -115,7 +108,7 @@ class MainViewController: UIViewController, View {
                     
                 } else {
                     
-                    cell.petProfileImageView.image = UIImage(data: data.profileImage)
+                    cell.petProfileImageView.image = UIImage(data: data.image ?? Data())
                     
                 }
                 cell.setNeedsLayout()
@@ -127,7 +120,7 @@ class MainViewController: UIViewController, View {
               
                 let selectedPet = reactor.currentState.petList?[index.row]
                 
-                guard selectedPet?.name != Pet.empty().name else {
+                guard selectedPet?.uuid != nil else {
                     
 //                    let vc = PetAddViewController(false)
                     let vc = NewPetAddViewController()

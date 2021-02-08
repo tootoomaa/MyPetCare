@@ -6,13 +6,14 @@
 //
 
 import Foundation
+import RealmSwift
 
 protocol DatabaseServiceType {
-    
+    var database: Realm { get }
 }
 
 class DatabaseService: BaseService, DatabaseServiceType {
     
-    
+    var database = try! Realm()
     
 }
