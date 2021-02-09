@@ -13,46 +13,42 @@ import RxCocoa
 class MainViewControllerReactor: Reactor {
     
     enum Action {
+        case loadInitialData
         case selectPet(Int)
     }
     
     enum Mutation {
-        case setSelectedPetData(Pet)
+        case setPetObjectList([PetObject])
+        case setSelectedPetData(PetObject)
     }
     
     struct State {
-        var petList: [Pet]?
-        var selectedPet: Pet?
+        var petList: [PetObject]?
+        var selectedPet: PetObject?
     }
     
     var initialState: State
+    let emptyPet = PetObject().then{ $0.name = nil }
     var provider: ServiceProviderType
     
     init(provider: ServiceProviderType) {
-        let petData = Pet(name: "멍멍이",
-                          male: .boy,
-                          age: 10,
-                          weight: 15.0,
-                          height: 40.7,
-                          profileImage: UIImage(named: "pet1")!.pngData()!,
-                          birthday: nil)
         
-        let petData2 = Pet(name: "고양이",
-                           male: .girl,
-                           age: 15,
-                           weight: 14.0,
-                           height: 40.9,
-                           profileImage: UIImage(named: "cat")!.pngData()!,
-                           birthday: nil)
         
-        initialState = State(petList: [petData, petData2, Pet.empty()],
-                             selectedPet: petData)
+        initialState = State(petList: [emptyPet],
+                             selectedPet: nil)
         
         self.provider = provider
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
+        
+        case .loadInitialData:
+            
+            var list = provider.dataBaseService.loadPetList().toArray()
+            list.append(emptyPet)
+            return .just(.setPetObjectList(list))
+            
         case .selectPet(let index):
             
             return .just(.setSelectedPetData((currentState.petList![index])))
@@ -68,6 +64,8 @@ class MainViewControllerReactor: Reactor {
         case .setSelectedPetData(let selectedPet):
             newState.selectedPet = selectedPet
             
+        case .setPetObjectList(let petList):
+            newState.petList = petList
         }
         
         return newState

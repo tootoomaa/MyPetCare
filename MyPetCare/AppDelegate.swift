@@ -10,13 +10,15 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    let provider = ServiceProvider()
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     
+        configureTestData()
+        
         configureNavigation()
         
-        let provider = ServiceProvider()
         let tabBarC = MyPetCustomNavigationController(provider: provider)
         
         window = UIWindow(frame: UIScreen.main.bounds)
@@ -24,6 +26,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.makeKeyAndVisible()
         
         return true
+    }
+    
+    private func configureTestData() {
+        
+//        let list = provider.dataBaseService.loadPetList().toArray()
+//        provider.dataBaseService.delete(list)
+        
     }
     
     private func configureNavigation() {

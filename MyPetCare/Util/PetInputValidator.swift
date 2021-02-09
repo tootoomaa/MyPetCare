@@ -32,7 +32,7 @@ protocol PetInputValidatorProtocol {
  */
 
 class PetInputValidator: PetInputValidatorProtocol {
-    
+
     func isNameValid(name: String) -> Bool {
         
         return name.count != 0

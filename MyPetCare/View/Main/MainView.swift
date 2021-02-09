@@ -137,7 +137,6 @@ class MainView: UIView {
         [titleLabel, petProfileCollectionView,                      // TopView
          petProfileView,                                            // Pet View
          serviceTitle, serviceColectionView,                        // List UI
-         petEmtpyImage, petEmptyLabel                               // Empty
         ].forEach {
             addSubview($0)
         }
@@ -225,8 +224,12 @@ class MainView: UIView {
             $0.bottom.equalTo(marginGuide)
         }
         
+        [petEmtpyImage, petEmptyLabel].forEach {                               // Empty
+            petProfileView.addSubview($0)
+        }
         petEmtpyImage.snp.makeConstraints {
-            $0.centerX.centerY.equalToSuperview()
+            $0.centerX.equalToSuperview()
+            $0.centerY.equalToSuperview().offset(-padding*2)
             $0.width.height.equalTo(100)
         }
 
@@ -236,9 +239,18 @@ class MainView: UIView {
         }
     }
     
-    func configurePetView(pet: Pet) {
+    // MARK: - View handler
+    func configureViewComponentsByPetList(_ isEmpty: Bool) {
+        petEmtpyImage.isHidden = !isEmpty
+        petEmptyLabel.isHidden = !isEmpty
+        ageLabel.isHidden = isEmpty
+        weightLabel.isHidden = isEmpty
+        heightLabel.isHidden = isEmpty
+    }
+    
+    func configurePetView(pet: PetObject) {
         
-        petImageView.image = UIImage(data: pet.profileImage)
+        petImageView.image = UIImage(data: pet.image ?? Data())
         
         petName.text = pet.name                 // 값 입력
         petName.sizeToFit()                     // 순서 변경 X
@@ -264,11 +276,11 @@ class MainView: UIView {
             $0.height.equalTo(20)
         }
         
-        petMaleImageView.image = UIImage(named: pet.male.rawValue)
+        petMaleImageView.image = UIImage(named: Male(rawValue: pet.male!)!.rawValue )
         
-        ageValueLabel.text = "\(pet.age ?? 0) yrs"
-        weightValueLabel.text = "\(pet.weight ?? 0) kg"
-        heightValueLabel.text = "\(pet.height ?? 0.0) cm"
+        ageValueLabel.text = "\(pet.age) yrs"
+        weightValueLabel.text = "\(pet.weight) kg"
+        heightValueLabel.text = "\(pet.height) cm"
         
     }
 }

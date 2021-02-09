@@ -12,6 +12,8 @@ import RxSwift
 import RxCocoa
 import Then
 import SnapKit
+import RealmSwift
+import RxRealm
 
 enum MainServiceType: String, CaseIterable {
     case pelseCheck = "심박수 측정"
@@ -77,34 +79,34 @@ class MainViewController: UIViewController, View {
     // MARK: - Reactor Bind
     func bind(reactor: MainViewControllerReactor) {
         
+        self.rx.viewDidLoad
+            .map{Reactor.Action.loadInitialData}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         reactor.state.map{$0.selectedPet}
             .observeOn(MainScheduler.instance)
-            .do(onNext: {
-                let isEmtpy = ($0 == nil)
-                self.mainView.petProfileCollectionView.isHidden = isEmtpy
-                self.mainView.petEmtpyImage.isHidden = !isEmtpy
-                self.mainView.petEmptyLabel.isHidden = !isEmtpy
-            })
+            .do(onNext: { self.mainView.configureViewComponentsByPetList($0 == nil) }) // 상태에 따른 UI 변화
             .compactMap{$0}
+            .filter{$0.uuid != nil}
             .distinctUntilChanged()
             .subscribe(onNext: { [unowned self] pet in
-                
-                guard pet.name != Pet.empty().name else {
-                    
-                    return
-                }
                 
                 mainView.configurePetView(pet: pet)
                 
             }).disposed(by: disposeBag)
         
         reactor.state.map{$0.petList}
+            .distinctUntilChanged()
             .compactMap{$0}
+            .do(onNext: { // 등록된 펫이 1마리 이상이면 PetViw 보여줌
+                if $0.count > 0 { reactor.action.onNext(.selectPet(0))}
+            })
             .bind(to: mainView.petProfileCollectionView.rx
                     .items(cellIdentifier: PetProfileImageCell.identifier,
                            cellType: PetProfileImageCell.self)) { row, data , cell in
                 
-                if data.name == Pet.empty().name {
+                if data.name == nil {
                     // pet 추가 버튼
                     let plusImage = UIImage(systemName: "plus.circle.fill")?
                                         .withRenderingMode(.alwaysOriginal)
@@ -115,7 +117,7 @@ class MainViewController: UIViewController, View {
                     
                 } else {
                     
-                    cell.petProfileImageView.image = UIImage(data: data.profileImage)
+                    cell.petProfileImageView.image = UIImage(data: data.image ?? Data())
                     
                 }
                 cell.setNeedsLayout()
@@ -127,14 +129,19 @@ class MainViewController: UIViewController, View {
               
                 let selectedPet = reactor.currentState.petList?[index.row]
                 
-                guard selectedPet?.name != Pet.empty().name else {
+                guard selectedPet?.uuid != nil else {
                     
 //                    let vc = PetAddViewController(false)
                     let vc = NewPetAddViewController()
-                    vc.reactor = reactor
+                    vc.reactor = PetAddViewReactor(provider: reactor.provider)
                     
                     let naviC = UINavigationController(rootViewController: vc)
                     naviC.modalPresentationStyle = .overFullScreen
+                    
+                    vc.rx.tapPetAddButton
+                        .map{Reactor.Action.loadInitialData}
+                        .bind(to: reactor.action)
+                        .disposed(by: self.disposeBag)
                     
                     self.present(naviC, animated: true, completion: nil)
                     return

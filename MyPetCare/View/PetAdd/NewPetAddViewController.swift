@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import RxCocoa
 import ReactorKit
 
 class NewPetAddViewController: UIViewController, View {
@@ -100,7 +101,7 @@ class NewPetAddViewController: UIViewController, View {
     }
 
     // MARK: - Reactor Binder
-    func bind(reactor: MainViewControllerReactor) {
+    func bind(reactor: PetAddViewReactor) {
         
         Observable.just(["몸무게","혈액형","BSC"])
             .bind(to: mainView.tableView.rx.items(cellIdentifier: HealthDataCell.identifier,
@@ -110,6 +111,50 @@ class NewPetAddViewController: UIViewController, View {
                 
             }.disposed(by: disposeBag)
         
+        // Action
+        mainView.nameTextField.rx.text
+            .compactMap{$0}
+            .map{Reactor.Action.inputPetName($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        mainView.datePicker.rx.date
+            .compactMap{$0}
+            .map{Reactor.Action.inputBirthDay($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        mainView.maleSegmentController.rx.controlEvent(.valueChanged)
+            .map{self.mainView.maleSegmentController.selectedSegmentIndex}
+            .map{$0 == 0 ? Male.boy.rawValue : Male.girl.rawValue}
+            .map{Reactor.Action.inputMale($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        addNaviButton.rx.tap
+            .map{Reactor.Action.savePet}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        imagePicker.rx.viewDidDisappear
+            .map{ _ in self.mainView.petImageView.image?.pngData()}
+            .compactMap{$0}
+            .map{Reactor.Action.inputPetImage($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        
+        reactor.state.map{$0.saveComplete}
+            .filter{$0 == true}
+            .subscribe(onNext: { _ in
+                
+                self.dismiss(animated: true, completion: nil)
+                
+            }).disposed(by: disposeBag)
+        
+        reactor.state.map{$0.isEnableSaveButton}
+            .bind(to: addNaviButton.rx.isEnabled)
+            .disposed(by: disposeBag)
     }
 }
 
@@ -152,6 +197,13 @@ extension NewPetAddViewController: UIImagePickerControllerDelegate & UINavigatio
     
 }
 
+extension Reactive where Base: NewPetAddViewController {
+    var tapPetAddButton: ControlEvent<Void> {
+        let source = base.addNaviButton.rx.tap
+        return ControlEvent(events: source)
+    }
+}
+
 // MARK: - HealthDataCell
 class HealthDataCell: UITableViewCell {
     
@@ -185,5 +237,4 @@ class HealthDataCell: UITableViewCell {
         }
     }
 }
-
 
