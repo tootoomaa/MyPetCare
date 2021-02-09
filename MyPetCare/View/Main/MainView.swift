@@ -248,7 +248,7 @@ class MainView: UIView {
         heightLabel.isHidden = isEmpty
     }
     
-    func configurePetView(pet: Pet) {
+    func configurePetView(pet: PetObject) {
         
         petImageView.image = UIImage(data: pet.image ?? Data())
         

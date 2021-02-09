@@ -9,22 +9,21 @@ import Foundation
 import UIKit
 import RealmSwift
 
-class Pet: Object {
+class PetObject: Object {
     
     @objc dynamic var uuid: String?
     @objc dynamic var name: String?
     @objc dynamic var male: Male.RawValue?
-    let age = RealmOptional<Int>()
+    @objc dynamic var age: Int = 0
     @objc dynamic var date: Date?
     @objc dynamic var image: Data?
-    let weight = RealmOptional<Double>()
-    let height = RealmOptional<Double>()
-    
+    @objc dynamic var weight: Double = 0.0
+    @objc dynamic var height: Double = 0.0
 }
 
-extension Pet {
-    static var empty: Pet {
-        return Pet().then { $0.uuid = nil }
+extension PetObject {
+    static var empty: PetObject {
+        return PetObject().then { $0.uuid = nil }
     }
 }
 

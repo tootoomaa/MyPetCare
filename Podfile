@@ -10,6 +10,7 @@ target 'MyPetCare' do
   pod 'RxCocoa'
   pod 'ReactorKit'
   pod 'RxGesture'
+  pod 'RxRealm'
 
   # UI Util
   pod 'SnapKit'
