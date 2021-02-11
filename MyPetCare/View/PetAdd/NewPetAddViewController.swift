@@ -108,38 +108,7 @@ class NewPetAddViewController: UIViewController, View {
                 
             }.disposed(by: disposeBag)
         
-        // Action
-        mainView.nameTextField.rx.value.changed
-            .compactMap{$0}
-            .map{Reactor.Action.inputPetName($0)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-
-        mainView.datePicker.rx.value.changed
-            .compactMap{$0}
-            .map{Reactor.Action.inputBirthDay($0)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        mainView.maleSegmentController.rx.controlEvent(.valueChanged)
-            .map{self.mainView.maleSegmentController.selectedSegmentIndex}
-            .map{$0 == 0 ? Male.boy.rawValue : Male.girl.rawValue}
-            .map{Reactor.Action.inputMale($0)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        addNaviButton.rx.tap
-            .map{Reactor.Action.savePet}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
-        imagePicker.rx.viewDidDisappear
-            .map{ _ in self.mainView.petImageView.image?.pngData()}
-            .compactMap{$0}
-            .map{Reactor.Action.inputPetImage($0)}
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
-        
+        // state
         reactor.state.map{$0.petName}
             .distinctUntilChanged()
             .compactMap{$0}
@@ -174,6 +143,7 @@ class NewPetAddViewController: UIViewController, View {
             .disposed(by: disposeBag)
         
         reactor.state.map{$0.saveComplete}
+            .observeOn(MainScheduler.asyncInstance)
             .filter{$0 == true}
             .subscribe(onNext: { _ in
                 
@@ -183,6 +153,38 @@ class NewPetAddViewController: UIViewController, View {
         
         reactor.state.map{$0.isEnableSaveButton}
             .bind(to: addNaviButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
+        // Action
+        mainView.nameTextField.rx.value.changed
+            .compactMap{$0}
+            .map{Reactor.Action.inputPetName($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+
+        mainView.datePicker.rx.value.changed
+            .compactMap{$0}
+            .map{Reactor.Action.inputBirthDay($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        mainView.maleSegmentController.rx.controlEvent(.valueChanged)
+            .map{self.mainView.maleSegmentController.selectedSegmentIndex}
+            .map{$0 == 0 ? Male.boy.rawValue : Male.girl.rawValue}
+            .map{Reactor.Action.inputMale($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        addNaviButton.rx.tap
+            .map{Reactor.Action.savePet}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        imagePicker.rx.viewDidDisappear
+            .map{ _ in self.mainView.petImageView.image?.pngData()}
+            .compactMap{$0}
+            .map{Reactor.Action.inputPetImage($0)}
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         mainView.deleteButton.rx.tap

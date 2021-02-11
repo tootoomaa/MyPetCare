@@ -25,7 +25,10 @@ class MainViewController: UIViewController, ReactorKit.View {
     
     var disposeBag: DisposeBag = DisposeBag()
     
-    var tableViewDispose: Disposable?
+    let plusImageData = UIImage(systemName: "plus.circle.fill")?
+        .withRenderingMode(.alwaysOriginal)
+        .withTintColor(.deepGreen)
+        .pngData()!
     
     let mainView = MainView()
     
@@ -58,7 +61,7 @@ class MainViewController: UIViewController, ReactorKit.View {
     }
     
     private func configureServiceCollecionViewBind() {
-
+        
         Observable.just(serviceMuneList)
             .bind(to: mainView.serviceColectionView.rx.items(cellIdentifier: ServiceCell.identifier,
                                                              cellType: ServiceCell.self))
@@ -107,7 +110,7 @@ class MainViewController: UIViewController, ReactorKit.View {
                 }
                 
                 view.layoutIfNeeded()
-
+                
             }).disposed(by: disposeBag)   
     }
     
@@ -135,76 +138,78 @@ class MainViewController: UIViewController, ReactorKit.View {
                 self.mainView.configureEmptyViewComponentsByPetList($0 == nil)
             }) // 상태에 따른 UI 변화
             .compactMap{$0}
-            .distinctUntilChanged()
             .filter{$0.uuid != Constants.mainViewPetPlusButtonUUID} // Plus Button 처리
             .subscribe(onNext: { [unowned self] pet in
-                
+
                 mainView.configurePetView(pet: pet)
                 mainView.petProfileView.layoutIfNeeded()
+
+            }).disposed(by: disposeBag)
+        
+        reactor.state.map{$0.selectedIndexPath}
+            .observeOn(MainScheduler.asyncInstance)
+            .compactMap{$0}
+            .subscribe(onNext: { [unowned self] indexPath in
                 
+                let view = mainView.petProfileCollectionView
+                view.selectItem(at: indexPath, animated: false, scrollPosition: .centeredVertically)
+                
+                if let cell = view.cellForItem(at: indexPath) as? PetProfileImageCell {
+                    cell.isSelected = true
+                }
+
             }).disposed(by: disposeBag)
         
         // 펫 CollectionView 리스트 생성
         reactor.state.map{$0.petList}
-//            .distinctUntilChanged()
+            .distinctUntilChanged()
             .compactMap{$0}
             .bind(to: mainView.petProfileCollectionView.rx
                     .items(cellIdentifier: PetProfileImageCell.identifier,
                            cellType: PetProfileImageCell.self)) { row, petData , cell in
                 
-                if petData.uuid == Constants.mainViewPetPlusButtonUUID {
-                    // pet 추가 버튼
-                    let plusImage = UIImage(systemName: "plus.circle.fill")?
-                                        .withRenderingMode(.alwaysOriginal)
-                                        .withTintColor(.deepGreen)
-                    cell.petProfileImageView.image = plusImage
-                    cell.petProfileImageView.clipsToBounds = true
-                    cell.selectMarkImage.removeFromSuperview()
-                } else {
-                    cell.petProfileImageView.image = UIImage(data: petData.image ?? Data())
-                    cell.cellIndex = row
-                }
+                let image = UIImage(data: (petData.image ?? self.plusImageData)!)
+                
+                cell.petProfileImageView.image = image
+                cell.cellIndex = row
                 
             }.disposed(by: disposeBag)
         
-        // Pet 선택 시 처리 사항
+        // plusButton 처리
         mainView.petProfileCollectionView.rx.itemSelected
-            .subscribe(onNext: { [unowned self] indexPath in
+            .filter{$0.row == reactor.plusButtonIndex}
+            .subscribe(onNext: { [unowned self] index in
                 
-                guard let selectedPet = reactor.currentState.petList?[indexPath.row],
-                      selectedPet.uuid != Constants.mainViewPetPlusButtonUUID else {
-                    // 신규 펫 추가
-                    let vc = NewPetAddViewController()
-                    vc.reactor = PetAddViewReactor(isEditMode: false,
-                                                   petData: PetObject(),
-                                                   provider: reactor.provider)
-                    
-                    let naviC = UINavigationController(rootViewController: vc)
-                    naviC.modalPresentationStyle = .overFullScreen
-                    
-                    vc.rx.tapPetAddButton
-                        .observeOn(MainScheduler.asyncInstance)
-                        .map{Reactor.Action.loadInitialData}
-                        .bind(to: reactor.action)
-                        .disposed(by: self.disposeBag)
-                    
-                    self.present(naviC, animated: true, completion: {
-                        // Pet 추가 버튼 선택 후 화면에 재 진입했을 때 이전에 선택한 펫이 보이도록
-                        let index = reactor.currentState.selectedIndexPath
-                        guard let pet = reactor.currentState.petList?[index.row],
-                              pet.name != Constants.mainViewPetPlusButtonUUID else { return }
-                        reactor.action.onNext(.selectPet(index.row))
-                        reactor.action.onNext(.selectedIndex(index))
-                    })
-                    return
-                }
+                // 신규 펫 추가
+                let vc = NewPetAddViewController()
+                vc.reactor = PetAddViewReactor(isEditMode: false,
+                                               petData: PetObject(),
+                                               provider: reactor.provider)
                 
-                reactor.action.onNext(.selectPet(indexPath.row))
-                reactor.action.onNext(.selectedIndex(indexPath))    // 선택한 indexPath 저장 (Check Mark 표시용)
+                let naviC = UINavigationController(rootViewController: vc)
+                naviC.modalPresentationStyle = .overFullScreen
+                
+                vc.rx.tapPetAddButton
+                    .observeOn(MainScheduler.asyncInstance)
+                    .map{Reactor.Action.loadInitialData}
+                    .bind(to: reactor.action)
+                    .disposed(by: self.disposeBag)
+                
+                self.present(naviC, animated: true, completion: {
+                    // Pet 추가 버튼 선택 후 화면에 재 진입했을 때 이전에 선택한 펫이 보이도록
+                    reactor.action.onNext(.setPetProfileIndex)
+                })
                 
             }).disposed(by: disposeBag)
         
+        mainView.petProfileCollectionView.rx.itemSelected
+            .filter{$0.row != reactor.plusButtonIndex}
+            .map{Reactor.Action.selectedIndex($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
         mainView.editButton.rx.tap
+            .observeOn(MainScheduler.asyncInstance)
             .subscribe(onNext:{ [unowned self] in
                 
                 guard let selectedPet = reactor.currentState.selectedPet else { return }
@@ -218,6 +223,7 @@ class MainViewController: UIViewController, ReactorKit.View {
                 naviC.modalPresentationStyle = .overFullScreen
                 
                 vc.rx.tapPetAddButton
+                    .observeOn(MainScheduler.asyncInstance)
                     .map{Reactor.Action.loadInitialData}
                     .bind(to: reactor.action)
                     .disposed(by: self.disposeBag)

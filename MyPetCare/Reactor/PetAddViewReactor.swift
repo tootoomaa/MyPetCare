@@ -78,9 +78,6 @@ class PetAddViewReactor: Reactor {
             return .just(.setPetImage(imageData))
             
         case .savePet:
-            let group = DispatchGroup.init()
-            let queue = DispatchQueue.main
-            
             if currentState.isEditMode == false {
                 // 신규 Pet 추가
                 let petObj = PetObject().then {
