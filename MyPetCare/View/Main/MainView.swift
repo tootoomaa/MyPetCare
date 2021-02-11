@@ -19,6 +19,12 @@ class MainView: UIView {
         $0.font = .systemFont(ofSize: 30, weight: .bold)
     }
     
+    let editButton = UIButton().then {
+        $0.setTitle("eidt", for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 15, weight: .bold)
+        $0.setTitleColor(.systemGray, for: .normal)
+    }
+    
     let topSelectCategoryList = ["프로필","건강","기타"]
     
     let petProfilelayout = PetProfileCollecionViewFlowLayout()
@@ -113,15 +119,9 @@ class MainView: UIView {
         
         backgroundColor = .lightGreen
         
-        petProfileCollectionView.backgroundColor = .none
-        petProfileCollectionView.delegate = petProfilelayout
-        petProfileCollectionView.register(PetProfileImageCell.self,
-                                          forCellWithReuseIdentifier: PetProfileImageCell.identifier)
-
-        serviceColectionView.backgroundColor = .none
-        serviceColectionView.delegate = serviceFlowLayout
-        serviceColectionView.register(ServiceCell.self,
-                                      forCellWithReuseIdentifier: ServiceCell.identifier)
+        configurePetProfileCollectionView()
+        
+        configureServiceCollectionView()
         
         configureLayout()
     }
@@ -130,11 +130,30 @@ class MainView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func configurePetProfileCollectionView() {
+        _ = petProfileCollectionView.then {
+            $0.allowsMultipleSelectionDuringEditing = true
+            $0.backgroundColor = .none
+            $0.delegate = petProfilelayout
+            $0.register(PetProfileImageCell.self,
+                        forCellWithReuseIdentifier: PetProfileImageCell.identifier)
+        }
+    }
+    
+    private func configureServiceCollectionView() {
+        _ = serviceColectionView.then {
+            $0.backgroundColor = .none
+            $0.delegate = serviceFlowLayout
+            $0.register(ServiceCell.self,
+                        forCellWithReuseIdentifier: ServiceCell.identifier)
+        }
+    }
+    
     private func configureLayout() {
         self.layoutMargins = UIEdgeInsets(top: padding*2, left: padding, bottom: padding, right: padding)
         let marginGuide = self.layoutMarginsGuide
         
-        [titleLabel, petProfileCollectionView,                      // TopView
+        [titleLabel, petProfileCollectionView, editButton,     // TopView
          petProfileView,                                            // Pet View
          serviceTitle, serviceColectionView,                        // List UI
         ].forEach {
@@ -144,6 +163,11 @@ class MainView: UIView {
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(marginGuide).offset(padding*2)
             $0.leading.equalTo(marginGuide)
+        }
+        
+        editButton.snp.makeConstraints {
+            $0.bottom.equalTo(titleLabel)
+            $0.trailing.equalTo(marginGuide)
         }
 
         petProfileCollectionView.snp.makeConstraints{
@@ -240,7 +264,7 @@ class MainView: UIView {
     }
     
     // MARK: - View handler
-    func configureViewComponentsByPetList(_ isEmpty: Bool) {
+    func configureEmptyViewComponentsByPetList(_ isEmpty: Bool) {
         petEmtpyImage.isHidden = !isEmpty
         petEmptyLabel.isHidden = !isEmpty
         ageLabel.isHidden = isEmpty
@@ -248,20 +272,16 @@ class MainView: UIView {
         heightLabel.isHidden = isEmpty
     }
     
+    /// Pet Profile View 갱신
     func configurePetView(pet: PetObject) {
         
         petImageView.image = UIImage(data: pet.image ?? Data())
         
         petName.text = pet.name                 // 값 입력
         petName.sizeToFit()                     // 순서 변경 X
-//        petName.text = "안녕하세요댕댕이입니다"
-//        petName.text = "댕댕이"
-        
-//        print(petNameWidth)
-//        print(petName.intrinsicContentSize.width)
-//        print(petName.frame)
         
         //Pet 이름 길이에 따른 성별 마크 위치 수정
+        petMaleImageView.snp.removeConstraints()
         petMaleImageView.snp.makeConstraints {
             $0.centerY.equalTo(petName)
             if petNameWidth > petName.intrinsicContentSize.width {
@@ -281,6 +301,5 @@ class MainView: UIView {
         ageValueLabel.text = "\(pet.age) yrs"
         weightValueLabel.text = "\(pet.weight) kg"
         heightValueLabel.text = "\(pet.height) cm"
-        
     }
 }

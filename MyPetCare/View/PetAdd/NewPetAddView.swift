@@ -54,7 +54,7 @@ class NewPetAddView: UIView {
     }
     
     let tableView = UITableView().then {
-        $0.backgroundColor = .lightBlue
+        $0.backgroundColor = .extraLightPink
         $0.separatorStyle = .none
         $0.rowHeight = 50
         $0.register(HealthDataCell.self,
@@ -64,7 +64,7 @@ class NewPetAddView: UIView {
     // MARK: - Life Cycle
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .lightBlue
+        backgroundColor = .extraLightPink
         configureLayout()
     }
     

@@ -17,4 +17,6 @@ class Constants {
     static var viewHeigth = UIScreen.main.bounds.height
     static var viewWeigth = UIScreen.main.bounds.width
     
+    static var mainViewPetPlusButtonUUID = "itisButtonUUIDforAddPet"
+    
 }

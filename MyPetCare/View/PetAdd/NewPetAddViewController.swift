@@ -49,12 +49,12 @@ class NewPetAddViewController: UIViewController, View {
     }
     
     private func configureNavigationBar() {
-        self.navigationController?.configureNavigationBarAppearance(.lightBlue)
+        self.navigationController?.configureNavigationBarAppearance(.extraLightPink)
         self.navigationItem.title = "펫 등록"
         
         self.navigationItem.leftBarButtonItem = closeNanviButton
         self.navigationItem.rightBarButtonItem = addNaviButton
-        self.navigationController?.navigationBar.backgroundColor = .lightDeepBlue
+        self.navigationController?.navigationBar.backgroundColor = .extraGray
             
         closeNanviButton.rx.tap
             .subscribe(onNext: { [unowned self] in
@@ -216,7 +216,7 @@ class HealthDataCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        contentView.backgroundColor = .lightBlue
+        contentView.backgroundColor = .extraLightPink
 
         configureLayout()
     }
