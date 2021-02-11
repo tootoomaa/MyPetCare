@@ -12,6 +12,8 @@ class PetProfileImageCell: UICollectionViewCell {
     
     static let identifier = "MainPetsProfileImageCell"
     
+    var cellIndex: Int?
+    
     let selectedBoarderColor: UIColor = .cViolet
     
     let petProfileImageView = UIImageView().then {
@@ -34,10 +36,8 @@ class PetProfileImageCell: UICollectionViewCell {
     override var isSelected: Bool {
         didSet {
             self.selectMarkImage.isHidden = !isSelected
-            
             petProfileImageView.layer.borderWidth = isSelected ? 2 : 0
             petProfileImageView.layer.borderColor = selectedBoarderColor.cgColor
-            
         }
     }
     
@@ -64,12 +64,12 @@ class PetProfileImageCell: UICollectionViewCell {
         selectMarkImage.snp.makeConstraints {
             $0.bottom.trailing.equalTo(contentView.safeAreaLayoutGuide)
             $0.width.height.equalTo(20)
-        }
-        
+        }        
     }
     
     override func prepareForReuse() {
         self.backgroundColor = .none
+        self.cellIndex = nil
         petProfileImageView.image = nil
     }
     

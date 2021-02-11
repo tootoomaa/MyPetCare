@@ -27,7 +27,7 @@ class MainViewControllerReactor: Reactor {
     struct State {
         var petList: [PetObject]?
         var selectedPet: PetObject?
-        var selectedIndexPath: IndexPath?
+        var selectedIndexPath: IndexPath
     }
     
     var initialState: State
@@ -35,11 +35,9 @@ class MainViewControllerReactor: Reactor {
     var provider: ServiceProviderType
     
     init(provider: ServiceProviderType) {
-        
-        
         initialState = State(petList: [emptyPet],
                              selectedPet: nil,
-                             selectedIndexPath: nil)
+                             selectedIndexPath: IndexPath(row: 0, section: 0))
         
         self.provider = provider
     }
@@ -59,11 +57,12 @@ class MainViewControllerReactor: Reactor {
             return .just(.setPetObjectList(list))
             
         case .selectPet(let index):
-            return .just(.setSelectedPetData((currentState.petList![index])))
+            let data = currentState.petList![index]
+            return .just(.setSelectedPetData(data))
             
         case .selectedIndex(let indexPath):
             return .just(.setSelectedIndex(indexPath))
-            
+
         }
     }
     
@@ -80,6 +79,7 @@ class MainViewControllerReactor: Reactor {
             
         case .setSelectedIndex(let indexPath):
             newState.selectedIndexPath = indexPath
+            
         }
         
         return newState

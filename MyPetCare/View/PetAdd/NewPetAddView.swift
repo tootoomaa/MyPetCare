@@ -11,13 +11,14 @@ import UIKit
 class NewPetAddView: UIView {
     // MARK: - Propeties
     let padding: CGFloat = 8
-    
+    lazy var viewWidthMinusPadding = Constants.viewWeigth - 30 - 30 // leading, trailing
+
     let basicTitle = UILabel().then {
         $0.text = "기본 정보"
         $0.font = .systemFont(ofSize: 25, weight: .bold)
     }
     
-    let petImageView = UIImageView().then {
+    var petImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFit
         $0.image = UIImage(systemName: "photo")?
             .withRenderingMode(.alwaysOriginal)
@@ -61,6 +62,13 @@ class NewPetAddView: UIView {
                     forCellReuseIdentifier: HealthDataCell.identifier)
     }
     
+    let deleteButton = UIButton().then {
+        $0.setTitle("삭제", for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        $0.setTitleColor(.white, for: .normal)
+        $0.backgroundColor = .systemPink
+    }
+    
     // MARK: - Life Cycle
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -77,7 +85,7 @@ class NewPetAddView: UIView {
         let marginGuide = self.layoutMarginsGuide
         
         [basicTitle, petImageView, nameTextField, maleSegmentController, datePicker,
-         healthTitle, tableView].forEach {
+         healthTitle, tableView, deleteButton].forEach {
             addSubview($0)
         }
         
@@ -87,7 +95,6 @@ class NewPetAddView: UIView {
         
         basicTitle.addButtonBorder(.black, 2)
         
-        let viewWidthMinusPadding = Constants.viewWeigth - 30 - 30 // leading, trailing
         petImageView.snp.makeConstraints {
             $0.top.equalTo(basicTitle.snp.bottom).offset(padding*2)
             $0.leading.equalTo(basicTitle)
@@ -123,8 +130,15 @@ class NewPetAddView: UIView {
         tableView.snp.makeConstraints {
             $0.top.equalTo(healthTitle.snp.bottom).offset(padding*2)
             $0.leading.trailing.equalTo(marginGuide)
-            $0.height.equalTo(300)
+            $0.height.equalTo(200)
         }
+        
+        deleteButton.snp.makeConstraints {
+            $0.top.equalTo(tableView.snp.bottom).offset(20)
+            $0.leading.trailing.equalTo(marginGuide)
+            $0.height.equalTo(30)
+        }
+        
     }
     
 }
