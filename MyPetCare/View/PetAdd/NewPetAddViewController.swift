@@ -11,7 +11,6 @@ import RxCocoa
 import ReactorKit
 
 class NewPetAddViewController: UIViewController, View {
-    
     var disposeBag: DisposeBag = DisposeBag()
     let mainView = NewPetAddView()
     
@@ -40,7 +39,6 @@ class NewPetAddViewController: UIViewController, View {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
         mainView.nameTextField.becomeFirstResponder()
     }
     
@@ -49,12 +47,12 @@ class NewPetAddViewController: UIViewController, View {
     }
     
     private func configureNavigationBar() {
-        self.navigationController?.configureNavigationBarAppearance(.lightBlue)
+        self.navigationController?.configureNavigationBarAppearance(.extraLightPink)
         self.navigationItem.title = "펫 등록"
         
         self.navigationItem.leftBarButtonItem = closeNanviButton
         self.navigationItem.rightBarButtonItem = addNaviButton
-        self.navigationController?.navigationBar.backgroundColor = .lightDeepBlue
+        self.navigationController?.navigationBar.backgroundColor = .extraGray
             
         closeNanviButton.rx.tap
             .subscribe(onNext: { [unowned self] in
@@ -106,19 +104,65 @@ class NewPetAddViewController: UIViewController, View {
         Observable.just(["몸무게","혈액형","BSC"])
             .bind(to: mainView.tableView.rx.items(cellIdentifier: HealthDataCell.identifier,
                                                   cellType: HealthDataCell.self)) { row, data, cell in
-                
                 cell.titleLabel.text = data
                 
             }.disposed(by: disposeBag)
         
+        // state
+        reactor.state.map{$0.petName}
+            .distinctUntilChanged()
+            .compactMap{$0}
+            .bind(to: mainView.nameTextField.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map{$0.male}
+            .compactMap{ $0 == Male.boy.rawValue ? 0 : 1}
+            .bind(to: mainView.maleSegmentController.rx.selectedSegmentIndex)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map{$0.birthDay}
+            .distinctUntilChanged()
+            .compactMap{$0}
+            .bind(to: mainView.datePicker.rx.date)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map{$0.petImageData}
+            .distinctUntilChanged()
+            .compactMap{$0}
+            .subscribe(onNext: { [unowned self] in
+                let image = UIImage(data: $0) ?? UIImage(systemName: "photo")
+                mainView.petImageView.layer.cornerRadius = (mainView.viewWidthMinusPadding/2*0.8)/2
+                mainView.petImageView.clipsToBounds = true
+                mainView.petImageView.image = image
+            })
+            .disposed(by: disposeBag)
+
+        reactor.state.map{!$0.isEditMode}
+            .distinctUntilChanged()
+            .bind(to: mainView.deleteButton.rx.isHidden)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map{$0.saveComplete}
+            .observeOn(MainScheduler.asyncInstance)
+            .filter{$0 == true}
+            .subscribe(onNext: { _ in
+                
+                self.dismiss(animated: true, completion: nil)
+                
+            }).disposed(by: disposeBag)
+        
+        reactor.state.map{$0.isEnableSaveButton}
+            .bind(to: addNaviButton.rx.isEnabled)
+            .disposed(by: disposeBag)
+        
         // Action
-        mainView.nameTextField.rx.text
+        mainView.nameTextField.rx.value.changed
             .compactMap{$0}
             .map{Reactor.Action.inputPetName($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        mainView.datePicker.rx.date
+
+        mainView.datePicker.rx.value.changed
             .compactMap{$0}
             .map{Reactor.Action.inputBirthDay($0)}
             .bind(to: reactor.action)
@@ -143,18 +187,25 @@ class NewPetAddViewController: UIViewController, View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        
-        reactor.state.map{$0.saveComplete}
-            .filter{$0 == true}
-            .subscribe(onNext: { _ in
+        mainView.deleteButton.rx.tap
+            .subscribe(onNext:{ [unowned self] index in
+            
+                let alertC = UIAlertController(title: "삭제",
+                                               message: "삭제 하시겠습니까?",
+                                               preferredStyle: .alert)
+                let delete = UIAlertAction(title: "삭제", style: .destructive) {_ in
+                    
+                }
+                let cancel = UIAlertAction(title: "취소", style: .cancel, handler: {_ in
+                    
+                })
                 
-                self.dismiss(animated: true, completion: nil)
+                alertC.addAction(delete)
+                alertC.addAction(cancel)
                 
-            }).disposed(by: disposeBag)
-        
-        reactor.state.map{$0.isEnableSaveButton}
-            .bind(to: addNaviButton.rx.isEnabled)
-            .disposed(by: disposeBag)
+                self.present(alertC, animated: true, completion: nil)
+                
+            }).disposed(by: self.disposeBag)
     }
 }
 
@@ -178,8 +229,6 @@ extension NewPetAddViewController: UIImagePickerControllerDelegate & UINavigatio
         self.mainView.petImageView.image = newImage
         self.mainView.petImageView.layer.cornerRadius = self.mainView.petImageView.frame.width/2
         self.mainView.petImageView.clipsToBounds = true
-        
-        print(info)
         
         imagePicker.dismiss(animated: true, completion: nil)
     }
@@ -216,7 +265,7 @@ class HealthDataCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        contentView.backgroundColor = .lightBlue
+        contentView.backgroundColor = .extraLightPink
 
         configureLayout()
     }

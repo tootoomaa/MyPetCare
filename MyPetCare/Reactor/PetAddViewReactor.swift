@@ -9,6 +9,7 @@ import Foundation
 import ReactorKit
 import RxSwift
 import RxCocoa
+import RealmSwift
 
 class PetAddViewReactor: Reactor {
     
@@ -32,24 +33,31 @@ class PetAddViewReactor: Reactor {
     
     struct State {
         var petImageData: Data?
-        var petName: String = ""
+        var petName: String
         var birthDay: Date
         var male: String
         var saveComplete: Bool
         var isEnableSaveButton: Bool
+        var isEditMode: Bool
     }
     
     let calendar = Calendar.current
     var initialState: State
     var provider: ServiceProviderType
+    var beforePetObj: PetObject
     
-    init(provider: ServiceProviderType) {
-        initialState = State(petImageData: nil,
-                             petName: "",
-                             birthDay: Date(),
-                             male: "Boy",
+    init(isEditMode: Bool,
+         petData: PetObject,
+         provider: ServiceProviderType) {
+        
+        self.beforePetObj = petData
+        initialState = State(petImageData: petData.image,
+                             petName: petData.name ?? "",
+                             birthDay: petData.date ?? Date(),
+                             male: petData.male ?? "boy",
                              saveComplete: false,
-                             isEnableSaveButton: false)
+                             isEnableSaveButton: false,
+                             isEditMode: isEditMode)
         
         self.provider = provider
     }
@@ -70,20 +78,31 @@ class PetAddViewReactor: Reactor {
             return .just(.setPetImage(imageData))
             
         case .savePet:
-            
-            let petObj = PetObject().then {
-                $0.uuid = UUID().uuidString
-                $0.name = currentState.petName
-                $0.male = currentState.male
-                $0.date = currentState.birthDay
-                $0.age = calendar.component(.year, from: Date()) - calendar.component(.year, from: currentState.birthDay)
-                $0.image = currentState.petImageData
+            if currentState.isEditMode == false {
+                // 신규 Pet 추가
+                let petObj = PetObject().then {
+                    $0.uuid = UUID().uuidString
+                    $0.name = currentState.petName
+                    $0.male = currentState.male
+                    $0.date = currentState.birthDay
+                    $0.age = calendar.component(.year, from: Date()) - calendar.component(.year, from: currentState.birthDay)
+                    $0.image = currentState.petImageData
+                }
+                provider.dataBaseService.add(petObj)
+                
+            } else {
+                // 기존 펫 수정 - uuid 수정하면 안됨
+                let newPetData = PetObject().then {
+                    $0.uuid = beforePetObj.uuid
+                    $0.name = currentState.petName
+                    $0.male = currentState.male
+                    $0.date = currentState.birthDay
+                    $0.age = calendar.component(.year, from: Date()) - calendar.component(.year, from: currentState.birthDay)
+                    $0.image = currentState.petImageData
+                }
+                
+                provider.dataBaseService.set(newPetData)
             }
-            
-            provider.dataBaseService.add(petObj)
-            
-            print(provider.dataBaseService.loadPetList().toArray())
-            
             return .just(.saveComplete(true))
         }
     }

@@ -10,31 +10,42 @@ import UIKit
 
 extension UIColor {
     
-    static var lightBlue: UIColor {
-        return #colorLiteral(red: 0.835852325, green: 0.9097235799, blue: 0.9434450269, alpha: 1)
+    static var extraLightPink: UIColor {
+        return UIColor(rgb: 0xf6ecf0)
     }
     
-    static var extraLightBlue: UIColor {
-        return #colorLiteral(red: 0.8776692152, green: 0.9336753488, blue: 0.9409034848, alpha: 1)
-    }
-    
-    static var lightDeepBlue: UIColor {
-        return #colorLiteral(red: 0.8251276612, green: 0.9183631539, blue: 0.9833192229, alpha: 1)
-    }
-    
-    static var color10: UIColor {
-        return #colorLiteral(red: 0.09583920985, green: 0.4825455546, blue: 0.6380421519, alpha: 1)
+    static var extraGray: UIColor {
+        return UIColor(rgb: 0xe8eae6)
     }
     
     static var lightGreen: UIColor {
-        return #colorLiteral(red: 0.7595893145, green: 0.8848101497, blue: 0.6833190322, alpha: 1)
+        return UIColor(rgb: 0xcfdac8)
     }
     
-    static var meddleGreen: UIColor {
-        return #colorLiteral(red: 0.4744888544, green: 0.7691712379, blue: 0.6995946765, alpha: 1)
+    static var cViolet: UIColor {
+        return UIColor(rgb: 0xff7b54)
     }
     
-    static var lightPupple: UIColor {
-        return #colorLiteral(red: 0.7341064215, green: 0.6506816149, blue: 0.9956914783, alpha: 1)
+    static var deepGreen: UIColor {
+        return UIColor(rgb: 0x839b97)
     }
+    
+}
+
+extension UIColor {
+   convenience init(red: Int, green: Int, blue: Int) {
+       assert(red >= 0 && red <= 255, "Invalid red component")
+       assert(green >= 0 && green <= 255, "Invalid green component")
+       assert(blue >= 0 && blue <= 255, "Invalid blue component")
+
+       self.init(red: CGFloat(red) / 255.0, green: CGFloat(green) / 255.0, blue: CGFloat(blue) / 255.0, alpha: 1.0)
+   }
+
+   convenience init(rgb: Int) {
+       self.init(
+           red: (rgb >> 16) & 0xFF,
+           green: (rgb >> 8) & 0xFF,
+           blue: rgb & 0xFF
+       )
+   }
 }

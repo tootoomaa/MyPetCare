@@ -79,7 +79,7 @@ class PetAddView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = .lightBlue
+        backgroundColor = .extraLightPink
         
         configureLayout()
     }

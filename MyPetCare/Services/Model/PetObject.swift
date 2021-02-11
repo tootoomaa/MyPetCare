@@ -19,6 +19,10 @@ class PetObject: Object {
     @objc dynamic var image: Data?
     @objc dynamic var weight: Double = 0.0
     @objc dynamic var height: Double = 0.0
+    
+    override static func primaryKey() -> String? {
+        return "uuid"
+    }
 }
 
 extension PetObject {

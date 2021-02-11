@@ -10,21 +10,36 @@ import RealmSwift
 import RxSwift
 
 protocol DatabaseServiceType {
+    var realm: Realm { get }
+    
+    func db() -> Realm
+    
     func loadPetList() -> Results<PetObject>
+    
     func add (_ object: Object?)
-    func set (_ objects: [Object])
+    
+    func set (_ object: Object?)
+    func set (_ objects: [Object]?)
     
     func delete(_ Object: Object?)
-    func delete(_ Object: [Object])
+    func delete(_ Object: [Object]?)
+    
+    func update(_ objects: Object?)
+    func update(_ objects: [Object]?)
+    
+    func write(_ block: (() throws -> Void))
 }
 
 class DatabaseService: BaseService, DatabaseServiceType {
     
-    let config = Realm.Configuration(deleteRealmIfMigrationNeeded: false)
+//    let config = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
+    var config = Realm.Configuration(deleteRealmIfMigrationNeeded: false)
+//    lazy var realm = try! Realm(configuration: config)
     lazy var realm = try! Realm(configuration: config)
     
-    public func db() -> Realm {
-        
+    
+    
+    func db() -> Realm {
         return self.realm
     }
     
@@ -54,11 +69,12 @@ class DatabaseService: BaseService, DatabaseServiceType {
         }
     }
     
-    func set (_ objects:[Object]){
-        
-        autoreleasepool {
-            try! realm.write {
-                realm.add(objects , update: .all )
+    func set (_ objects:[Object]?){
+        if let obj = objects {
+            autoreleasepool {
+                try! realm.write {
+                    realm.add(obj, update: .all )
+                }
             }
         }
     }
@@ -74,12 +90,41 @@ class DatabaseService: BaseService, DatabaseServiceType {
         }
     }
     
-    func delete(_ objects: [Object]) {
-        autoreleasepool {
-            try! realm.write {
-                realm.delete(objects)
+    func delete(_ objects: [Object]?) {
+        if let obj = objects {
+            autoreleasepool {
+                try! realm.write {
+                    realm.delete(obj)
+                }
             }
         }
     }
     
+    func update(_ objects: [Object]?) {
+        if let obj = objects {
+            autoreleasepool {
+                try! realm.write {
+                    realm.add(obj, update: .modified)
+                }
+            }
+        }
+    }
+    
+    func update(_ objects: Object?) {
+        if let obj = objects {
+            autoreleasepool {
+                try! realm.write {
+                    realm.add(obj, update: .modified)
+                }
+            }
+        }
+    }
+    
+    func write(_ block: (() throws -> Void)) {
+        autoreleasepool {
+            try! realm.write {
+                try block()
+            }
+        }
+    }
 }

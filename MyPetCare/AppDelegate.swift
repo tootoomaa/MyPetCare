@@ -30,6 +30,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     private func configureTestData() {
         
+        
+        // delete all Pet List
 //        let list = provider.dataBaseService.loadPetList().toArray()
 //        provider.dataBaseService.delete(list)
         
