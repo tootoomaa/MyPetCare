@@ -23,6 +23,8 @@ class NewPetAddViewController: UIViewController, View {
     let addNaviButton = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: nil)
     let closeNanviButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
     
+    var deleteButtonAtAlert = UIAlertAction()
+    
     // MARK: - Life Cycle
     override func loadView() {
         view = mainView
@@ -142,7 +144,7 @@ class NewPetAddViewController: UIViewController, View {
             .bind(to: mainView.deleteButton.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map{$0.saveComplete}
+        reactor.state.map{$0.isComplete}
             .observeOn(MainScheduler.asyncInstance)
             .filter{$0 == true}
             .subscribe(onNext: { _ in
@@ -193,15 +195,15 @@ class NewPetAddViewController: UIViewController, View {
                 let alertC = UIAlertController(title: "삭제",
                                                message: "삭제 하시겠습니까?",
                                                preferredStyle: .alert)
-                let delete = UIAlertAction(title: "삭제", style: .destructive) {_ in
-                    
+                deleteButtonAtAlert = UIAlertAction(title: "삭제", style: .destructive) { _ in
+                    reactor.action.onNext(.deletePet)
                 }
-                let cancel = UIAlertAction(title: "취소", style: .cancel, handler: {_ in
+                let cancelButtonAtAlert = UIAlertAction(title: "취소", style: .cancel, handler: { _ in
                     
                 })
                 
-                alertC.addAction(delete)
-                alertC.addAction(cancel)
+                alertC.addAction(deleteButtonAtAlert)
+                alertC.addAction(cancelButtonAtAlert)
                 
                 self.present(alertC, animated: true, completion: nil)
                 
@@ -249,6 +251,11 @@ extension NewPetAddViewController: UIImagePickerControllerDelegate & UINavigatio
 extension Reactive where Base: NewPetAddViewController {
     var tapPetAddButton: ControlEvent<Void> {
         let source = base.addNaviButton.rx.tap
+        return ControlEvent(events: source)
+    }
+    
+    var tapDeleteButton: ControlEvent<Void> {
+        let source = base.mainView.deleteButton.rx.tap
         return ControlEvent(events: source)
     }
 }

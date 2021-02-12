@@ -20,6 +20,7 @@ class PetAddViewReactor: Reactor {
         case inputPetImage(Data)
         
         case savePet
+        case deletePet
     }
     
     enum Mutation {
@@ -28,7 +29,7 @@ class PetAddViewReactor: Reactor {
         case setMale(String)
         case setPetImage(Data)
         
-        case saveComplete(Bool)
+        case isComplete(Bool)
     }
     
     struct State {
@@ -36,7 +37,7 @@ class PetAddViewReactor: Reactor {
         var petName: String
         var birthDay: Date
         var male: String
-        var saveComplete: Bool
+        var isComplete: Bool
         var isEnableSaveButton: Bool
         var isEditMode: Bool
     }
@@ -53,9 +54,9 @@ class PetAddViewReactor: Reactor {
         self.beforePetObj = petData
         initialState = State(petImageData: petData.image,
                              petName: petData.name ?? "",
-                             birthDay: petData.date ?? Date(),
+                             birthDay: petData.birthDate ?? Date(),
                              male: petData.male ?? "boy",
-                             saveComplete: false,
+                             isComplete: false,
                              isEnableSaveButton: false,
                              isEditMode: isEditMode)
         
@@ -82,9 +83,10 @@ class PetAddViewReactor: Reactor {
                 // 신규 Pet 추가
                 let petObj = PetObject().then {
                     $0.uuid = UUID().uuidString
+                    $0.createDate = Date()
                     $0.name = currentState.petName
                     $0.male = currentState.male
-                    $0.date = currentState.birthDay
+                    $0.birthDate = currentState.birthDay
                     $0.age = calendar.component(.year, from: Date()) - calendar.component(.year, from: currentState.birthDay)
                     $0.image = currentState.petImageData
                 }
@@ -96,14 +98,20 @@ class PetAddViewReactor: Reactor {
                     $0.uuid = beforePetObj.uuid
                     $0.name = currentState.petName
                     $0.male = currentState.male
-                    $0.date = currentState.birthDay
+                    $0.birthDate = currentState.birthDay
                     $0.age = calendar.component(.year, from: Date()) - calendar.component(.year, from: currentState.birthDay)
                     $0.image = currentState.petImageData
                 }
                 
                 provider.dataBaseService.set(newPetData)
             }
-            return .just(.saveComplete(true))
+            return .just(.isComplete(true))
+            
+        case .deletePet:
+            
+            provider.dataBaseService.delete(beforePetObj)
+            
+            return .just(.isComplete(true))
         }
     }
     
@@ -124,8 +132,9 @@ class PetAddViewReactor: Reactor {
         case .setMale(let male):
             newState.male = male
             
-        case .saveComplete(let isComplete):
-            newState.saveComplete = isComplete
+        case .isComplete(let isComplete):
+            newState.isComplete = isComplete
+            
         }
         
         newState.isEnableSaveButton =
