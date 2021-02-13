@@ -81,7 +81,7 @@ class PetAddViewReactor: Reactor {
             if currentState.isEditMode == false {
                 // 신규 Pet 추가
                 let petObj = PetObject().then {
-                    $0.uuid = UUID().uuidString
+                    $0.id = UUID().uuidString
                     $0.createDate = Date()
                     $0.name = currentState.petName
                     $0.male = currentState.male
@@ -94,7 +94,7 @@ class PetAddViewReactor: Reactor {
             } else {
                 // 기존 펫 수정 - uuid 수정하면 안됨
                 let newPetData = PetObject().then {
-                    $0.uuid = beforePetObj.uuid
+                    $0.id = beforePetObj.id
                     $0.name = currentState.petName
                     $0.male = currentState.male
                     $0.birthDate = currentState.birthDay
