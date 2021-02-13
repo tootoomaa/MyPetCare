@@ -15,6 +15,7 @@ import SnapKit
 import RealmSwift
 import RxRealm
 import RxGesture
+import RxUIAlert
 
 enum MainServiceType: String, CaseIterable {
     case pelseCheck = "심박수 측정"
@@ -150,6 +151,7 @@ class MainViewController: UIViewController, ReactorKit.View {
         reactor.state.map{$0.selectedIndexPath}
             .observeOn(MainScheduler.asyncInstance)
             .compactMap{$0}
+//            .distinctUntilChanged()
             .subscribe(onNext: { [unowned self] indexPath in
                 
                 let view = mainView.petProfileCollectionView
@@ -229,14 +231,31 @@ class MainViewController: UIViewController, ReactorKit.View {
                     .bind(to: reactor.action)
                     .disposed(by: self.disposeBag)
                 
-                vc.rx.tapDeleteButton
-                    .map{Reactor.Action.loadDeletedPetList}
-                    .bind(to: reactor.action)
-                    .disposed(by: disposeBag)
-                
                 self.present(naviC, animated: true, completion: {
                     setOriginalOffsetPetProfileView()
                 })
+                
+            }).disposed(by: disposeBag)
+        
+        mainView.deleteButton.rx.tap
+            .subscribe(onNext: { [unowned self] in
+                
+                let cancel = AlertAction(title: "취소", type: 0, style: .cancel)
+                let delete = AlertAction(title: "삭제", type: 1, style: .destructive)
+                
+                rx.alert(title: "삭제",
+                         message: "삭제하시겠습니까?",
+                         actions: [cancel, delete],
+                         preferredStyle: .alert,
+                         vc: .none)
+                    .subscribe(onNext: { action in
+                        
+                        if action.index == 1 {
+                            reactor.action.onNext(.deletePet)
+                            reactor.action.onNext(.loadInitialData)
+                        }
+                        
+                    }).disposed(by: disposeBag)
                 
             }).disposed(by: disposeBag)
     }

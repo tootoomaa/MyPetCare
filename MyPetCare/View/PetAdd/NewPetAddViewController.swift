@@ -23,8 +23,6 @@ class NewPetAddViewController: UIViewController, View {
     let addNaviButton = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: nil)
     let closeNanviButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
     
-    var deleteButtonAtAlert = UIAlertAction()
-    
     // MARK: - Life Cycle
     override func loadView() {
         view = mainView
@@ -69,7 +67,6 @@ class NewPetAddViewController: UIViewController, View {
             .subscribe(onNext: { [unowned self] in
                 mainView.endEditing(true)
             }).disposed(by: disposeBag)
-        
         
         let petImageSelectTapGuesture =  UITapGestureRecognizer(target: nil, action: nil)
         mainView.petImageView.addGestureRecognizer(petImageSelectTapGuesture)
@@ -138,11 +135,6 @@ class NewPetAddViewController: UIViewController, View {
                 mainView.petImageView.image = image
             })
             .disposed(by: disposeBag)
-
-        reactor.state.map{!$0.isEditMode}
-            .distinctUntilChanged()
-            .bind(to: mainView.deleteButton.rx.isHidden)
-            .disposed(by: disposeBag)
         
         reactor.state.map{$0.isComplete}
             .observeOn(MainScheduler.asyncInstance)
@@ -188,26 +180,6 @@ class NewPetAddViewController: UIViewController, View {
             .map{Reactor.Action.inputPetImage($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        mainView.deleteButton.rx.tap
-            .subscribe(onNext:{ [unowned self] index in
-            
-                let alertC = UIAlertController(title: "삭제",
-                                               message: "삭제 하시겠습니까?",
-                                               preferredStyle: .alert)
-                deleteButtonAtAlert = UIAlertAction(title: "삭제", style: .destructive) { _ in
-                    reactor.action.onNext(.deletePet)
-                }
-                let cancelButtonAtAlert = UIAlertAction(title: "취소", style: .cancel, handler: { _ in
-                    
-                })
-                
-                alertC.addAction(deleteButtonAtAlert)
-                alertC.addAction(cancelButtonAtAlert)
-                
-                self.present(alertC, animated: true, completion: nil)
-                
-            }).disposed(by: self.disposeBag)
     }
 }
 
@@ -251,11 +223,6 @@ extension NewPetAddViewController: UIImagePickerControllerDelegate & UINavigatio
 extension Reactive where Base: NewPetAddViewController {
     var tapPetAddButton: ControlEvent<Void> {
         let source = base.addNaviButton.rx.tap
-        return ControlEvent(events: source)
-    }
-    
-    var tapDeleteButton: ControlEvent<Void> {
-        let source = base.mainView.deleteButton.rx.tap
         return ControlEvent(events: source)
     }
 }

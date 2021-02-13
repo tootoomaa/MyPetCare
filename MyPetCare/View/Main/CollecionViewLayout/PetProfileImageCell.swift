@@ -71,6 +71,7 @@ class PetProfileImageCell: UICollectionViewCell {
         self.backgroundColor = .none
         self.cellIndex = nil
         petProfileImageView.image = nil
+        self.isSelected = false
     }
     
 }

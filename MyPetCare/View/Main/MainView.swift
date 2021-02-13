@@ -26,7 +26,17 @@ class MainView: UIView {
         $0.backgroundColor = .systemBlue
         $0.clipsToBounds = true
         $0.layer.cornerRadius = 20
-        $0.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        $0.layer.maskedCorners = [.layerMaxXMinYCorner]
+    }
+    
+    let deleteButton = UIButton().then {
+        $0.setTitle("  delete", for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        $0.setTitleColor(.white, for: .normal)
+        $0.backgroundColor = .red
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = 20
+        $0.layer.maskedCorners = [.layerMaxXMaxYCorner]
     }
     
     let topSelectCategoryList = ["프로필","건강","기타"]
@@ -157,7 +167,7 @@ class MainView: UIView {
         let marginGuide = self.layoutMarginsGuide
         
         [titleLabel, petProfileCollectionView,      // TopView
-         editButton, petProfileView,                // Pet View
+         editButton, deleteButton, petProfileView,                // Pet View
          serviceTitle, serviceColectionView,        // List UI
         ].forEach {
             addSubview($0)
@@ -175,18 +185,24 @@ class MainView: UIView {
         }
         
         let petProfileImageViewWidth = (Constants.viewWeigth-padding*4)
-        editButton.snp.makeConstraints {
-            $0.top.equalTo(petProfileCollectionView.snp.bottom).offset(padding)
-            $0.trailing.equalTo(self.safeAreaLayoutGuide).offset(-padding*2)
-            $0.height.equalTo(petProfileImageViewWidth/2)
-            $0.width.equalTo(120)
-        }
-        
         // pet Profile
         petProfileView.snp.makeConstraints {
-            $0.top.trailing.equalTo(editButton)
+            $0.top.equalTo(petProfileCollectionView.snp.bottom).offset(padding)
+            $0.trailing.equalTo(self.safeAreaLayoutGuide).offset(-padding*2)
             $0.leading.equalTo(self.safeAreaLayoutGuide).offset(padding*2)
             $0.height.equalTo(petProfileImageViewWidth/2)
+        }
+        
+        editButton.snp.makeConstraints {
+            $0.top.trailing.equalTo(petProfileView)
+            $0.width.equalTo(120)
+//            $0.bottom.equalTo(deleteButton.snp.top)
+        }
+        deleteButton.snp.makeConstraints {
+            $0.top.equalTo(editButton.snp.bottom)
+            $0.trailing.width.equalTo(editButton)
+            $0.bottom.equalTo(petProfileView)
+            $0.height.equalTo(editButton).multipliedBy(0.3)
         }
         
         [petImageView, petName, petMaleImageView,

@@ -16,14 +16,15 @@ class MainViewControllerReactor: Reactor {
         case loadInitialData
         case selectedIndexPath(IndexPath)
         case setPetProfileIndex
-        
-        case loadDeletedPetList
+    
+        case deletePet
     }
     
     enum Mutation {
         case setPetObjectList([PetObject])
         case setSelectedPetData(PetObject)
         case setSelectedIndex(IndexPath)
+        case reset
     }
     
     struct State {
@@ -55,7 +56,7 @@ class MainViewControllerReactor: Reactor {
             
             if list.count != 1 {
                 
-                let currentIndex = currentState.selectedIndexPath
+                let currentIndex = initialState.selectedIndexPath
                 let petData = list[currentIndex.row]
                 
                 return Observable.concat([.just(.setSelectedIndex(currentIndex)),
@@ -67,23 +68,16 @@ class MainViewControllerReactor: Reactor {
         case .selectedIndexPath(let indexPath):
             
             let petObj = currentState.petList![indexPath.row]
-            
             return Observable.concat([.just(.setSelectedIndex(indexPath)),
                                       .just(.setSelectedPetData(petObj))])
 
         case .setPetProfileIndex:
             return .just(.setSelectedIndex(currentState.selectedIndexPath))
             
-        case .loadDeletedPetList:
+        case .deletePet:
             
-            var list = provider.dataBaseService.loadPetList().toArray()
-                            .sorted(by: { $0.createDate! < $1.createDate!})
-            list.append(emptyPet)
-            self.plusButtonIndex = list.count - 1
-            
-            return Observable.concat([.just(.setSelectedIndex(IndexPath(row: 0, section: 0))),
-                                      .just(.setPetObjectList(list)),
-                                      .just(.setSelectedPetData(list.first!))])
+            provider.dataBaseService.delete(currentState.selectedPet)
+            return .just(.reset)
         }
     }
     
@@ -101,6 +95,8 @@ class MainViewControllerReactor: Reactor {
         case .setSelectedIndex(let indexPath):
             newState.selectedIndexPath = indexPath
             
+        case .reset:
+            newState = initialState
         }
         
         return newState

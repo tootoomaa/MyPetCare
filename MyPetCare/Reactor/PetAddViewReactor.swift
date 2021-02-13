@@ -20,7 +20,6 @@ class PetAddViewReactor: Reactor {
         case inputPetImage(Data)
         
         case savePet
-        case deletePet
     }
     
     enum Mutation {
@@ -105,12 +104,6 @@ class PetAddViewReactor: Reactor {
                 
                 provider.dataBaseService.set(newPetData)
             }
-            return .just(.isComplete(true))
-            
-        case .deletePet:
-            
-            provider.dataBaseService.delete(beforePetObj)
-            
             return .just(.isComplete(true))
         }
     }
