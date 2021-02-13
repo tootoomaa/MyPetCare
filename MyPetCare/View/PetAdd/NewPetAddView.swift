@@ -62,13 +62,6 @@ class NewPetAddView: UIView {
                     forCellReuseIdentifier: HealthDataCell.identifier)
     }
     
-    let deleteButton = UIButton().then {
-        $0.setTitle("삭제", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .systemPink
-    }
-    
     // MARK: - Life Cycle
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -85,7 +78,7 @@ class NewPetAddView: UIView {
         let marginGuide = self.layoutMarginsGuide
         
         [basicTitle, petImageView, nameTextField, maleSegmentController, datePicker,
-         healthTitle, tableView, deleteButton].forEach {
+         healthTitle, tableView].forEach {
             addSubview($0)
         }
         
@@ -130,13 +123,7 @@ class NewPetAddView: UIView {
         tableView.snp.makeConstraints {
             $0.top.equalTo(healthTitle.snp.bottom).offset(padding*2)
             $0.leading.trailing.equalTo(marginGuide)
-            $0.height.equalTo(200)
-        }
-        
-        deleteButton.snp.makeConstraints {
-            $0.top.equalTo(tableView.snp.bottom).offset(20)
-            $0.leading.trailing.equalTo(marginGuide)
-            $0.height.equalTo(30)
+            $0.height.equalTo(150)
         }
         
     }

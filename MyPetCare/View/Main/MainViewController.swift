@@ -15,6 +15,7 @@ import SnapKit
 import RealmSwift
 import RxRealm
 import RxGesture
+import RxUIAlert
 
 enum MainServiceType: String, CaseIterable {
     case pelseCheck = "심박수 측정"
@@ -60,6 +61,7 @@ class MainViewController: UIViewController, ReactorKit.View {
         self.navigationController?.navigationBar.isHidden = false
     }
     
+    // MARK: - Rx Binder
     private func configureServiceCollecionViewBind() {
         
         Observable.just(serviceMuneList)
@@ -93,8 +95,8 @@ class MainViewController: UIViewController, ReactorKit.View {
             .throttle(.milliseconds(600), scheduler: MainScheduler.asyncInstance)
             .subscribe(onNext:{ [unowned self] in
                 
+                guard reactor?.currentState.petList?.count ?? 0 > 1 else { return }
                 let view = mainView.petProfileView
-                
                 let velocity = $0.velocity(in: view)
                 
                 if abs(velocity.x) > abs(velocity.y) {
@@ -122,10 +124,10 @@ class MainViewController: UIViewController, ReactorKit.View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        // 최초 로드 시
         self.rx.viewDidLoad
             .subscribe(onNext: { [unowned self] _ in
-                guard reactor.currentState.selectedPet?.uuid
-                        != Constants.mainViewPetPlusButtonUUID else { return }
+                guard reactor.currentState.petList?.count != 1 else { return }
                 mainView.petProfileCollectionView
                     .selectItem(at: IndexPath(row: 0, section: 0),
                                 animated: false,
@@ -149,6 +151,7 @@ class MainViewController: UIViewController, ReactorKit.View {
         reactor.state.map{$0.selectedIndexPath}
             .observeOn(MainScheduler.asyncInstance)
             .compactMap{$0}
+//            .distinctUntilChanged()
             .subscribe(onNext: { [unowned self] indexPath in
                 
                 let view = mainView.petProfileCollectionView
@@ -196,15 +199,15 @@ class MainViewController: UIViewController, ReactorKit.View {
                     .disposed(by: self.disposeBag)
                 
                 self.present(naviC, animated: true, completion: {
-                    // Pet 추가 버튼 선택 후 화면에 재 진입했을 때 이전에 선택한 펫이 보이도록
                     reactor.action.onNext(.setPetProfileIndex)
+                    setOriginalOffsetPetProfileView()
                 })
                 
             }).disposed(by: disposeBag)
         
         mainView.petProfileCollectionView.rx.itemSelected
             .filter{$0.row != reactor.plusButtonIndex}
-            .map{Reactor.Action.selectedIndex($0)}
+            .map{Reactor.Action.selectedIndexPath($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -223,20 +226,47 @@ class MainViewController: UIViewController, ReactorKit.View {
                 naviC.modalPresentationStyle = .overFullScreen
                 
                 vc.rx.tapPetAddButton
-                    .observeOn(MainScheduler.asyncInstance)
+                    .observeOn(MainScheduler.instance)
                     .map{Reactor.Action.loadInitialData}
                     .bind(to: reactor.action)
                     .disposed(by: self.disposeBag)
                 
                 self.present(naviC, animated: true, completion: {
-                    // 화면 원상 복귀
-                    UIView.animate(withDuration: 0.5) {
-                        self.mainView.petProfileView.center.x += 100
-                    }
-                    self.mainView.petProfileView.layoutIfNeeded()
+                    setOriginalOffsetPetProfileView()
                 })
                 
             }).disposed(by: disposeBag)
         
+        mainView.deleteButton.rx.tap
+            .subscribe(onNext: { [unowned self] in
+                
+                let cancel = AlertAction(title: "취소", type: 0, style: .cancel)
+                let delete = AlertAction(title: "삭제", type: 1, style: .destructive)
+                
+                rx.alert(title: "삭제",
+                         message: "삭제하시겠습니까?",
+                         actions: [cancel, delete],
+                         preferredStyle: .alert,
+                         vc: .none)
+                    .subscribe(onNext: { action in
+                        
+                        if action.index == 1 {
+                            reactor.action.onNext(.deletePet)
+                            reactor.action.onNext(.loadInitialData)
+                        }
+                        
+                    }).disposed(by: disposeBag)
+                
+            }).disposed(by: disposeBag)
+    }
+    
+    // MARK: - Hander
+    private func setOriginalOffsetPetProfileView() {
+        if mainView.petProfileView.center.x != mainView.center.x {
+            UIView.animate(withDuration: 0.1) {
+                self.mainView.petProfileView.center.x += 100
+            }
+            self.mainView.petProfileView.layoutIfNeeded()
+        }
     }
 }

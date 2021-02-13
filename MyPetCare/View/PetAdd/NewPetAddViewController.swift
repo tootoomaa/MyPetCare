@@ -68,7 +68,6 @@ class NewPetAddViewController: UIViewController, View {
                 mainView.endEditing(true)
             }).disposed(by: disposeBag)
         
-        
         let petImageSelectTapGuesture =  UITapGestureRecognizer(target: nil, action: nil)
         mainView.petImageView.addGestureRecognizer(petImageSelectTapGuesture)
         petImageSelectTapGuesture.rx.event
@@ -136,13 +135,8 @@ class NewPetAddViewController: UIViewController, View {
                 mainView.petImageView.image = image
             })
             .disposed(by: disposeBag)
-
-        reactor.state.map{!$0.isEditMode}
-            .distinctUntilChanged()
-            .bind(to: mainView.deleteButton.rx.isHidden)
-            .disposed(by: disposeBag)
         
-        reactor.state.map{$0.saveComplete}
+        reactor.state.map{$0.isComplete}
             .observeOn(MainScheduler.asyncInstance)
             .filter{$0 == true}
             .subscribe(onNext: { _ in
@@ -186,26 +180,6 @@ class NewPetAddViewController: UIViewController, View {
             .map{Reactor.Action.inputPetImage($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        mainView.deleteButton.rx.tap
-            .subscribe(onNext:{ [unowned self] index in
-            
-                let alertC = UIAlertController(title: "삭제",
-                                               message: "삭제 하시겠습니까?",
-                                               preferredStyle: .alert)
-                let delete = UIAlertAction(title: "삭제", style: .destructive) {_ in
-                    
-                }
-                let cancel = UIAlertAction(title: "취소", style: .cancel, handler: {_ in
-                    
-                })
-                
-                alertC.addAction(delete)
-                alertC.addAction(cancel)
-                
-                self.present(alertC, animated: true, completion: nil)
-                
-            }).disposed(by: self.disposeBag)
     }
 }
 

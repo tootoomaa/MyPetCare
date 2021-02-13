@@ -12,10 +12,11 @@ import RealmSwift
 class PetObject: Object {
     
     @objc dynamic var uuid: String?
+    @objc dynamic var createDate: Date?
     @objc dynamic var name: String?
     @objc dynamic var male: Male.RawValue?
     @objc dynamic var age: Int = 0
-    @objc dynamic var date: Date?
+    @objc dynamic var birthDate: Date?
     @objc dynamic var image: Data?
     @objc dynamic var weight: Double = 0.0
     @objc dynamic var height: Double = 0.0

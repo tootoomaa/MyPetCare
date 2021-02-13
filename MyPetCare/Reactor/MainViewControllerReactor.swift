@@ -14,21 +14,23 @@ class MainViewControllerReactor: Reactor {
     
     enum Action {
         case loadInitialData
-//        case selectPet(Int)
-        case selectedIndex(IndexPath)
+        case selectedIndexPath(IndexPath)
         case setPetProfileIndex
+    
+        case deletePet
     }
     
     enum Mutation {
         case setPetObjectList([PetObject])
         case setSelectedPetData(PetObject)
-        case setSelectedIndex(IndexPath?)
+        case setSelectedIndex(IndexPath)
+        case reset
     }
     
     struct State {
         var petList: [PetObject]?
         var selectedPet: PetObject?
-        var selectedIndexPath: IndexPath?
+        var selectedIndexPath: IndexPath
     }
     
     var initialState: State
@@ -39,7 +41,7 @@ class MainViewControllerReactor: Reactor {
     init(provider: ServiceProviderType) {
         initialState = State(petList: [emptyPet],
                              selectedPet: nil,
-                             selectedIndexPath: nil)
+                             selectedIndexPath: IndexPath(row: 0, section: 0))
         
         self.provider = provider
     }
@@ -48,30 +50,34 @@ class MainViewControllerReactor: Reactor {
         switch action {
         
         case .loadInitialData:
-            var list = provider.dataBaseService.loadPetList().toArray()
+            var list = provider.dataBaseService.loadPetList().toArray().sorted(by: { $0.createDate! < $1.createDate!})
             list.append(emptyPet)
             self.plusButtonIndex = list.count - 1
             
             if list.count != 1 {
-                return Observable.concat([.just(.setSelectedIndex(IndexPath(item: 0, section: 0))),
+                
+                let currentIndex = initialState.selectedIndexPath
+                let petData = list[currentIndex.row]
+                
+                return Observable.concat([.just(.setSelectedIndex(currentIndex)),
                                           .just(.setPetObjectList(list)),
-                                          .just(.setSelectedPetData(list.first!))])
+                                          .just(.setSelectedPetData(petData))])
             }
             return .just(.setPetObjectList(list))
             
-//        case .selectPet(let index):
-//            let data = currentState.petList![index]
-//            return .just(.setSelectedPetData(data))
-//
-        case .selectedIndex(let indexPath):
+        case .selectedIndexPath(let indexPath):
             
             let petObj = currentState.petList![indexPath.row]
-            
             return Observable.concat([.just(.setSelectedIndex(indexPath)),
                                       .just(.setSelectedPetData(petObj))])
 
         case .setPetProfileIndex:
             return .just(.setSelectedIndex(currentState.selectedIndexPath))
+            
+        case .deletePet:
+            
+            provider.dataBaseService.delete(currentState.selectedPet)
+            return .just(.reset)
         }
     }
     
@@ -89,6 +95,8 @@ class MainViewControllerReactor: Reactor {
         case .setSelectedIndex(let indexPath):
             newState.selectedIndexPath = indexPath
             
+        case .reset:
+            newState = initialState
         }
         
         return newState
