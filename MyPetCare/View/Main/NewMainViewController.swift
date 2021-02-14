@@ -80,6 +80,7 @@ class NewMainViewController: UIViewController, View {
         mainView.mainFrameTableView.rx.didScroll
             .subscribe(onNext: { [unowned self] in
                 
+                // Pet Profile Collection View Animation
                 let offset = self.mainView.mainFrameTableView.contentOffset.y
                 if offset > 20  && isMainFrameScrolled == false {
                     
@@ -87,6 +88,7 @@ class NewMainViewController: UIViewController, View {
                     UIView.animate(withDuration: 0.3) {
                         self.mainView.petProfileCollectionView.center.y -= 20
                         self.mainView.petProfileCollectionView.alpha = 0
+                        
                     }
                     
                 } else if offset < 10 && isMainFrameScrolled == true {
@@ -95,7 +97,19 @@ class NewMainViewController: UIViewController, View {
                     UIView.animate(withDuration: 0.3) {
                         self.mainView.petProfileCollectionView.center.y += 20
                         self.mainView.petProfileCollectionView.alpha = 1
+
                     }
+                }
+                
+                // Selected Pet Display Animation
+                if offset > 80 && isMainFrameScrolled == true {
+                    self.mainView.petMaleImageView.alpha = 1
+                    self.mainView.selectedPetName.alpha = 1
+                    self.mainView.selectPetImageView.alpha = 1
+                } else if offset < 80 && isMainFrameScrolled == true {
+                    self.mainView.petMaleImageView.alpha = 0
+                    self.mainView.selectedPetName.alpha = 0
+                    self.mainView.selectPetImageView.alpha = 0
                 }
                 
             }).disposed(by: disposeBag)
@@ -129,6 +143,9 @@ class NewMainViewController: UIViewController, View {
             .filter{$0.id != Constants.mainViewPetPlusButtonUUID} // Plus Button 처리
             .subscribe(onNext: { [unowned self] pet in
 
+                mainView.petMaleImageView.image = UIImage(named: "\(pet.male ?? "boy")")
+                mainView.selectedPetName.text = pet.name
+                mainView.selectPetImageView.image = UIImage(data: pet.image!)
                 mainView.petProfileView.configurePetView(pet: pet)
                 mainView.mainFrameTableView.reloadData()
 

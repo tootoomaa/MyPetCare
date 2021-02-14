@@ -7,6 +7,8 @@
 
 import Foundation
 import UIKit
+import SnapKit
+import Then
 
 class NewMainView: UIView {
     // MARK: - UI Layout Controller
@@ -19,7 +21,22 @@ class NewMainView: UIView {
     let titleLabel = UILabel().then {
         $0.text = "My Pets"
         $0.font = .systemFont(ofSize: 30, weight: .bold)
-        $0.backgroundColor = Constants.mainColor
+    }
+    
+    let selectedPetName = UILabel().then {
+        $0.font = .systemFont(ofSize: 20, weight: .semibold)
+        $0.alpha = 0
+    }
+    
+    let selectPetImageView = UIImageView().then {
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = 17
+        $0.alpha = 0
+    }
+    
+    var petMaleImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
+        $0.alpha = 0
     }
     
     let petProfilelayout = PetProfileCollecionViewFlowLayout()
@@ -77,13 +94,32 @@ class NewMainView: UIView {
     private func configureLayout() {
         let marginGuide = self.layoutMarginsGuide
 
-        [titleLabel, mainFrameTableView, petProfileCollectionView].forEach {
+        [titleLabel, selectPetImageView, selectedPetName, petMaleImageView,
+         mainFrameTableView, petProfileCollectionView].forEach {
             addSubview($0)
         }
         
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(marginGuide).offset(padding*2)
             $0.leading.trailing.equalTo(marginGuide)
+        }
+        
+        selectPetImageView.snp.makeConstraints {
+            $0.bottom.equalTo(titleLabel)
+            $0.trailing.equalTo(marginGuide)
+            $0.width.height.equalTo(34)
+        }
+        
+        selectedPetName.snp.makeConstraints {
+            $0.trailing.equalTo(selectPetImageView.snp.leading).offset(-3)
+            $0.centerY.equalTo(selectPetImageView)
+        }
+        
+        petMaleImageView.snp.makeConstraints {
+            $0.trailing.equalTo(selectedPetName.snp.leading).offset(-5)
+            $0.centerY.equalTo(selectPetImageView)
+            $0.height.equalTo(15)
+            $0.width.equalTo(9)
         }
         
         petProfileCollectionView.snp.makeConstraints {
