@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 class MainView: UIView {
+    // MARK: - UI Layout Controller
     
     let padding: CGFloat = 8
     var petNameWidth: CGFloat = 0
@@ -18,6 +19,7 @@ class MainView: UIView {
         $0.text = "My Pets"
         $0.font = .systemFont(ofSize: 30, weight: .bold)
     }
+    
     
     let editButton = UIButton().then {
         $0.setTitle("  eidt", for: .normal)
@@ -55,7 +57,7 @@ class MainView: UIView {
     }
     
     var petImageView = UIImageView().then {
-        $0.contentMode = .scaleAspectFill
+        $0.contentMode = .scaleAspectFit
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
     }
@@ -161,7 +163,7 @@ class MainView: UIView {
                         forCellWithReuseIdentifier: ServiceCell.identifier)
         }
     }
-    
+    // MARK: - Configure Layout
     private func configureLayout() {
         self.layoutMargins = UIEdgeInsets(top: padding*2, left: padding, bottom: padding, right: padding)
         let marginGuide = self.layoutMarginsGuide

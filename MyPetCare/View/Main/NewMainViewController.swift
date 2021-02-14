@@ -34,9 +34,6 @@ class NewMainViewController: UIViewController, View {
         super.viewDidLoad()
         
         mainView.mainFrameTableView.dataSource = self
-//        mainView.mainFrameTableView.delegate = self
-        
-        configureNavigation()
         
         configurePanGuesture()
     }
@@ -51,41 +48,58 @@ class NewMainViewController: UIViewController, View {
         navigationController?.navigationBar.isHidden = false
     }
     
-    private func configureNavigation() {
-//        navigationController?.navigationItem.largeTitleDisplayMode = .automatic
-//        navigationController?.navigationBar.prefersLargeTitles = true
-//        navigationItem.title = "My Pets"
-    }
-    
+    // MARK: - Animation Bind
     private func configurePanGuesture() {
         
-        let centerX = Constants.viewWidth/2
-        
         let dragGuesture = UIPanGestureRecognizer(target: nil, action: nil)
-        mainView.petProfileView.addGestureRecognizer(dragGuesture)
+        mainView.petProfileView.petProfileView.addGestureRecognizer(dragGuesture)
         dragGuesture.rx.event
-            .throttle(.milliseconds(600), scheduler: MainScheduler.asyncInstance)
+            .throttle(.milliseconds(300), scheduler: MainScheduler.asyncInstance)
             .subscribe(onNext:{ [unowned self] in
                 
+                let centerX = mainView.petProfileView.center.x      // PetProfileView의 기준
+                
                 guard reactor?.currentState.petList?.count ?? 0 > 1 else { return }
-                let view = mainView.petProfileView
+                let view = mainView.petProfileView.petProfileView
                 let velocity = $0.velocity(in: view)
                 
-                if abs(velocity.x) > abs(velocity.y) {
-                    if velocity.x < 0 && view.center.x == centerX {         // left
-                        UIView.animate(withDuration: 0.5) {
-                            view.center.x -= 100
-                        }
-                    } else if velocity.x > 0 && view.center.x < centerX {   // right
-                        UIView.animate(withDuration: 0.5) {
-                            view.center.x += 100
-                        }
+                if velocity.x < 0 && view.center.x == centerX {         // left
+                    print("left")
+                    UIView.animate(withDuration: 0.5) {
+                        view.center.x -= 100
+                    }
+                } else if velocity.x > 0 && view.center.x < centerX {   // right
+                    UIView.animate(withDuration: 0.5) {
+                        view.center.x += 100
                     }
                 }
-                
                 view.layoutIfNeeded()
                 
             }).disposed(by: disposeBag)
+
+        mainView.mainFrameTableView.rx.didScroll
+            .subscribe(onNext: { [unowned self] in
+                
+                let offset = self.mainView.mainFrameTableView.contentOffset.y
+                if offset > 20  && isMainFrameScrolled == false {
+                    
+                    isMainFrameScrolled = true
+                    UIView.animate(withDuration: 0.3) {
+                        self.mainView.petProfileCollectionView.center.y -= 20
+                        self.mainView.petProfileCollectionView.alpha = 0
+                    }
+                    
+                } else if offset < 10 && isMainFrameScrolled == true {
+                    
+                    isMainFrameScrolled = false
+                    UIView.animate(withDuration: 0.3) {
+                        self.mainView.petProfileCollectionView.center.y += 20
+                        self.mainView.petProfileCollectionView.alpha = 1
+                    }
+                }
+                
+            }).disposed(by: disposeBag)
+
     }
     
     // MARK: - Reactor Binding
@@ -234,42 +248,12 @@ class NewMainViewController: UIViewController, View {
         mainView.mainFrameTableView.rx.setDelegate(self)
             .disposed(by: disposeBag)
         
-        mainView.mainFrameTableView.rx.didScroll
-            .subscribe(onNext: { [unowned self] in
-                
-                let offset = self.mainView.mainFrameTableView.contentOffset.y
-                if offset > 20  && isMainFrameScrolled == false {
-                    
-                    isMainFrameScrolled = true
-                    UIView.animate(withDuration: 0.3) {
-                        self.mainView.petProfileCollectionView.center.y -= 20
-                        self.mainView.petProfileCollectionView.alpha = 0
-                    }
-                    
-                } else if offset < 10 && isMainFrameScrolled == true {
-                    
-                    isMainFrameScrolled = false
-                    UIView.animate(withDuration: 0.3) {
-                        self.mainView.petProfileCollectionView.center.y += 20
-                        self.mainView.petProfileCollectionView.alpha = 1
-                    }
-                }
-                
-            }).disposed(by: disposeBag)
-        
-        
-        mainView.mainFrameTableView.rx.didEndScrollingAnimation
-            .subscribe(onNext: {
-                
-                
-                print("Aaaaa")
-                
-            }).disposed(by: disposeBag)
+ 
     }
     
     // MARK: - Animation Hander
     private func setOriginalOffsetPetProfileView() {
-        if mainView.petProfileView.center.x != mainView.center.x {
+        if mainView.petProfileView.petProfileView.center.x != mainView.center.x {
             UIView.animate(withDuration: 0.1) {
                 self.mainView.petProfileView.center.x = self.mainView.center.x
             }

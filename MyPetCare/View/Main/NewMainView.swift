@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 
 class NewMainView: UIView {
+    // MARK: - UI Layout Controller
     
     let padding: CGFloat = 8
     var petNameWidth: CGFloat = 0
