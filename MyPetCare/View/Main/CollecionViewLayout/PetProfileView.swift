@@ -1,53 +1,19 @@
 //
-//  MainView.swift
+//  PetProfileView.swift
 //  MyPetCare
 //
-//  Created by 김광수 on 2021/02/04.
+//  Created by 김광수 on 2021/02/14.
 //
 
 import Foundation
 import UIKit
 
-class MainView: UIView {
+class PetProfileView: UIView {
     
     let padding: CGFloat = 8
-    var petNameWidth: CGFloat = 0
+    let petNameWidth: CGFloat
     
     // MARK: - Properties
-    let titleLabel = UILabel().then {
-        $0.text = "My Pets"
-        $0.font = .systemFont(ofSize: 30, weight: .bold)
-    }
-    
-    let editButton = UIButton().then {
-        $0.setTitle("  eidt", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .systemBlue
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = 20
-        $0.layer.maskedCorners = [.layerMaxXMinYCorner]
-    }
-    
-    let deleteButton = UIButton().then {
-        $0.setTitle("  delete", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
-        $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .red
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = 20
-        $0.layer.maskedCorners = [.layerMaxXMaxYCorner]
-    }
-    
-    let topSelectCategoryList = ["프로필","건강","기타"]
-    
-    let petProfilelayout = PetProfileCollecionViewFlowLayout()
-    var petProfileCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
-    }()
-    
     var petProfileView = UIView().then {
         $0.backgroundColor = .systemGray6
         $0.layer.cornerRadius = 20
@@ -105,18 +71,25 @@ class MainView: UIView {
         $0.font = .systemFont(ofSize: 14, weight: .semibold)
     }
     
-    let serviceTitle = UILabel().then {
-        $0.text = "Services"
-        $0.textColor = .black
-        $0.font = .systemFont(ofSize: 25, weight: .bold)
+    let editButton = UIButton().then {
+        $0.setTitle("  eidt", for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        $0.setTitleColor(.white, for: .normal)
+        $0.backgroundColor = .systemBlue
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = 20
+        $0.layer.maskedCorners = [.layerMaxXMinYCorner]
     }
     
-    let serviceFlowLayout = ServiceCollecionViewFlowLayout()
-    let serviceColectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .vertical
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
-    }()
+    let deleteButton = UIButton().then {
+        $0.setTitle("  delete", for: .normal)
+        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        $0.setTitleColor(.white, for: .normal)
+        $0.backgroundColor = .red
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = 20
+        $0.layer.maskedCorners = [.layerMaxXMaxYCorner]
+    }
     
     let petEmtpyImage = UIImageView().then {
         $0.image = UIImage(systemName: "house")
@@ -128,76 +101,38 @@ class MainView: UIView {
     }
     
     // MARK: - Life Cycle
-    override init(frame: CGRect) {
+    
+    init(frame: CGRect, topPadding: CGFloat, bottomPadding: CGFloat) {
+        
+        petNameWidth = frame.size.width/2 - 20
         super.init(frame: frame)
         
-        backgroundColor = .lightGreen
         
-        configurePetProfileCollectionView()
-        
-        configureServiceCollectionView()
-        
-        configureLayout()
+        configureLayout(topPadding, bottomPadding)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func configurePetProfileCollectionView() {
-        _ = petProfileCollectionView.then {
-            $0.backgroundColor = .none
-            $0.delegate = petProfilelayout
-            $0.register(PetProfileImageCell.self,
-                        forCellWithReuseIdentifier: PetProfileImageCell.identifier)
-        }
-    }
-    
-    private func configureServiceCollectionView() {
-        _ = serviceColectionView.then {
-            $0.backgroundColor = .none
-            $0.delegate = serviceFlowLayout
-            $0.register(ServiceCell.self,
-                        forCellWithReuseIdentifier: ServiceCell.identifier)
-        }
-    }
-    
-    private func configureLayout() {
-        self.layoutMargins = UIEdgeInsets(top: padding*2, left: padding, bottom: padding, right: padding)
-        let marginGuide = self.layoutMarginsGuide
+    private func configureLayout(_ topPadding: CGFloat, _ bottomPadding: CGFloat) {
         
-        [titleLabel, petProfileCollectionView,      // TopView
-         editButton, deleteButton, petProfileView,                // Pet View
-         serviceTitle, serviceColectionView,        // List UI
-        ].forEach {
+        [editButton, deleteButton, petProfileView].forEach {
             addSubview($0)
         }
         
-        titleLabel.snp.makeConstraints {
-            $0.top.equalTo(marginGuide).offset(padding*2)
-            $0.leading.equalTo(marginGuide)
-        }
-
-        petProfileCollectionView.snp.makeConstraints{
-            $0.top.equalTo(titleLabel.snp.bottom).offset(padding)
-            $0.leading.trailing.equalTo(marginGuide)
-            $0.height.equalTo(PetProfileCollecionViewFlowLayout.BaseLayout.height)
-        }
-        
-        let petProfileImageViewWidth = (Constants.viewWidth-padding*4)
-        // pet Profile
         petProfileView.snp.makeConstraints {
-            $0.top.equalTo(petProfileCollectionView.snp.bottom).offset(padding)
-            $0.trailing.equalTo(self.safeAreaLayoutGuide).offset(-padding*2)
-            $0.leading.equalTo(self.safeAreaLayoutGuide).offset(padding*2)
-            $0.height.equalTo(petProfileImageViewWidth/2)
+            // For PetProfileCollectionView Padding
+            $0.top.equalToSuperview().offset(topPadding)
+            $0.leading.trailing.equalToSuperview()
+            $0.bottom.equalToSuperview().offset(-bottomPadding)
         }
         
         editButton.snp.makeConstraints {
             $0.top.trailing.equalTo(petProfileView)
             $0.width.equalTo(120)
-//            $0.bottom.equalTo(deleteButton.snp.top)
         }
+        
         deleteButton.snp.makeConstraints {
             $0.top.equalTo(editButton.snp.bottom)
             $0.trailing.width.equalTo(editButton)
@@ -213,17 +148,15 @@ class MainView: UIView {
         
         petImageView.snp.makeConstraints {
             $0.top.leading.bottom.equalToSuperview()
-            $0.width.equalTo(petProfileImageViewWidth/2)
+            $0.trailing.equalTo(self.snp.centerX)
         }
         
-        let axisXPadding = petProfileImageViewWidth/2/4
+        let axisXPadding = self.frame.size.width/2/4
         petName.snp.makeConstraints {
             $0.top.equalTo(petProfileView).offset(25)
             $0.leading.equalTo(petImageView.snp.trailing).offset(10)
             $0.trailing.equalTo(petProfileView.snp.trailing).offset(-10)
         }
-        
-        petNameWidth = petProfileImageViewWidth/2 - 20
         
         ageLabel.snp.makeConstraints {
             $0.top.equalTo(petName.snp.bottom).offset(20)
@@ -255,19 +188,6 @@ class MainView: UIView {
             $0.top.equalTo(heightLabel.snp.bottom)
         }
         
-        ///-----------------------------------------------
-        /// Service
-        serviceTitle.snp.makeConstraints {
-            $0.top.equalTo(petImageView.snp.bottom).offset(padding*2)
-            $0.leading.trailing.equalTo(marginGuide)
-        }
-        
-        serviceColectionView.snp.makeConstraints {
-            $0.top.equalTo(serviceTitle.snp.bottom).offset(padding)
-            $0.leading.trailing.equalTo(marginGuide)
-            $0.bottom.equalTo(marginGuide)
-        }
-        
         [petEmtpyImage, petEmptyLabel].forEach {                               // Empty
             petProfileView.addSubview($0)
         }
@@ -283,7 +203,7 @@ class MainView: UIView {
         }
     }
     
-    // MARK: - View handler
+    // MARK: - View Hander
     func configureEmptyViewComponentsByPetList(_ isEmpty: Bool) {
         petEmtpyImage.isHidden = !isEmpty
         petEmptyLabel.isHidden = !isEmpty

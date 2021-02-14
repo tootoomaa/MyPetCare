@@ -103,7 +103,7 @@ class MainViewController: UIViewController, ReactorKit.View {
     
     private func configurePanGuesture() {
         
-        let centerX = Constants.viewWeigth/2
+        let centerX = Constants.viewWidth/2
         
         let dragGuesture = UIPanGestureRecognizer(target: nil, action: nil)
         mainView.petProfileView.addGestureRecognizer(dragGuesture)
