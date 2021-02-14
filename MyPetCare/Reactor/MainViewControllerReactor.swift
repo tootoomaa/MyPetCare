@@ -34,7 +34,7 @@ class MainViewControllerReactor: Reactor {
     }
     
     var initialState: State
-    let emptyPet = PetObject().then{ $0.uuid = Constants.mainViewPetPlusButtonUUID }
+    let emptyPet = PetObject().then{ $0.id = Constants.mainViewPetPlusButtonUUID }
     var provider: ServiceProviderType
     var plusButtonIndex: Int = 0
     

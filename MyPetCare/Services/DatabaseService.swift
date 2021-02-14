@@ -36,8 +36,6 @@ class DatabaseService: BaseService, DatabaseServiceType {
     var config = Realm.Configuration(deleteRealmIfMigrationNeeded: false)
     lazy var realm = try! Realm(configuration: config)
     
-    
-    
     func db() -> Realm {
         return self.realm
     }

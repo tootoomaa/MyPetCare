@@ -83,6 +83,22 @@ class MainViewController: UIViewController, ReactorKit.View {
                 cell.titleLabel.text = serviceType.rawValue
                 
             }.disposed(by: disposeBag)
+        
+        mainView.serviceColectionView.rx.itemSelected
+            .subscribe(onNext: { [unowned self] indexPath in
+                
+                switch self.serviceMuneList[indexPath.row] {
+                case .pelseCheck:
+                    let reactor = BPMeasureViewReactor()
+                    let vc = BPMeasureViewController()
+                    vc.reactor = reactor
+                    self.navigationController?.pushViewController(vc, animated: true)
+                    
+                case .hospital:
+                    break
+                }
+                
+            }).disposed(by: disposeBag)
     }
     
     private func configurePanGuesture() {
@@ -140,7 +156,7 @@ class MainViewController: UIViewController, ReactorKit.View {
                 self.mainView.configureEmptyViewComponentsByPetList($0 == nil)
             }) // 상태에 따른 UI 변화
             .compactMap{$0}
-            .filter{$0.uuid != Constants.mainViewPetPlusButtonUUID} // Plus Button 처리
+            .filter{$0.id != Constants.mainViewPetPlusButtonUUID} // Plus Button 처리
             .subscribe(onNext: { [unowned self] pet in
 
                 mainView.configurePetView(pet: pet)
