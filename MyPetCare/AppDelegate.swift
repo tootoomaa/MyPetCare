@@ -41,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let appearance = UINavigationBarAppearance(idiom: .phone)
         appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
         appearance.shadowColor = .clear
-        appearance.backgroundColor = .white
+        appearance.backgroundColor = Constants.mainColor
         
         let navigationBarApear = UINavigationBar.appearance()
         navigationBarApear.compactAppearance = appearance

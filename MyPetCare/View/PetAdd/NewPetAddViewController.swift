@@ -20,8 +20,8 @@ class NewPetAddViewController: UIViewController, View {
         $0.modalPresentationStyle = .overFullScreen
     }
     
-    let addNaviButton = UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: nil)
-    let closeNanviButton = UIBarButtonItem(barButtonSystemItem: .cancel, target: nil, action: nil)
+    let addNaviButton = UIBarButtonItem(barButtonSystemItem: .add, target: nil, action: nil)
+    let closeNanviButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: nil, action: nil)
     
     // MARK: - Life Cycle
     override func loadView() {
@@ -100,9 +100,11 @@ class NewPetAddViewController: UIViewController, View {
     // MARK: - Reactor Binder
     func bind(reactor: PetAddViewReactor) {
         
-        Observable.just(["몸무게","혈액형","BSC"])
-            .bind(to: mainView.tableView.rx.items(cellIdentifier: HealthDataCell.identifier,
-                                                  cellType: HealthDataCell.self)) { row, data, cell in
+        Observable.just(["종","품종","BSC"])
+            .bind(to: mainView.tableView.rx
+                    .items(cellIdentifier: HealthDataCell.identifier,
+                           cellType: HealthDataCell.self)) { row, data, cell in
+                
                 cell.titleLabel.text = data
                 
             }.disposed(by: disposeBag)
@@ -232,8 +234,21 @@ class HealthDataCell: UITableViewCell {
     
     static let identifier = "HealthDataCell"
     
+    let padding: CGFloat = 8
+    
     let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 15, weight: .bold)
+        $0.font = .systemFont(ofSize: 20, weight: .bold)
+        $0.textAlignment = .center
+    }
+    
+    let textField = UITextField().then {
+        $0.placeholder = "입력"
+        $0.font = .systemFont(ofSize: 15, weight: .regular)
+        $0.keyboardType = .default
+        $0.autocorrectionType = .no
+        $0.autocapitalizationType = .none
+        $0.textAlignment = .center
+        $0.addButtonBorder(.systemGray, 1)
     }
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -249,14 +264,24 @@ class HealthDataCell: UITableViewCell {
     }
     
     private func configureLayout() {
+        let safeGuide = contentView.safeAreaLayoutGuide
         
-        [titleLabel].forEach {
+        [titleLabel, textField].forEach {
             contentView.addSubview($0)
         }
         
         titleLabel.snp.makeConstraints {
-            $0.leading.equalTo(contentView.safeAreaLayoutGuide).offset(8)
-            $0.centerY.equalTo(contentView.safeAreaLayoutGuide)
+            $0.leading.equalTo(safeGuide).offset(padding)
+            $0.centerY.equalTo(safeGuide)
+            $0.trailing.equalTo(textField.snp.leading).offset(padding)
+        }
+        
+        textField.snp.makeConstraints {
+            $0.top.equalTo(safeGuide).offset(padding)
+            $0.bottom.trailing.equalTo(safeGuide).offset(-padding)
+            $0.centerY.equalTo(safeGuide)
+            $0.leading.equalTo(titleLabel.snp.trailing)
+            $0.width.equalTo(titleLabel).multipliedBy(1.5)
         }
     }
 }

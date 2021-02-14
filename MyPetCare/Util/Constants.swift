@@ -10,12 +10,19 @@ import UIKit
 
 class Constants {
     
+    enum MainFrameTableViewItem: CaseIterable {
+        case petProfile
+        case service
+    }
+    
     // Locale
     static let currentLocale = Locale(identifier: "ko_KR")
     
     // UI
     static var viewHeigth = UIScreen.main.bounds.height
-    static var viewWeigth = UIScreen.main.bounds.width
+    static var viewWidth = UIScreen.main.bounds.width
+    
+    static var mainColor = UIColor.lightGreen
     
     static var mainViewPetPlusButtonUUID = "itisButtonUUIDforAddPet"
     

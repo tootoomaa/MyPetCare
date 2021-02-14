@@ -11,7 +11,7 @@ import UIKit
 class NewPetAddView: UIView {
     // MARK: - Propeties
     let padding: CGFloat = 8
-    lazy var viewWidthMinusPadding = Constants.viewWeigth - 30 - 30 // leading, trailing
+    lazy var viewWidthMinusPadding = Constants.viewWidth - 30 - 30 // leading, trailing
 
     let basicTitle = UILabel().then {
         $0.text = "기본 정보"
@@ -50,7 +50,7 @@ class NewPetAddView: UIView {
     }
     
     let healthTitle = UILabel().then {
-        $0.text = "건강 정보"
+        $0.text = "상세 정보"
         $0.font = .systemFont(ofSize: 25, weight: .bold)
     }
     

@@ -10,6 +10,7 @@ import ReactorKit
 import RxSwift
 import RxCocoa
 
+
 class MainViewControllerReactor: Reactor {
     
     enum Action {
@@ -28,6 +29,7 @@ class MainViewControllerReactor: Reactor {
     }
     
     struct State {
+        var mainFrameTableViewItems = Constants.MainFrameTableViewItem.allCases
         var petList: [PetObject]?
         var selectedPet: PetObject?
         var selectedIndexPath: IndexPath
@@ -39,7 +41,7 @@ class MainViewControllerReactor: Reactor {
     var plusButtonIndex: Int = 0
     
     init(provider: ServiceProviderType) {
-        initialState = State(petList: [emptyPet],
+        initialState = State(petList: nil,
                              selectedPet: nil,
                              selectedIndexPath: IndexPath(row: 0, section: 0))
         
