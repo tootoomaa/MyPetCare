@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Cafe24Syongsyong.ttf</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>반려견의 사진을 촬영하기 위해서 카메라에 접근권한을 요청합니다.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -32,6 +36,8 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

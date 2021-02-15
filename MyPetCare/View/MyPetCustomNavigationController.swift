@@ -28,7 +28,7 @@ class MyPetCustomNavigationController: UITabBarController {
     
     private func makeMainViewController(_ imageName: String) -> UINavigationController {
         let reacotr = MainViewControllerReactor(provider: provider)
-        let vc = NewMainViewController()
+        let vc = MainViewController()
         vc.reactor = reacotr
         
         let image = makeNomalSelectedImage(imageName)

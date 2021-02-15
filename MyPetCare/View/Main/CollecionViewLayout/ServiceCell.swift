@@ -15,7 +15,9 @@ class ServiceCell: UICollectionViewCell {
     
     let titleLabel = UILabel().then {
         $0.text = "서비스"
-        $0.font = .systemFont(ofSize: 15, weight: .bold)
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 15)
+        $0.numberOfLines = 0
+        $0.textAlignment = .center
     }
     
     override init(frame: CGRect) {
@@ -30,25 +32,18 @@ class ServiceCell: UICollectionViewCell {
     }
     
     private func configureContentView() {
-        contentView.backgroundColor = .white
+        contentView.backgroundColor = .serviceColor
         contentView.layer.cornerRadius = 20
     }
     
     private func configureLayout() {
         
-        [imageView, titleLabel].forEach {
+        [titleLabel].forEach {
             contentView.addSubview($0)
         }
         
-        imageView.snp.makeConstraints {
-            $0.centerY.equalTo(contentView.safeAreaLayoutGuide).offset(-10)
-            $0.centerX.equalTo(contentView.safeAreaLayoutGuide)
-            $0.width.height.equalTo(40)
-        }
-        
         titleLabel.snp.makeConstraints {
-            $0.centerY.equalTo(contentView.safeAreaLayoutGuide).offset(20)
-            $0.centerX.equalTo(contentView.safeAreaLayoutGuide)
+            $0.centerX.centerY.equalTo(contentView.safeAreaLayoutGuide)
         }
         
     }

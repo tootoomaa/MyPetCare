@@ -10,7 +10,7 @@ import UIKit
 import ReactorKit
 import RxUIAlert
 
-class NewMainViewController: UIViewController, View {
+class MainViewController: UIViewController, View {
     
     // MARK: - Properties
     var disposeBag: DisposeBag = DisposeBag()
@@ -20,10 +20,14 @@ class NewMainViewController: UIViewController, View {
         .withTintColor(.deepGreen)
         .pngData()!
     
-    let mainView = NewMainView()
+    let mainView = MainView()
     
-    var isMainFrameScrolled = false
-    
+    let servicelayout = ServiceCollecionViewFlowLayout()
+    var serviceCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+    }()
     
     // MARK: - Life cycle
     override func loadView() {
@@ -34,6 +38,8 @@ class NewMainViewController: UIViewController, View {
         super.viewDidLoad()
         
         mainView.mainFrameTableView.dataSource = self
+        
+        configureServiceCollectionView()
         
         configurePanGuesture()
     }
@@ -48,11 +54,28 @@ class NewMainViewController: UIViewController, View {
         navigationController?.navigationBar.isHidden = false
     }
     
+    private func configureServiceCollectionView() {
+        _ = serviceCollectionView.then {
+            $0.delegate = servicelayout
+            $0.backgroundColor = .none
+            $0.register(ServiceCell.self,
+                         forCellWithReuseIdentifier: ServiceCell.identifier)
+        }
+        
+        Observable.just(["심박수\n측정","몸무게"])
+            .bind(to: serviceCollectionView.rx.items(cellIdentifier: ServiceCell.identifier,
+                                                     cellType: ServiceCell.self)) { row, data, cell in
+                
+                cell.titleLabel.text = data
+                
+            }.disposed(by: disposeBag)
+    }
+    
     // MARK: - Animation Bind
     private func configurePanGuesture() {
         
         let dragGuesture = UIPanGestureRecognizer(target: nil, action: nil)
-        mainView.petProfileView.petProfileView.addGestureRecognizer(dragGuesture)
+        mainView.petProfileView.dashBoardView.addGestureRecognizer(dragGuesture)
         dragGuesture.rx.event
             .throttle(.milliseconds(300), scheduler: MainScheduler.asyncInstance)
             .subscribe(onNext:{ [unowned self] in
@@ -60,11 +83,10 @@ class NewMainViewController: UIViewController, View {
                 let centerX = mainView.petProfileView.center.x      // PetProfileView의 기준
                 
                 guard reactor?.currentState.petList?.count ?? 0 > 1 else { return }
-                let view = mainView.petProfileView.petProfileView
+                let view = mainView.petProfileView.dashBoardView
                 let velocity = $0.velocity(in: view)
                 
                 if velocity.x < 0 && view.center.x == centerX {         // left
-                    print("left")
                     UIView.animate(withDuration: 0.5) {
                         view.center.x -= 100
                     }
@@ -79,39 +101,7 @@ class NewMainViewController: UIViewController, View {
 
         mainView.mainFrameTableView.rx.didScroll
             .subscribe(onNext: { [unowned self] in
-                
-                // Pet Profile Collection View Animation
-                let offset = self.mainView.mainFrameTableView.contentOffset.y
-                if offset > 20  && isMainFrameScrolled == false {
-                    
-                    isMainFrameScrolled = true
-                    UIView.animate(withDuration: 0.3) {
-                        self.mainView.petProfileCollectionView.center.y -= 20
-                        self.mainView.petProfileCollectionView.alpha = 0
-                        
-                    }
-                    
-                } else if offset < 10 && isMainFrameScrolled == true {
-                    
-                    isMainFrameScrolled = false
-                    UIView.animate(withDuration: 0.3) {
-                        self.mainView.petProfileCollectionView.center.y += 20
-                        self.mainView.petProfileCollectionView.alpha = 1
-
-                    }
-                }
-                
-                // Selected Pet Display Animation
-                if offset > 80 && isMainFrameScrolled == true {
-                    self.mainView.petMaleImageView.alpha = 1
-                    self.mainView.selectedPetName.alpha = 1
-                    self.mainView.selectPetImageView.alpha = 1
-                } else if offset < 80 && isMainFrameScrolled == true {
-                    self.mainView.petMaleImageView.alpha = 0
-                    self.mainView.selectedPetName.alpha = 0
-                    self.mainView.selectPetImageView.alpha = 0
-                }
-                
+                mainView.mainFrameTableViewAnimationByScroll()
             }).disposed(by: disposeBag)
 
     }
@@ -124,7 +114,6 @@ class NewMainViewController: UIViewController, View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        // 최초 로드 시
         self.rx.viewDidLoad
             .subscribe(onNext: { [unowned self] _ in
                 guard reactor.currentState.petList?.count != 1 else { return }
@@ -152,6 +141,7 @@ class NewMainViewController: UIViewController, View {
             }).disposed(by: disposeBag)
         
         reactor.state.map{$0.selectedIndexPath}
+            .filter{$0.row != reactor.plusButtonIndex}
             .observeOn(MainScheduler.asyncInstance)
             .compactMap{$0}
 //            .distinctUntilChanged()
@@ -203,7 +193,7 @@ class NewMainViewController: UIViewController, View {
                 
                 self.present(naviC, animated: true, completion: {
                     reactor.action.onNext(.setPetProfileIndex)
-                    setOriginalOffsetPetProfileView()
+                    mainView.setOriginalOffsetPetProfileView()
                 })
                 
             }).disposed(by: disposeBag)
@@ -235,7 +225,7 @@ class NewMainViewController: UIViewController, View {
                     .disposed(by: self.disposeBag)
                 
                 self.present(naviC, animated: true, completion: {
-                    setOriginalOffsetPetProfileView()
+                    mainView.setOriginalOffsetPetProfileView()
                 })
                 
             }).disposed(by: disposeBag)
@@ -256,41 +246,53 @@ class NewMainViewController: UIViewController, View {
                         if action.index == 1 {
                             reactor.action.onNext(.deletePet)
                             reactor.action.onNext(.loadInitialData)
+                            mainView.setOriginalOffsetPetProfileView()
                         }
                         
                     }).disposed(by: disposeBag)
                 
             }).disposed(by: disposeBag)
         
-        mainView.mainFrameTableView.rx.setDelegate(self)
-            .disposed(by: disposeBag)
-        
- 
-    }
-    
-    // MARK: - Animation Hander
-    private func setOriginalOffsetPetProfileView() {
-        if mainView.petProfileView.petProfileView.center.x != mainView.center.x {
-            UIView.animate(withDuration: 0.1) {
-                self.mainView.petProfileView.center.x = self.mainView.center.x
-            }
-            self.mainView.petProfileView.layoutIfNeeded()
-        }
+        serviceCollectionView.rx.itemSelected
+            .subscribe(onNext: { [unowned self] indexPath in
+                
+                guard let selectedPet = reactor.currentState.selectedPet else { return }
+                if indexPath.row == 0 {
+                    
+                    let pbmeasureVC = HRMeasureViewController()
+                    pbmeasureVC.reactor = BPMeasureViewReactor(selectedPat: selectedPet)
+                    
+                    navigationController?.pushViewController(pbmeasureVC, animated: true)
+                }
+                
+            }).disposed(by: disposeBag)
     }
 }
 
-extension NewMainViewController: UITableViewDataSource, UITableViewDelegate {
+extension MainViewController: UITableViewDataSource, UITableViewDelegate {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 20
+        return 2
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return UITableViewCell()
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        print(scrollView.contentOffset.y)
         
+        if indexPath.row == 0 { // Service Collection View
+            return UITableViewCell().then {
+                $0.selectionStyle = .none
+                $0.contentView.addSubview(serviceCollectionView)
+                $0.backgroundColor = Constants.mainColor
+                serviceCollectionView.snp.makeConstraints {
+                    $0.top.leading.equalToSuperview()
+                    $0.bottom.trailing.equalToSuperview().offset(-8)
+                    $0.height.equalTo(60)
+                }
+            }
+        }
+        
+        return UITableViewCell().then {
+            $0.selectionStyle = .none
+            $0.backgroundColor = .blue
+        }
     }
-    
 }

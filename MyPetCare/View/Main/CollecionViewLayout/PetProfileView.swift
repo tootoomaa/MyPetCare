@@ -14,7 +14,7 @@ class PetProfileView: UIView {
     let petNameWidth: CGFloat
     
     // MARK: - Properties
-    var petProfileView = UIView().then {
+    var dashBoardView = UIView().then {
         $0.backgroundColor = .systemGray6
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
@@ -28,7 +28,7 @@ class PetProfileView: UIView {
     
     var petName = UILabel().then {
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 25, weight: .bold)
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 25)
         $0.textAlignment = .center
         $0.adjustsFontSizeToFitWidth = true
         $0.minimumScaleFactor = 0.5
@@ -92,12 +92,16 @@ class PetProfileView: UIView {
     }
     
     let petEmtpyImage = UIImageView().then {
-        $0.image = UIImage(systemName: "house")
+        let image = UIImage(systemName: "house")?
+            .withRenderingMode(.alwaysOriginal)
+            .withTintColor(.gray)
+        $0.image = image
     }
     
     let petEmptyLabel = UILabel().then {
         $0.text = "가족을 등록해주세요!"
         $0.font = .systemFont(ofSize: 14, weight: .medium)
+        $0.textColor = .gray 
     }
     
     // MARK: - Life Cycle
@@ -106,7 +110,6 @@ class PetProfileView: UIView {
         
         petNameWidth = frame.size.width/2 - 20
         super.init(frame: frame)
-        
         
         configureLayout(topPadding, bottomPadding)
     }
@@ -117,11 +120,11 @@ class PetProfileView: UIView {
     
     private func configureLayout(_ topPadding: CGFloat, _ bottomPadding: CGFloat) {
         
-        [editButton, deleteButton, petProfileView].forEach {
+        [editButton, deleteButton, dashBoardView].forEach {
             addSubview($0)
         }
         
-        petProfileView.snp.makeConstraints {
+        dashBoardView.snp.makeConstraints {
             // For PetProfileCollectionView Padding
             $0.top.equalToSuperview().offset(topPadding)
             $0.leading.trailing.equalToSuperview()
@@ -129,21 +132,21 @@ class PetProfileView: UIView {
         }
         
         editButton.snp.makeConstraints {
-            $0.top.trailing.equalTo(petProfileView)
+            $0.top.trailing.equalTo(dashBoardView)
             $0.width.equalTo(120)
         }
         
         deleteButton.snp.makeConstraints {
             $0.top.equalTo(editButton.snp.bottom)
             $0.trailing.width.equalTo(editButton)
-            $0.bottom.equalTo(petProfileView)
+            $0.bottom.equalTo(dashBoardView)
             $0.height.equalTo(editButton).multipliedBy(0.3)
         }
         
         [petImageView, petName, petMaleImageView,
          ageLabel, ageValueLabel, weightLabel, weightValueLabel,
          heightLabel, heightValueLabel].forEach {
-            petProfileView.addSubview($0)
+            dashBoardView.addSubview($0)
         }
         
         petImageView.snp.makeConstraints {
@@ -153,9 +156,9 @@ class PetProfileView: UIView {
         
         let axisXPadding = self.frame.size.width/2/4
         petName.snp.makeConstraints {
-            $0.top.equalTo(petProfileView).offset(25)
+            $0.top.equalTo(dashBoardView).offset(25)
             $0.leading.equalTo(petImageView.snp.trailing).offset(10)
-            $0.trailing.equalTo(petProfileView.snp.trailing).offset(-10)
+            $0.trailing.equalTo(dashBoardView.snp.trailing).offset(-10)
         }
         
         ageLabel.snp.makeConstraints {
@@ -189,16 +192,17 @@ class PetProfileView: UIView {
         }
         
         [petEmtpyImage, petEmptyLabel].forEach {                               // Empty
-            petProfileView.addSubview($0)
+            dashBoardView.addSubview($0)
         }
+        
         petEmtpyImage.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
-            $0.centerY.equalToSuperview().offset(-padding*2)
-            $0.width.height.equalTo(100)
+            $0.centerX.equalTo(dashBoardView.safeAreaLayoutGuide)
+            $0.centerY.equalTo(dashBoardView.safeAreaLayoutGuide).offset(-padding)
+            $0.width.height.equalTo(80)
         }
 
         petEmptyLabel.snp.makeConstraints {
-            $0.centerX.equalToSuperview()
+            $0.centerX.equalTo(dashBoardView.safeAreaLayoutGuide)
             $0.top.equalTo(petEmtpyImage.snp.bottom).offset(padding)
         }
     }
@@ -207,9 +211,11 @@ class PetProfileView: UIView {
     func configureEmptyViewComponentsByPetList(_ isEmpty: Bool) {
         petEmtpyImage.isHidden = !isEmpty
         petEmptyLabel.isHidden = !isEmpty
-        ageLabel.isHidden = isEmpty
-        weightLabel.isHidden = isEmpty
-        heightLabel.isHidden = isEmpty
+        
+        [ageValueLabel, ageLabel, petImageView, petName, petMaleImageView,
+         weightLabel, weightValueLabel, heightLabel, heightValueLabel].forEach {
+            $0.isHidden = isEmpty
+         }
     }
     
     /// Pet Profile View 갱신
@@ -239,7 +245,7 @@ class PetProfileView: UIView {
         petMaleImageView.image = UIImage(named: Male(rawValue: pet.male!)!.rawValue)
         
         ageValueLabel.text = "\(pet.age) yrs"
-        weightValueLabel.text = "\(pet.weight) kg"
-        heightValueLabel.text = "\(pet.height) cm"
+        weightValueLabel.text = Int(pet.weight) == 0 ? "-" : "\(pet.weight) kg"
+        heightValueLabel.text = Int(pet.height) == 0 ? "-" : "\(pet.height) kg"
     }
 }
