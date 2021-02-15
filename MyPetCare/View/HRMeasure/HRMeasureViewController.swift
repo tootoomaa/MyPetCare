@@ -10,27 +10,27 @@ import ReactorKit
 import UIKit
 
 class HRMeasureViewController: UIViewController, View {
-    
+    // MARK: - Properties
     var disposeBag: DisposeBag = DisposeBag()
     
+    let mainView = HReasureView()
     
     
     // MARK: - LifeCycle
     override func loadView() {
-        view = HReasureView()
+        view = mainView
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = Constants.mainColor
-        
         configureNavigation()
     }
     
     private func configureNavigation() {
-        self.navigationItem.title = "혈압 측정"
-        self.navigationController?.configureNavigationBarAppearance(.white)
+        
+        navigationController?.configureNavigationBarAppearance(.hrMesaureColor)
+        navigationItem.title = "심박수 측정"
         
         let closeNanviButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: nil, action: nil)
         closeNanviButton.rx.tap
@@ -38,12 +38,36 @@ class HRMeasureViewController: UIViewController, View {
                 self.dismiss(animated: true, completion: nil)
             }).disposed(by: disposeBag)
         
-        self.navigationItem.leftBarButtonItem = closeNanviButton
+        navigationItem.rightBarButtonItem = closeNanviButton
     }
     
     // MARK: - Reactor Binding
-    func bind(reactor: BPMeasureViewReactor) {
+    func bind(reactor: HRMeasureViewReactor) {
         
+        // 선택된 펫 관련 UI 초기 셋팅
+        reactor.state.map{$0.selectedPet}
+            .distinctUntilChanged()
+            .subscribe(onNext: { [unowned self] in
+                
+                mainView.petImageView.image = UIImage(data: $0.image!)
+                mainView.petName.text = $0.name
+                mainView.petMaleImageView.image = UIImage(named: $0.male ?? "boy" )
+                mainView.petAge.text = "\($0.age) yrs"
+                
+            }).disposed(by: disposeBag)
+        
+        // 사용자 시간 선택
+        mainView.secondSegmentController.rx.selectedSegmentIndex
+            .map{ index -> Int in
+                switch index {
+                case 0: return 10;
+                case 1: return 20;
+                case 2: return 30;
+                case 3: return 60;
+                default: return 60;
+                }
+            }.map{Reactor.Action.selectedTime($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
-    
 }

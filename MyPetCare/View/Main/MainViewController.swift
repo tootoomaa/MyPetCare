@@ -259,10 +259,14 @@ class MainViewController: UIViewController, View {
                 guard let selectedPet = reactor.currentState.selectedPet else { return }
                 if indexPath.row == 0 {
                     
-                    let pbmeasureVC = HRMeasureViewController()
-                    pbmeasureVC.reactor = BPMeasureViewReactor(selectedPat: selectedPet)
+                    let hrmeasureVC = HRMeasureViewController()
+                    hrmeasureVC.reactor = HRMeasureViewReactor(selectedPat: selectedPet)
                     
-                    navigationController?.pushViewController(pbmeasureVC, animated: true)
+                    let naviC = UINavigationController(rootViewController: hrmeasureVC)
+                    
+                    naviC.modalPresentationStyle = .overFullScreen
+                    
+                    self.present(naviC, animated: true, completion: nil)
                 }
                 
             }).disposed(by: disposeBag)

@@ -33,6 +33,10 @@ extension UIColor {
     static var serviceColor: UIColor {
         return UIColor(rgb: 0x75cfb8)
     }
+    
+    static var hrMesaureColor: UIColor {
+        return UIColor(rgb: 0xf7f7e8)
+    }
 }
 
 extension UIColor {
