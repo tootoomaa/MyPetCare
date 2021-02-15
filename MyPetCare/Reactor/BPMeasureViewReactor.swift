@@ -19,13 +19,13 @@ class BPMeasureViewReactor: Reactor {
     }
     
     struct State {
-        
+        var selectedPet: PetObject
     }
     
     var initialState: State
     
-    init() {
-        initialState = State()
+    init(selectedPat: PetObject) {
+        initialState = State(selectedPet: selectedPat)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {

@@ -28,7 +28,7 @@ class PetProfileView: UIView {
     
     var petName = UILabel().then {
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 25, weight: .bold)
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 25)
         $0.textAlignment = .center
         $0.adjustsFontSizeToFitWidth = true
         $0.minimumScaleFactor = 0.5
@@ -245,7 +245,7 @@ class PetProfileView: UIView {
         petMaleImageView.image = UIImage(named: Male(rawValue: pet.male!)!.rawValue)
         
         ageValueLabel.text = "\(pet.age) yrs"
-        weightValueLabel.text = "\(pet.weight) kg"
-        heightValueLabel.text = "\(pet.height) cm"
+        weightValueLabel.text = Int(pet.weight) == 0 ? "-" : "\(pet.weight) kg"
+        heightValueLabel.text = Int(pet.height) == 0 ? "-" : "\(pet.height) kg"
     }
 }

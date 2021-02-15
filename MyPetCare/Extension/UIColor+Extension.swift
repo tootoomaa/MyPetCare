@@ -30,6 +30,9 @@ extension UIColor {
         return UIColor(rgb: 0x839b97)
     }
     
+    static var serviceColor: UIColor {
+        return UIColor(rgb: 0x75cfb8)
+    }
 }
 
 extension UIColor {

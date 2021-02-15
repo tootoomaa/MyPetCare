@@ -22,6 +22,13 @@ class MainViewController: UIViewController, View {
     
     let mainView = MainView()
     
+    let servicelayout = ServiceCollecionViewFlowLayout()
+    var serviceCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+    }()
+    
     // MARK: - Life cycle
     override func loadView() {
         view = mainView
@@ -31,8 +38,8 @@ class MainViewController: UIViewController, View {
         super.viewDidLoad()
         
         mainView.mainFrameTableView.dataSource = self
-        mainView.mainFrameTableView.rx.setDelegate(self)
-            .disposed(by: disposeBag)
+        
+        configureServiceCollectionView()
         
         configurePanGuesture()
     }
@@ -45,6 +52,23 @@ class MainViewController: UIViewController, View {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.navigationBar.isHidden = false
+    }
+    
+    private func configureServiceCollectionView() {
+        _ = serviceCollectionView.then {
+            $0.delegate = servicelayout
+            $0.backgroundColor = .none
+            $0.register(ServiceCell.self,
+                         forCellWithReuseIdentifier: ServiceCell.identifier)
+        }
+        
+        Observable.just(["심박수\n측정","몸무게"])
+            .bind(to: serviceCollectionView.rx.items(cellIdentifier: ServiceCell.identifier,
+                                                     cellType: ServiceCell.self)) { row, data, cell in
+                
+                cell.titleLabel.text = data
+                
+            }.disposed(by: disposeBag)
     }
     
     // MARK: - Animation Bind
@@ -228,25 +252,46 @@ class MainViewController: UIViewController, View {
                     }).disposed(by: disposeBag)
                 
             }).disposed(by: disposeBag)
+        
+        serviceCollectionView.rx.itemSelected
+            .subscribe(onNext: { [unowned self] indexPath in
+                
+                guard let selectedPet = reactor.currentState.selectedPet else { return }
+                if indexPath.row == 0 {
+                    
+                    let pbmeasureVC = HRMeasureViewController()
+                    pbmeasureVC.reactor = BPMeasureViewReactor(selectedPat: selectedPet)
+                    
+                    navigationController?.pushViewController(pbmeasureVC, animated: true)
+                }
+                
+            }).disposed(by: disposeBag)
     }
-    
-    
 }
 
 extension MainViewController: UITableViewDataSource, UITableViewDelegate {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 2
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        if indexPath.row == 0 {
+        if indexPath.row == 0 { // Service Collection View
             return UITableViewCell().then {
-                $0.backgroundColor = .red
+                $0.selectionStyle = .none
+                $0.contentView.addSubview(serviceCollectionView)
+                $0.backgroundColor = Constants.mainColor
+                serviceCollectionView.snp.makeConstraints {
+                    $0.top.leading.equalToSuperview()
+                    $0.bottom.trailing.equalToSuperview().offset(-8)
+                    $0.height.equalTo(60)
+                }
             }
         }
         
         return UITableViewCell().then {
+            $0.selectionStyle = .none
             $0.backgroundColor = .blue
         }
     }

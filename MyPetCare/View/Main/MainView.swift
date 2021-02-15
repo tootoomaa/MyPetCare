@@ -25,7 +25,7 @@ class MainView: UIView {
     }
     
     let selectedPetName = UILabel().then {
-        $0.font = .systemFont(ofSize: 20, weight: .semibold)
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 20)
         $0.alpha = 0
     }
     
