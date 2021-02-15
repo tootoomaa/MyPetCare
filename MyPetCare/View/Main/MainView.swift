@@ -1,5 +1,5 @@
 //
-//  NewMainView.swift
+//  MainView.swift
 //  MyPetCare
 //
 //  Created by 김광수 on 2021/02/14.
@@ -10,12 +10,13 @@ import UIKit
 import SnapKit
 import Then
 
-class NewMainView: UIView {
+class MainView: UIView {
     // MARK: - UI Layout Controller
     
     let padding: CGFloat = 8
     var petNameWidth: CGFloat = 0
     lazy var customEdgeInsets = UIEdgeInsets(top: padding*2, left: padding, bottom: padding, right: padding)
+    var isMainFrameScrolled = false
     
     // MARK: - Properties
     let titleLabel = UILabel().then {
@@ -134,15 +135,58 @@ class NewMainView: UIView {
         }   
     }
     
-    // MARK: - View handler
-    func configureEmptyViewComponentsByPetList(_ isEmpty: Bool) {
-        _ = petProfileView.then {
-            $0.petImageView.isHidden = !isEmpty
-            $0.petEmptyLabel.isHidden = !isEmpty
-            $0.ageLabel.isHidden = isEmpty
-            $0.weightLabel.isHidden = isEmpty
-            $0.heightLabel.isHidden = isEmpty
+    // MARK: - Animation Hander
+    func setOriginalOffsetPetProfileView() {
+        UIView.animate(withDuration: 0.1) {
+            self.petProfileView.dashBoardView.center.x = self.petProfileView.center.x
+        }
+    }
+    
+    func presentPetProfileCollectionView() {
+        UIView.animate(withDuration: 0.3) {
+            self.petProfileCollectionView.center.y += 20
+            self.petProfileCollectionView.alpha = 1
+        }
+    }
+    
+    func hidePetProfileCollectionView() {
+        UIView.animate(withDuration: 0.3) {
+            self.petProfileCollectionView.center.y -= 20
+            self.petProfileCollectionView.alpha = 0
+        }
+    }
+    
+    func mainFrameTableViewAnimationByScroll() {
+        // Pet Profile Collection View Animation
+        let offset = self.mainFrameTableView.contentOffset.y
+        if offset > 20  && isMainFrameScrolled == false {
+            
+            isMainFrameScrolled = true
+            UIView.animate(withDuration: 0.3) {
+                self.petProfileCollectionView.center.y -= 20
+                self.petProfileCollectionView.alpha = 0
+                
+            }
+            
+        } else if offset < 10 && isMainFrameScrolled == true {
+            
+            isMainFrameScrolled = false
+            UIView.animate(withDuration: 0.3) {
+                self.petProfileCollectionView.center.y += 20
+                self.petProfileCollectionView.alpha = 1
+
+            }
         }
         
+        // Selected Pet Display Animation
+        if offset > 80 && isMainFrameScrolled == true {
+            self.petMaleImageView.alpha = 1
+            self.selectedPetName.alpha = 1
+            self.selectPetImageView.alpha = 1
+        } else if offset < 80 && isMainFrameScrolled == true {
+            self.petMaleImageView.alpha = 0
+            self.selectedPetName.alpha = 0
+            self.selectPetImageView.alpha = 0
+        }
     }
 }
