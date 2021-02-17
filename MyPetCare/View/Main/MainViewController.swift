@@ -62,7 +62,7 @@ class MainViewController: UIViewController, View {
                          forCellWithReuseIdentifier: ServiceCell.identifier)
         }
         
-        Observable.just(["심박수\n측정","몸무게"])
+        Observable.just(["호흡수\n측정","몸무게"])
             .bind(to: serviceCollectionView.rx.items(cellIdentifier: ServiceCell.identifier,
                                                      cellType: ServiceCell.self)) { row, data, cell in
                 
@@ -259,8 +259,8 @@ class MainViewController: UIViewController, View {
                 guard let selectedPet = reactor.currentState.selectedPet else { return }
                 if indexPath.row == 0 {
                     
-                    let hrmeasureVC = HRMeasureViewController()
-                    hrmeasureVC.reactor = HRMeasureViewReactor(selectedPat: selectedPet)
+                    let hrmeasureVC = BRMeasureViewController()
+                    hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: selectedPet)
                     
                     let naviC = UINavigationController(rootViewController: hrmeasureVC)
                     

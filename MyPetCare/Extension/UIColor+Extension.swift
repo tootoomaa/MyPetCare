@@ -41,6 +41,10 @@ extension UIColor {
     static var hrMeasureBottomViewColor: UIColor {
         return UIColor(rgb: 0xd9dab0)
     }
+    
+    static var brMeasureButtonColor: UIColor {
+        return UIColor(rgb: 0xffc1b6)
+    }
 }
 
 extension UIColor {

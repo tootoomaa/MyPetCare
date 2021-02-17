@@ -23,11 +23,12 @@ extension UISegmentedControl {
         
         self.setTitleTextAttributes(
             [NSAttributedString.Key.foregroundColor: UIColor.systemGray5,
-             NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 17)], for: .normal)
+             NSAttributedString.Key.font: UIFont(name: "Cafe24Syongsyong", size: 17)!], for: .normal)
 //
+        
         self.setTitleTextAttributes(
             [NSAttributedString.Key.foregroundColor: UIColor.black,
-             NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 17)], for: .selected)
+             NSAttributedString.Key.font: UIFont(name: "Cafe24Syongsyong", size: 17)!], for: .selected)
     }
 }
 
