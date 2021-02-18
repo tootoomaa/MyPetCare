@@ -12,6 +12,7 @@ enum BRMeasureViewState {
     case ready
     case waiting
     case measuring
+    case finish
 }
 
 class BRMeasureViewReactor: Reactor {

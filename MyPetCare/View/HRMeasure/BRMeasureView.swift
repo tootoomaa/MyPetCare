@@ -177,19 +177,20 @@ class BRMeasureView: UIView {
             $0.height.equalTo(80)
         }
         
-        [timeSettingLabel, secondSegmentController].forEach {
-            timeSettingView.addSubview($0)
-        }
-        
+//        [].forEach {
+//            timeSettingView.addSubview($0)
+//        }
+        addSubview(timeSettingLabel)
         timeSettingLabel.snp.makeConstraints {
-            $0.top.leading.equalToSuperview().offset(padding)
+            $0.top.equalTo(petImageView.snp.bottom).offset(padding*2)
+            $0.leading.equalTo(safeGuide).offset(padding*2)
         }
         
+        addSubview(secondSegmentController)
         secondSegmentController.snp.makeConstraints {
             $0.top.equalTo(timeSettingLabel.snp.bottom).offset(padding)
-            $0.leading.equalToSuperview().offset(padding)
-            $0.trailing.equalToSuperview().offset(-padding)
-            $0.bottom.equalToSuperview().offset(-padding)
+            $0.leading.equalTo(safeGuide).offset(padding*2)
+            $0.trailing.equalTo(safeGuide).offset(-padding*2)
         }
         
         // MARK: - CountDown View
@@ -228,25 +229,26 @@ class BRMeasureView: UIView {
     
     // MARK: - Animation handler
     func readyViewSetupWithAnimation() {
-        
         // Ready UI Appear
-        UIView.animateKeyframes(withDuration: 0.6, delay: 0, options: []) {
+        UIView.animateKeyframes(withDuration: 0.6, delay: 0, options: []) { [unowned self] in
             
             UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.4) {
-                self.startButton.center.x += Constants.viewWidth
-                self.startButton.alpha = 1
-                self.countDownView.alpha = 0
+                startButton.center.x = hrMeasureView.center.x
+                startButton.alpha = 1
+                countDownView.alpha = 0
+                self.cancelButton.alpha = 0
             }
             
             UIView.addKeyframe(withRelativeStartTime: 0.1, relativeDuration: 0.5) {
-                self.secondSegmentController.center.x += Constants.viewWidth
+                secondSegmentController.center.x = hrMeasureView.center.x
+                secondSegmentController.alpha = 1
             }
             
             UIView.addKeyframe(withRelativeStartTime: 0.2, relativeDuration: 0.6) {
-                self.timeSettingLabel.center.x += Constants.viewWidth
+                timeSettingLabel.center.x += hrMeasureView.center.x
+                timeSettingLabel.alpha = 1
             }
         }
-        
     }
     
     func waitingViewSetupWithAnimation() {
@@ -254,11 +256,12 @@ class BRMeasureView: UIView {
             
             UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.4) {
                 self.timeSettingLabel.center.x -= Constants.viewWidth
-                self.measureButton.alpha = 0
+                self.timeSettingLabel.alpha = 0
             }
             
             UIView.addKeyframe(withRelativeStartTime: 0.1, relativeDuration: 0.5) {
                 self.secondSegmentController.center.x -= Constants.viewWidth
+                self.secondSegmentController.alpha = 0
             }
             
             UIView.addKeyframe(withRelativeStartTime: 0.2, relativeDuration: 0.6) {
@@ -277,7 +280,7 @@ class BRMeasureView: UIView {
     func measureViewSetupWithAnimation() {
         UIView.animate(withDuration: 0.5) {
             
-            self.cancelButton.center.x -= Constants.viewWidth
+            self.cancelButton.center.x += Constants.viewWidth
             self.cancelButton.alpha = 0
             
         }completion: { _ in

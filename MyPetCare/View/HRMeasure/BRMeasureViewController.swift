@@ -74,8 +74,26 @@ class BRMeasureViewController: UIViewController, View {
                 switch mainViewState {
                 case .ready:        mainView.readyViewSetupWithAnimation()
                 case .waiting:      mainView.waitingViewSetupWithAnimation()
-                case .measuring:    mainView.measureViewSetupWithAnimation()}
+                case .measuring:    mainView.measureViewSetupWithAnimation()
+                case .finish:
+                    break
+                }
             }).disposed(by: disposeBag)
+        
+        // ready View State
+        reactor.state.map{$0.viewState}
+            .compactMap{$0}
+            .distinctUntilChanged()
+            .filter{$0 == .ready}
+            .subscribe(onNext: { [unowned self] _ in
+                print("ready")
+                mainView.readyViewSetupWithAnimation()  // View 상태 원상 복귀
+                watingTimer?.dispose()                  // 타이머 종료
+                measureTimer?.dispose()
+                mainView.countDownLabel.text = ""
+                
+            }).disposed(by: disposeBag)
+
         
         // Waiting State
         reactor.state.map{$0.viewState}
@@ -83,6 +101,7 @@ class BRMeasureViewController: UIViewController, View {
             .distinctUntilChanged()
             .filter{$0 == .waiting}
             .subscribe(onNext: { [unowned self] _ in
+                print("waiting")
                 let maxInt = 3
                 watingTimer = Observable<Int>
                     .interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
@@ -102,30 +121,52 @@ class BRMeasureViewController: UIViewController, View {
                 })
             }).disposed(by: disposeBag)
         
+        
+        // Measure View State
         reactor.state.map{$0.viewState}
             .compactMap{$0}
             .distinctUntilChanged()
             .filter{$0 == .measuring}
             .subscribe(onNext: { [unowned self] _ in
+                print("measure")
                 let maxInt = reactor.currentState.selectedMeatureTime
                 measureTimer = Observable<Int>
                     .interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
                     .map{maxInt - ($0)}
                     .map{ time in
-                        if time == 0 {
-                            reactor.action.onNext(.setViewState(.measuring))
+                        print(time)
+                        if time == -1 {
+                            measureTimer?.dispose()
+                            reactor.action.onNext(.setViewState(.finish))
+                            return "종료"
+                        } else if time == reactor.currentState.brCount {
                             return "측정 시작!"
                         } else {
-                            return "\(time) 초   |   \(reactor.currentState.brCount)회"
+                            return "\(time) 초       |       \(reactor.currentState.brCount)회"
                         }
                     }
                     .bind(to: mainView.countDownLabel.rx.text)
                 
-                DispatchQueue.main.asyncAfter(deadline: .now()+4, execute: {
-                    watingTimer?.dispose()
-                })
+//                DispatchQueue.main.asyncAfter(deadline: .now()+60, execute: {
+//                    measureTimer?.dispose()
+//                })
+                
             }).disposed(by: disposeBag)
         
+        // ready View State
+        reactor.state.map{$0.viewState}
+            .compactMap{$0}
+            .distinctUntilChanged()
+            .filter{$0 == .finish}
+            .subscribe(onNext: { [unowned self] _ in
+                print("finsih")
+                watingTimer?.dispose()
+                measureTimer?.dispose()
+                mainView.countDownLabel.text = "종료"
+                mainView.measureButton.isEnabled = false
+                
+            }).disposed(by: disposeBag)
+
         
         // 사용자 시간 선택
         mainView.secondSegmentController.rx.selectedSegmentIndex
@@ -141,13 +182,13 @@ class BRMeasureViewController: UIViewController, View {
             .disposed(by: disposeBag)
         
         mainView.startButton.rx.tap
-            .throttle(.milliseconds(300), scheduler: MainScheduler.asyncInstance)
+//            .throttle(.milliseconds(300), scheduler: MainScheduler.asyncInstance)
             .map{Reactor.Action.setViewState(.waiting)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         mainView.cancelButton.rx.tap
-            .throttle(.milliseconds(100), scheduler: MainScheduler.asyncInstance)
+//            .throttle(.milliseconds(100), scheduler: MainScheduler.asyncInstance)
             .do(onNext:{self.watingTimer?.dispose()})
             .map{Reactor.Action.setViewState(.ready)}
             .bind(to: reactor.action)
