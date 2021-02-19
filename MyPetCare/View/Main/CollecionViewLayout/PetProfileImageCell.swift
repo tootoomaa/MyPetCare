@@ -31,6 +31,7 @@ class PetProfileImageCell: UICollectionViewCell {
         $0.layer.cornerRadius = 10
         $0.clipsToBounds = true
         $0.isHidden = true
+        $0.backgroundColor = .white
     }
     
     override var isSelected: Bool {
@@ -63,7 +64,7 @@ class PetProfileImageCell: UICollectionViewCell {
         
         selectMarkImage.snp.makeConstraints {
             $0.bottom.trailing.equalTo(contentView.safeAreaLayoutGuide)
-            $0.width.height.equalTo(20)
+            $0.width.height.equalTo(17)
         }        
     }
     

@@ -32,8 +32,14 @@ class ServiceCell: UICollectionViewCell {
     }
     
     private func configureContentView() {
-        contentView.backgroundColor = .serviceColor
-        contentView.layer.cornerRadius = 20
+        
+        _ = contentView.then {
+            $0.layer.cornerRadius = 20
+            $0.layer.borderWidth = 1
+            $0.layer.borderColor = UIColor.serviceBorderColor.cgColor
+            $0.clipsToBounds = true
+            $0.backgroundColor = .serviceColor
+        }
     }
     
     private func configureLayout() {

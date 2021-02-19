@@ -77,11 +77,19 @@ class BRMeasureViewController: UIViewController, View {
                 case .ready:        mainView.readyViewSetupWithAnimation()
                 case .waiting:      mainView.waitingViewSetupWithAnimation()
                 case .measuring:    mainView.measureViewSetupWithAnimation()
-                case .finish:
-                    break
+                case .finish:       mainView.finishViewSetupWithAnimation()
                 }
             }).disposed(by: disposeBag)
         
+        reactor.state.map{$0.countDownLabelText}
+            .compactMap{$0}
+            .distinctUntilChanged()
+            .bind(to: mainView.countDownLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        /////////////////////////////////////////////////////////
+        // MARK: - View State (ready->Waiting->Measure->Finish)
+        /////////////////////////////////////////////////////////
         // ready View State
         reactor.state.map{$0.viewState}
             .compactMap{$0}
@@ -110,7 +118,7 @@ class BRMeasureViewController: UIViewController, View {
                     .map{maxInt - ($0)}
                     .map{ time in
                         if time == 0 {
-                            reactor.action.onNext(.setViewState(.measuring))
+                            reactor.action.onNext(.viewStateChange(.measuring))
                             return "측정 시작!"
                         } else {
                             return "\(time) 초"
@@ -151,7 +159,7 @@ class BRMeasureViewController: UIViewController, View {
                                 return "오류 발생"
                             }
                             measureTimer.dispose() // 이전 타이머 종료
-                            reactor.action.onNext(.setViewState(.finish))
+                            reactor.action.onNext(.viewStateChange(.finish))
                             return "종료"
                         } else if time == reactor.currentState.brCount {
                             return "측정 시작!"
@@ -166,21 +174,21 @@ class BRMeasureViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
-        // ready View State
+        // Finish View State
         reactor.state.map{$0.viewState}
             .compactMap{$0}
             .distinctUntilChanged()
             .filter{$0 == .finish}
             .subscribe(onNext: { [unowned self] _ in
                 
-                watingTimers.forEach{$0?.dispose()}
-                measureTimers.forEach{$0?.dispose()}
+                watingTimers.forEach{$0?.dispose()}         // 타이머 종료
+                measureTimers.forEach{$0?.dispose()}        // 타이머 종료
                 mainView.countDownLabel.text = "종료"
-                mainView.measureButton.isEnabled = false
+                mainView.measureButton.isEnabled = false    // Tap 버튼 비활성화
                 
             }).disposed(by: disposeBag)
-
         
+        // MARK: - Button Action
         // 사용자 시간 선택
         mainView.secondSegmentController.rx.selectedSegmentIndex
             .map{ index -> Int in
@@ -195,13 +203,13 @@ class BRMeasureViewController: UIViewController, View {
             .disposed(by: disposeBag)
         
         mainView.startButton.rx.tap
-//            .throttle(.milliseconds(300), scheduler: MainScheduler.asyncInstance)
-            .map{Reactor.Action.setViewState(.waiting)}
+            .throttle(.milliseconds(300), scheduler: MainScheduler.asyncInstance)
+            .map{Reactor.Action.viewStateChange(.waiting)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
         mainView.cancelButton.rx.tap
-//            .throttle(.milliseconds(100), scheduler: MainScheduler.asyncInstance)
+            .throttle(.milliseconds(100), scheduler: MainScheduler.asyncInstance)
             .do(onNext:{ [unowned self] in
                 guard let watingTimers = self.watingTimers[self.waitingTimerIndexForStop-1] else {
                     self.presentErrorAlertController()
@@ -209,16 +217,18 @@ class BRMeasureViewController: UIViewController, View {
                 }
                 watingTimers.dispose()
             })
-            .map{Reactor.Action.setViewState(.ready)}
+            .map{Reactor.Action.viewStateChange(.ready)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        // 호흡수 + 1
         mainView.measureButton.rx.tap
             .map{Reactor.Action.plusBRCount}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
     
+    // MARK: - Handler
     func presentErrorAlertController() {
         
         let alertC = UIAlertController(title: "오류 발생",

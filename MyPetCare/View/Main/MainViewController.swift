@@ -62,7 +62,7 @@ class MainViewController: UIViewController, View {
                          forCellWithReuseIdentifier: ServiceCell.identifier)
         }
         
-        Observable.just(["호흡수\n측정","몸무게"])
+        Observable.just(["호흡수\n측정","몸무게\n키"])
             .bind(to: serviceCollectionView.rx.items(cellIdentifier: ServiceCell.identifier,
                                                      cellType: ServiceCell.self)) { row, data, cell in
                 

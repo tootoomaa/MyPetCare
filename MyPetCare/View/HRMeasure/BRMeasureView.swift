@@ -12,8 +12,32 @@ class BRMeasureView: UIView {
     
     let padding: CGFloat = 8
     let cancelButtonHeight: CGFloat = 50
+    let howToMeasureButtonHeight: CGFloat = 25
     
     // MARK: - Properties
+    
+    lazy var howToMeasureButton = UIButton().then {
+        $0.setTitle("측정 방법", for: .normal)
+        $0.setTitleColor(.black, for: .normal)
+        
+        $0.titleLabel?.font = UIFont(name: "Cafe24Syongsyong", size: 10)
+        
+        let image = UIImage(systemName: "questionmark.circle")?
+                        .withRenderingMode(.alwaysOriginal)
+                        .withTintColor(.black)
+        
+        $0.setImage(image, for: .normal)
+        $0.imageView?.frame.size = CGSize(width: howToMeasureButtonHeight/3,
+                                          height: howToMeasureButtonHeight/3)
+        
+        $0.backgroundColor = .white
+        
+        $0.layer.cornerRadius = howToMeasureButtonHeight/2
+        $0.layer.borderWidth = 1
+        $0.layer.borderColor = UIColor.black.cgColor
+        $0.clipsToBounds = true
+    }
+    
     var petImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 20
@@ -43,9 +67,9 @@ class BRMeasureView: UIView {
     
     var hrMeasureView = UIView().then {
         $0.backgroundColor = .hrMesaureColor
-        $0.layer.cornerRadius = 40
         $0.layer.maskedCorners = [.layerMinXMinYCorner,
                                   .layerMaxXMinYCorner]
+        $0.addCornerRadius(20)
     }
     
     var timeSettingView = UIView().then {
@@ -68,9 +92,8 @@ class BRMeasureView: UIView {
     
     var countDownView = UIView().then {
         $0.backgroundColor = .systemGray5
-        $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.black.cgColor
-        $0.layer.cornerRadius = 20
+        $0.addBorder(.black, 1)
+        $0.addCornerRadius(20)
         $0.alpha = 0
     }
     
@@ -84,9 +107,8 @@ class BRMeasureView: UIView {
         $0.setTitleColor(.black, for: .normal)
         $0.backgroundColor = Constants.mainColor
         $0.titleLabel?.font = UIFont(name: "Cafe24Syongsyong", size: 50)
-        $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.black.cgColor
-        $0.layer.cornerRadius = 20
+        $0.addBorder(.black, 1)
+        $0.addCornerRadius(20)
     }
     
     let cancelButton = UIButton().then {
@@ -94,9 +116,8 @@ class BRMeasureView: UIView {
         $0.setTitleColor(.white, for: .normal)
         $0.backgroundColor = .red
         $0.titleLabel?.font = UIFont(name: "Cafe24Syongsyong", size: 30)
-        $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.black.cgColor
-        $0.layer.cornerRadius = 20
+        $0.addBorder(.black, 1)
+        $0.addCornerRadius(20)
         $0.alpha = 0
     }
     
@@ -105,11 +126,12 @@ class BRMeasureView: UIView {
         $0.setTitleColor(.white, for: .normal)
         $0.backgroundColor = .brMeasureButtonColor
         $0.titleLabel?.font = UIFont(name: "Cafe24Syongsyong", size: 60)
-        $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.black.cgColor
-        $0.layer.cornerRadius = 20
+        $0.addBorder(.black, 1)
+        $0.addCornerRadius(20)
         $0.alpha = 0
     }
+    
+    let resultView = BPMeasureResultView()
     
     // MARK: - Life Cycle
     override init(frame: CGRect) {
@@ -124,20 +146,29 @@ class BRMeasureView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Configure Layout
     private func configureLayout() {
         let safeGuide = self.safeAreaLayoutGuide
         
-        [hrMeasureView,
+        [hrMeasureView, howToMeasureButton,
          petMaleImageView, petName, petAge, paddingLabel, petImageView,
          timeSettingView,               // For time Selecte View -> Change
          countDownView,                 // For Count Down View ---> Change
-         cancelButton, startButton, measureButton].forEach {
+         cancelButton, startButton, measureButton,
+         resultView].forEach {
             addSubview($0)
         }
         
         hrMeasureView.snp.makeConstraints {
             $0.top.equalTo(petImageView.snp.centerY)
             $0.leading.trailing.bottom.equalTo(safeGuide)
+        }
+        
+        howToMeasureButton.snp.makeConstraints {
+            $0.top.equalTo(hrMeasureView).offset(10)
+            $0.trailing.equalTo(safeGuide).inset(25)
+            $0.bottom.equalTo(petImageView).inset(10)
+            $0.width.equalTo(howToMeasureButtonHeight*3)
         }
         
         // MARK: - Pet Profile View
@@ -226,6 +257,15 @@ class BRMeasureView: UIView {
             $0.leading.trailing.equalTo(timeSettingView)
             $0.bottom.equalTo(safeGuide).offset(-padding*2)
         }
+        
+        // MARK: - Result View for Finish State
+        resultView.snp.makeConstraints {
+            $0.top.equalTo(countDownView).offset(-2)
+            $0.leading.equalTo(timeSettingView).offset(-2)
+            $0.trailing.equalTo(timeSettingView).offset(2)
+            $0.bottom.equalTo(safeGuide).offset(-padding*2)
+        }
+        
     }
     
     // MARK: - Animation handler
@@ -280,18 +320,18 @@ class BRMeasureView: UIView {
     
     func measureViewSetupWithAnimation() {
         UIView.animate(withDuration: 0.5) {
-            
             self.cancelButton.center.x -= Constants.viewWidth
             self.cancelButton.alpha = 0
-            
         }completion: { _ in
-            
             UIView.animate(withDuration: 0.3) {
-                
                 self.measureButton.alpha = 1
-                
             }
         }
-        
+    }
+    
+    func finishViewSetupWithAnimation() {
+        UIView.animate(withDuration: 0.5) {
+            self.resultView.alpha = 1
+        }
     }
 }

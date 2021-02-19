@@ -19,20 +19,23 @@ class BRMeasureViewReactor: Reactor {
     
     enum Action {
         case selectedTime(Int)
-        case setViewState(BRMeasureViewState)
+        case viewStateChange(BRMeasureViewState)
+        case countDownLabelText(String)
         case plusBRCount
     }
     
     enum Mutation {
         case setTime(Int)
         case setViewState(BRMeasureViewState)
+        case setCountDownLabelText(String)
         case plusBRCount
     }
     
     struct State {
         var selectedPet: PetObject              // 선택된 펫 정보
         var selectedMeatureTime: Int            // 선택된 측정 시간
-        var viewState: BRMeasureViewState?       // View의 상태, 대기/준비/측정
+        var viewState: BRMeasureViewState?      // View의 상태, 대기/준비/측정
+        var countDownLabelText: String?          // Count Down Label
         var brCount: Int
     }
     
@@ -43,6 +46,7 @@ class BRMeasureViewReactor: Reactor {
         initialState = State(selectedPet: selectedPat,
                              selectedMeatureTime: 0,
                              viewState: nil,
+                             countDownLabelText: nil,
                              brCount: 0)
     }
     
@@ -53,9 +57,12 @@ class BRMeasureViewReactor: Reactor {
         case .selectedTime(let time):
             return .just(.setTime(time))
             
-        case .setViewState(let measure):
+        case .viewStateChange(let measure):
             return .just(.setViewState(measure))
         
+        case .countDownLabelText(let text):
+            return .just(.setCountDownLabelText(text))
+            
         case .plusBRCount:
             return .just(.plusBRCount)
         }
@@ -70,6 +77,9 @@ class BRMeasureViewReactor: Reactor {
             
         case .setViewState(let measure):
             newState.viewState = measure
+            
+        case .setCountDownLabelText(let text):
+            newState.countDownLabelText = text
             
         case .plusBRCount:
             newState.brCount += 1

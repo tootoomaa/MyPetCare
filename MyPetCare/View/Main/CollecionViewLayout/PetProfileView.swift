@@ -18,6 +18,9 @@ class PetProfileView: UIView {
         $0.backgroundColor = .systemGray6
         $0.layer.cornerRadius = 20
         $0.clipsToBounds = true
+        $0.layer.borderWidth = 2
+        $0.layer.borderColor = UIColor(rgb: 0xe7e6e1).cgColor
+        $0.backgroundColor = UIColor(rgb: 0xe7e6e1)
     }
     
     var petImageView = UIImageView().then {
@@ -118,6 +121,7 @@ class PetProfileView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Layout
     private func configureLayout(_ topPadding: CGFloat, _ bottomPadding: CGFloat) {
         
         [editButton, deleteButton, dashBoardView].forEach {

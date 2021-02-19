@@ -10,7 +10,7 @@ import UIKit
 class ServiceCollecionViewFlowLayout:NSObject, UICollectionViewDelegateFlowLayout {
     
     struct BaseLayout {
-        static var lineNumber: CGFloat = 1
+        static var lineNumber: CGFloat = 2
         static var miniMumItemSpacing: CGFloat = 10
         static var miniMumLineSpacing: CGFloat = 10
         static var edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)

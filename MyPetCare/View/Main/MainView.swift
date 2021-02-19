@@ -21,7 +21,7 @@ class MainView: UIView {
     // MARK: - Properties
     let titleLabel = UILabel().then {
         $0.text = "My Pets"
-        $0.font = .systemFont(ofSize: 30, weight: .bold)
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 30)
     }
     
     let selectedPetName = UILabel().then {

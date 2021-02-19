@@ -31,7 +31,11 @@ extension UIColor {
     }
     
     static var serviceColor: UIColor {
-        return UIColor(rgb: 0x75cfb8)
+        return UIColor(rgb: 0xa3ddcb)
+    }
+    
+    static var serviceBorderColor: UIColor {
+        return UIColor(rgb: 0xa3d2ca)
     }
     
     static var hrMesaureColor: UIColor {
@@ -44,6 +48,14 @@ extension UIColor {
     
     static var brMeasureButtonColor: UIColor {
         return UIColor(rgb: 0xffc1b6)
+    }
+    
+    static var saveButtonColor: UIColor {
+        return UIColor(rgb: 0xaee1e1)
+    }
+    
+    static var cancelButtonColor: UIColor {
+        return UIColor(rgb: 0xffdcdc)
     }
 }
 
