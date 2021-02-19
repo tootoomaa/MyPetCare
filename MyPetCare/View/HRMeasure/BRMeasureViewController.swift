@@ -14,9 +14,11 @@ class BRMeasureViewController: UIViewController, View {
     var disposeBag: DisposeBag = DisposeBag()
     
     let mainView = BRMeasureView()
-    
-    var watingTimer: Disposable? = nil  // 3초 카운트 다운 Observable Dispose
-    var measureTimer: Disposable? = nil // 사용자가 입력한 카운트 다운 Observable Dispose
+    // 여러번 껏다 켯다 할 경우 이전 타이머가 다른 타이머에 영향을 주지 않도록
+    var watingTimers: [Disposable?] = []  // 3초 카운트 다운 Observable Dispose
+    var measureTimers: [Disposable?] = [] // 사용자가 입력한 카운트 다운 Observable Dispose
+    var waitingTimerIndexForStop: Int = 0
+    var measureTimerIndexForStop: Int = 0
             
     // MARK: - LifeCycle
     override func loadView() {
@@ -33,8 +35,8 @@ class BRMeasureViewController: UIViewController, View {
         super.viewDidDisappear(animated)
         // 타이머 및 reacotr 제거
         self.reactor = nil
-        self.watingTimer?.dispose()
-        self.measureTimer?.dispose()
+        self.watingTimers.forEach{$0?.dispose()}
+        self.measureTimers.forEach{$0?.dispose()}
     }
     
     private func configureNavigation() {
@@ -86,10 +88,10 @@ class BRMeasureViewController: UIViewController, View {
             .distinctUntilChanged()
             .filter{$0 == .ready}
             .subscribe(onNext: { [unowned self] _ in
-                print("ready")
+                
                 mainView.readyViewSetupWithAnimation()  // View 상태 원상 복귀
-                watingTimer?.dispose()                  // 타이머 종료
-                measureTimer?.dispose()
+                watingTimers.forEach{$0?.dispose()}    // 타이머 종료
+                measureTimers.forEach{$0?.dispose()}
                 mainView.countDownLabel.text = ""
                 
             }).disposed(by: disposeBag)
@@ -101,9 +103,9 @@ class BRMeasureViewController: UIViewController, View {
             .distinctUntilChanged()
             .filter{$0 == .waiting}
             .subscribe(onNext: { [unowned self] _ in
-                print("waiting")
+                
                 let maxInt = 3
-                watingTimer = Observable<Int>
+                let watingTimer = Observable<Int>
                     .interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
                     .map{maxInt - ($0)}
                     .map{ time in
@@ -116,9 +118,15 @@ class BRMeasureViewController: UIViewController, View {
                     }
                     .bind(to: mainView.countDownLabel.rx.text)
                 
+                watingTimers.append(watingTimer) // 타이머 추가
+                
                 DispatchQueue.main.asyncAfter(deadline: .now()+4, execute: {
-                    watingTimer?.dispose()
+                    [waitingTimerIndexForStop] in
+                    // +1 되기 index를 Capture
+                    watingTimers[waitingTimerIndexForStop]?.dispose()
                 })
+                
+                waitingTimerIndexForStop += 1 // 종료할 타이머 index
             }).disposed(by: disposeBag)
         
         
@@ -128,15 +136,21 @@ class BRMeasureViewController: UIViewController, View {
             .distinctUntilChanged()
             .filter{$0 == .measuring}
             .subscribe(onNext: { [unowned self] _ in
-                print("measure")
+                
                 let maxInt = reactor.currentState.selectedMeatureTime
-                measureTimer = Observable<Int>
+                
+                let measureTimer = Observable<Int>
                     .interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
                     .map{maxInt - ($0)}
                     .map{ time in
-                        print(time)
+                        
                         if time == -1 {
-                            measureTimer?.dispose()
+                            // 이전 타이머 종료
+                            guard let measureTimer = measureTimers[measureTimerIndexForStop-1] else {
+                                presentErrorAlertController()
+                                return "오류 발생"
+                            }
+                            measureTimer.dispose() // 이전 타이머 종료
                             reactor.action.onNext(.setViewState(.finish))
                             return "종료"
                         } else if time == reactor.currentState.brCount {
@@ -147,9 +161,8 @@ class BRMeasureViewController: UIViewController, View {
                     }
                     .bind(to: mainView.countDownLabel.rx.text)
                 
-//                DispatchQueue.main.asyncAfter(deadline: .now()+60, execute: {
-//                    measureTimer?.dispose()
-//                })
+                measureTimers.append(measureTimer)  // MeasureTimer 추가
+                measureTimerIndexForStop += 1       // MeasureIndex 추가
                 
             }).disposed(by: disposeBag)
         
@@ -159,9 +172,9 @@ class BRMeasureViewController: UIViewController, View {
             .distinctUntilChanged()
             .filter{$0 == .finish}
             .subscribe(onNext: { [unowned self] _ in
-                print("finsih")
-                watingTimer?.dispose()
-                measureTimer?.dispose()
+                
+                watingTimers.forEach{$0?.dispose()}
+                measureTimers.forEach{$0?.dispose()}
                 mainView.countDownLabel.text = "종료"
                 mainView.measureButton.isEnabled = false
                 
@@ -189,7 +202,13 @@ class BRMeasureViewController: UIViewController, View {
         
         mainView.cancelButton.rx.tap
 //            .throttle(.milliseconds(100), scheduler: MainScheduler.asyncInstance)
-            .do(onNext:{self.watingTimer?.dispose()})
+            .do(onNext:{ [unowned self] in
+                guard let watingTimers = self.watingTimers[self.waitingTimerIndexForStop-1] else {
+                    self.presentErrorAlertController()
+                    return
+                }
+                watingTimers.dispose()
+            })
             .map{Reactor.Action.setViewState(.ready)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -200,8 +219,19 @@ class BRMeasureViewController: UIViewController, View {
             .disposed(by: disposeBag)
     }
     
-    // MARK: - View State Handler
-    private func watingViewState() {
+    func presentErrorAlertController() {
+        
+        let alertC = UIAlertController(title: "오류 발생",
+                                       message: "화면을 종료합니다. 다시 접속해주세요.",
+                                       preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: "확인", style: .default) { _ in
+            self.dismiss(animated: true, completion: nil)
+        }
+        
+        alertC.addAction(okAction)
+        
+        present(alertC, animated: true, completion: nil)
         
     }
 }

@@ -55,7 +55,7 @@ class BRMeasureView: UIView {
     var timeSettingLabel = UILabel().then {
         $0.textColor = .black
         $0.font = UIFont(name: "Cafe24Syongsyong", size: 25)
-        $0.textAlignment = .center
+        $0.textAlignment = .left
         $0.text = "시간 설정"
     }
     
@@ -184,6 +184,7 @@ class BRMeasureView: UIView {
         timeSettingLabel.snp.makeConstraints {
             $0.top.equalTo(petImageView.snp.bottom).offset(padding*2)
             $0.leading.equalTo(safeGuide).offset(padding*2)
+            $0.trailing.equalTo(safeGuide).offset(-padding*2)
         }
         
         addSubview(secondSegmentController)
@@ -245,7 +246,7 @@ class BRMeasureView: UIView {
             }
             
             UIView.addKeyframe(withRelativeStartTime: 0.2, relativeDuration: 0.6) {
-                timeSettingLabel.center.x += hrMeasureView.center.x
+                timeSettingLabel.center.x = hrMeasureView.center.x
                 timeSettingLabel.alpha = 1
             }
         }
@@ -268,8 +269,8 @@ class BRMeasureView: UIView {
                 self.startButton.center.x -= Constants.viewWidth
                 self.startButton.alpha = 0
             }
-        } completion: { _ in
             
+        } completion: { _ in
             UIView.animate(withDuration: 0.3) {
                 self.countDownView.alpha = 1
                 self.cancelButton.alpha = 1
@@ -280,7 +281,7 @@ class BRMeasureView: UIView {
     func measureViewSetupWithAnimation() {
         UIView.animate(withDuration: 0.5) {
             
-            self.cancelButton.center.x += Constants.viewWidth
+            self.cancelButton.center.x -= Constants.viewWidth
             self.cancelButton.alpha = 0
             
         }completion: { _ in
