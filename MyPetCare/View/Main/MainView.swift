@@ -89,6 +89,7 @@ class MainView: UIView {
             $0.register(PetProfileImageCell.self,
                         forCellWithReuseIdentifier: PetProfileImageCell.identifier)
             $0.layer.cornerRadius = 20
+            $0.showsHorizontalScrollIndicator = false
         }
     }
     

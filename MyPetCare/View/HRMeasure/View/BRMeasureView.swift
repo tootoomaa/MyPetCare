@@ -324,7 +324,8 @@ class BRMeasureView: UIView {
         }
     }
     
-    func finishViewSetupWithAnimation() {
+    func finishViewSetupWithAnimation(_ brCount: Int) {
+        resultView.brNumber = brCount
         UIView.animate(withDuration: 0.5) {
             self.resultView.alpha = 1
         }

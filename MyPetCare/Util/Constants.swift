@@ -15,6 +15,9 @@ class Constants {
         case service
     }
     
+    // Measure View
+    static let maxMeasureCount: Int = 60
+    
     // Locale
     static let currentLocale = Locale(identifier: "ko_KR")
     

@@ -77,13 +77,19 @@ class BRMeasureViewController: UIViewController, View {
                 case .ready:        mainView.readyViewSetupWithAnimation()
                 case .waiting:      mainView.waitingViewSetupWithAnimation()
                 case .measuring:    mainView.measureViewSetupWithAnimation()
-                case .finish:       mainView.finishViewSetupWithAnimation()
+                case .finish:       mainView.finishViewSetupWithAnimation(reactor.resultBRCount)
                 }
             }).disposed(by: disposeBag)
         
         reactor.state.map{$0.countDownLabelText}
             .compactMap{$0}
             .distinctUntilChanged()
+            .bind(to: mainView.countDownLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map{$0.brCount}                   // Measure Button Touch 시 라벨 즉시 갱신
+            .distinctUntilChanged()
+            .map{"\(reactor.currentState.countTimeNumber) 초       |       \($0)회"}
             .bind(to: mainView.countDownLabel.rx.text)
             .disposed(by: disposeBag)
         
@@ -97,10 +103,10 @@ class BRMeasureViewController: UIViewController, View {
             .filter{$0 == .ready}
             .subscribe(onNext: { [unowned self] _ in
                 
-                mainView.readyViewSetupWithAnimation()  // View 상태 원상 복귀
-                watingTimers.forEach{$0?.dispose()}    // 타이머 종료
+                mainView.readyViewSetupWithAnimation()          // View 상태 원상 복귀
+                watingTimers.forEach{$0?.dispose()}             // 타이머 종료
                 measureTimers.forEach{$0?.dispose()}
-                mainView.countDownLabel.text = ""
+                mainView.countDownLabel.text = ""               // 이전 설정값 제거
                 
             }).disposed(by: disposeBag)
 
@@ -117,6 +123,9 @@ class BRMeasureViewController: UIViewController, View {
                     .interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
                     .map{maxInt - ($0)}
                     .map{ time in
+                        
+                        reactor.action.onNext(.countNumberSet(time))    // 타이머 넘버 저장
+                        
                         if time == 0 {
                             reactor.action.onNext(.viewStateChange(.measuring))
                             return "측정 시작!"
@@ -124,7 +133,8 @@ class BRMeasureViewController: UIViewController, View {
                             return "\(time) 초"
                         }
                     }
-                    .bind(to: mainView.countDownLabel.rx.text)
+                    .map{Reactor.Action.countDownLabelText($0)}
+                    .bind(to: reactor.action)
                 
                 watingTimers.append(watingTimer) // 타이머 추가
                 
@@ -152,6 +162,8 @@ class BRMeasureViewController: UIViewController, View {
                     .map{maxInt - ($0)}
                     .map{ time in
                         
+                        reactor.action.onNext(.countNumberSet(time))    // 타이머 넘버 저장
+                        
                         if time == -1 {
                             // 이전 타이머 종료
                             guard let measureTimer = measureTimers[measureTimerIndexForStop-1] else {
@@ -161,13 +173,14 @@ class BRMeasureViewController: UIViewController, View {
                             measureTimer.dispose() // 이전 타이머 종료
                             reactor.action.onNext(.viewStateChange(.finish))
                             return "종료"
-                        } else if time == reactor.currentState.brCount {
+                        } else if time == reactor.currentState.selectedMeatureTime {
                             return "측정 시작!"
                         } else {
                             return "\(time) 초       |       \(reactor.currentState.brCount)회"
                         }
                     }
-                    .bind(to: mainView.countDownLabel.rx.text)
+                    .map{Reactor.Action.countDownLabelText($0)}
+                    .bind(to: reactor.action)
                 
                 measureTimers.append(measureTimer)  // MeasureTimer 추가
                 measureTimerIndexForStop += 1       // MeasureIndex 추가
@@ -239,8 +252,6 @@ class BRMeasureViewController: UIViewController, View {
                     },
                     animated: true,
                     completion: nil)
-                
-                
             }).disposed(by: disposeBag)
     }
     

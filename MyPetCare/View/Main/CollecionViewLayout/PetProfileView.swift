@@ -77,7 +77,7 @@ class PetProfileView: UIView {
     
     let editButton = UIButton().then {
         $0.setTitle("  eidt", for: .normal)
-        $0.titleLabel?.font = .dynamicSystemFont(size: 20, weight: .bold)
+        $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
         $0.setTitleColor(.white, for: .normal)
         $0.backgroundColor = .systemBlue
         $0.clipsToBounds = true
@@ -87,7 +87,7 @@ class PetProfileView: UIView {
     
     let deleteButton = UIButton().then {
         $0.setTitle("  delete", for: .normal)
-        $0.titleLabel?.font = .dynamicSystemFont(size: 20, weight: .bold)
+        $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
         $0.setTitleColor(.white, for: .normal)
         $0.backgroundColor = .red
         $0.clipsToBounds = true
