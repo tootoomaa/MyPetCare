@@ -25,8 +25,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = tabBarC
         window?.makeKeyAndVisible()
         
-        print(UIScreen.main.bounds.width)
-        
         return true
     }
     

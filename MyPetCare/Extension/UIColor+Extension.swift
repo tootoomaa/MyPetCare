@@ -50,6 +50,10 @@ extension UIColor {
         return UIColor(rgb: 0xffc1b6)
     }
     
+    static var brMeasureHighLightedButtonColor: UIColor {
+        return UIColor(rgb: 0xffe8e8)
+    }
+    
     static var saveButtonColor: UIColor {
         return UIColor(rgb: 0xaee1e1)
     }

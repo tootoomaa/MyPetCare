@@ -76,12 +76,11 @@ class PetProfileView: UIView {
     }
     
     let editButton = UIButton().then {
-        $0.setTitle("  eidt", for: .normal)
+        $0.setTitle("  edit", for: .normal)
         $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
         $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .systemBlue
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = 20
+        $0.backgroundColor = UIColor(rgb: 0xbce6eb)
+        $0.addCornerRadius(20)
         $0.layer.maskedCorners = [.layerMaxXMinYCorner]
     }
     
@@ -89,9 +88,8 @@ class PetProfileView: UIView {
         $0.setTitle("  delete", for: .normal)
         $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
         $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .red
-        $0.clipsToBounds = true
-        $0.layer.cornerRadius = 20
+        $0.backgroundColor = UIColor(rgb: 0xfbbedf)
+        $0.addCornerRadius(20)
         $0.layer.maskedCorners = [.layerMaxXMaxYCorner]
     }
     

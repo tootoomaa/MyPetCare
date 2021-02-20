@@ -24,15 +24,17 @@ class BRMeasureViewReactor: Reactor {
         case countNumberSet(Int)
         case plusBRCount
         case resetState
+        case saveBRResult
     }
     
     enum Mutation {
         case setMeasureTime(Int)                    // 측정시간 설정 (10~60초)
         case setViewState(BRMeasureViewState)       // View상태에 따라 UI,Animation
-        case setCountDownLabelText(String)          // 카운트 다운 텍스트
+        case setCountDownLabelText(String?)          // 카운트 다운 텍스트
         case setCountDownNumber(Int)                // 카운트 다운 숫자
         case plusBRCount                            // 호흡수 측정값
         case resetBRCount                           // 호흡수 측정값 초기화
+        case saveCompleteAndDismiss                 // 저장 완료 및 dismiss
     }
     
     struct State {
@@ -42,8 +44,10 @@ class BRMeasureViewReactor: Reactor {
         var countDownLabelText: String?             // Count Down Label
         var countTimeNumber: Int                    // Count Down Time
         var brCount: Int                            // 호흡수 측정값
+        var saveCompleteAndDismiss: Bool?           // 저장 완료 및 dismiss
     }
     
+    var provider: ServiceProviderType
     let waitingForCount: Int = 3
     var initialState: State
     var resultBRCount: Int {
@@ -52,13 +56,15 @@ class BRMeasureViewReactor: Reactor {
         return currentState.brCount * multiply
     }
     
-    init(selectedPat: PetObject) {
+    init(selectedPat: PetObject, provider: ServiceProviderType) {
+        self.provider = provider
         initialState = State(selectedPet: selectedPat,
                              selectedMeatureTime: 0,
                              viewState: nil,
                              countDownLabelText: nil,
                              countTimeNumber: 0,
-                             brCount: 0)
+                             brCount: 0,
+                             saveCompleteAndDismiss: nil)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -78,12 +84,23 @@ class BRMeasureViewReactor: Reactor {
             return .just(.setCountDownNumber(countNumber))
             
         case .resetState:
-            return Observable.merge([.just(.setCountDownLabelText("")),
+            return Observable.merge([.just(.setCountDownLabelText(nil)),
                                      .just(.setCountDownNumber(0)),
                                      .just(.resetBRCount)])
-            
         case .plusBRCount:
             return .just(.plusBRCount)
+            
+        case .saveBRResult:
+            let bpObject = BRObject().then {
+                $0.id = UUID().uuidString
+                $0.petId = currentState.selectedPet.id
+                $0.createDate = Date()
+                $0.originalBR = currentState.brCount
+                $0.resultBR = resultBRCount
+                $0.userSettingTime = currentState.selectedMeatureTime
+            }
+            provider.dataBaseService.add(bpObject)
+            return .just(.saveCompleteAndDismiss)
         }
     }
     
@@ -108,6 +125,9 @@ class BRMeasureViewReactor: Reactor {
             
         case .resetBRCount:
             newState.brCount = 0
+            
+        case .saveCompleteAndDismiss:
+            newState.saveCompleteAndDismiss = true
         }
         
         return newState

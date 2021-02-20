@@ -89,24 +89,34 @@ class BRMeasureViewController: UIViewController, View {
         
         reactor.state.map{$0.brCount}                   // Measure Button Touch 시 라벨 즉시 갱신
             .distinctUntilChanged()
+            .compactMap{$0}
             .map{"\(reactor.currentState.countTimeNumber) 초       |       \($0)회"}
             .bind(to: mainView.countDownLabel.rx.text)
             .disposed(by: disposeBag)
+        
+        reactor.state.map{$0.saveCompleteAndDismiss}
+            .compactMap{$0}
+            .distinctUntilChanged()
+            .subscribe(onNext: { [unowned self] _ in
+                dismiss(animated: true, completion: nil)
+            }).disposed(by: disposeBag)
         
         /////////////////////////////////////////////////////////
         // MARK: - View State (ready->Waiting->Measure->Finish)
         /////////////////////////////////////////////////////////
         // ready View State
         reactor.state.map{$0.viewState}
+            .observeOn(MainScheduler.asyncInstance)
             .compactMap{$0}
             .distinctUntilChanged()
             .filter{$0 == .ready}
             .subscribe(onNext: { [unowned self] _ in
                 
-                mainView.readyViewSetupWithAnimation()          // View 상태 원상 복귀
+                mainView.readyViewSetupWithAnimation()          // View 상태 Animation 초기화
+                reactor.action.onNext(.resetState)              // View 상태 DataValue 초기화
                 watingTimers.forEach{$0?.dispose()}             // 타이머 종료
                 measureTimers.forEach{$0?.dispose()}
-                mainView.countDownLabel.text = ""               // 이전 설정값 제거
+                mainView.countDownLabel.text = ""
                 
             }).disposed(by: disposeBag)
 
@@ -155,30 +165,10 @@ class BRMeasureViewController: UIViewController, View {
             .filter{$0 == .measuring}
             .subscribe(onNext: { [unowned self] _ in
                 
-                let maxInt = reactor.currentState.selectedMeatureTime
+//                let maxInt = reactor.currentState.selectedMeatureTime
+                mainView.measureButton.isEnabled = true
                 
-                let measureTimer = Observable<Int>
-                    .interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
-                    .map{maxInt - ($0)}
-                    .map{ time in
-                        
-                        reactor.action.onNext(.countNumberSet(time))    // 타이머 넘버 저장
-                        
-                        if time == -1 {
-                            // 이전 타이머 종료
-                            guard let measureTimer = measureTimers[measureTimerIndexForStop-1] else {
-                                presentErrorAlertController()
-                                return "오류 발생"
-                            }
-                            measureTimer.dispose() // 이전 타이머 종료
-                            reactor.action.onNext(.viewStateChange(.finish))
-                            return "종료"
-                        } else if time == reactor.currentState.selectedMeatureTime {
-                            return "측정 시작!"
-                        } else {
-                            return "\(time) 초       |       \(reactor.currentState.brCount)회"
-                        }
-                    }
+                let measureTimer = measureTimeCreator(reactor)
                     .map{Reactor.Action.countDownLabelText($0)}
                     .bind(to: reactor.action)
                 
@@ -215,12 +205,14 @@ class BRMeasureViewController: UIViewController, View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        // 측정 시작 버튼
         mainView.startButton.rx.tap
             .throttle(.milliseconds(300), scheduler: MainScheduler.asyncInstance)
             .map{Reactor.Action.viewStateChange(.waiting)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        // 측정 시작 취소 버튼
         mainView.cancelButton.rx.tap
             .throttle(.milliseconds(100), scheduler: MainScheduler.asyncInstance)
             .do(onNext:{ [unowned self] in
@@ -234,7 +226,7 @@ class BRMeasureViewController: UIViewController, View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        // 호흡수 + 1
+        // 호흡수 + 1 버튼
         mainView.measureButton.rx.tap
             .map{Reactor.Action.plusBRCount}
             .bind(to: reactor.action)
@@ -253,6 +245,35 @@ class BRMeasureViewController: UIViewController, View {
                     animated: true,
                     completion: nil)
             }).disposed(by: disposeBag)
+        
+        // MARK: - ResultView Button Action
+        // 최종 측정 내용 저장 버튼
+        mainView.resultView.saveButton.rx.tap
+            .throttle(.milliseconds(100), scheduler: MainScheduler.asyncInstance)
+            .map{Reactor.Action.saveBRResult}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 최종 측정 내용 취소 버튼
+        mainView.resultView.cancelButton.rx.tap
+            .observeOn(MainScheduler.asyncInstance)
+            .subscribe(onNext: {
+                let petName = reactor.currentState.selectedPet.name
+                let message = "\(petName ?? "펫")의 측정된 호흡수가 저장되지 않습니다. 취소 하시겠습니까?"
+                let alertC = UIAlertController(title: "취소",
+                                               message: message,
+                                               preferredStyle: .alert)
+                
+                let okAction = UIAlertAction(title: "확인", style: .default) { _ in
+                    reactor.action.onNext(.viewStateChange(.ready))
+                }
+                let cancelAction = UIAlertAction(title: "취소", style: .cancel) { _ in}
+                
+                alertC.addAction(okAction)
+                alertC.addAction(cancelAction)
+                
+                self.present(alertC, animated: true, completion: nil)
+            }).disposed(by: disposeBag)
     }
     
     // MARK: - Handler
@@ -270,5 +291,32 @@ class BRMeasureViewController: UIViewController, View {
         
         present(alertC, animated: true, completion: nil)
         
+    }
+    
+    private func measureTimeCreator(_ reactor: BRMeasureViewReactor) -> Observable<String> {
+        let maxInt = reactor.currentState.selectedMeatureTime
+        
+        return Observable<Int>
+            .interval(RxTimeInterval.seconds(1), scheduler: MainScheduler.instance)
+            .map{maxInt - ($0)}
+            .map{ [unowned self] time in
+                
+                reactor.action.onNext(.countNumberSet(time))    // 타이머 넘버 저장
+                
+                if time == -1 {
+                    // 이전 타이머 종료
+                    guard let measureTimer = measureTimers[measureTimerIndexForStop-1] else {
+                        presentErrorAlertController()
+                        return "오류 발생"
+                    }
+                    measureTimer.dispose() // 이전 타이머 종료
+                    reactor.action.onNext(.viewStateChange(.finish))
+                    return "종료"
+                } else if time == reactor.currentState.selectedMeatureTime {
+                    return "측정 시작!"
+                } else {
+                    return "\(time) 초       |       \(reactor.currentState.brCount)회"
+                }
+            }
     }
 }

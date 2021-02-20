@@ -121,7 +121,8 @@ class BRMeasureView: UIView {
     let measureButton = UIButton().then {
         $0.setTitle("Tap", for: .normal)
         $0.setTitleColor(.white, for: .normal)
-        $0.backgroundColor = .brMeasureButtonColor
+        $0.setBackgroundColor(color: .brMeasureButtonColor, forState: .normal)
+        $0.setBackgroundColor(color: .brMeasureHighLightedButtonColor, forState: .highlighted)
         $0.titleLabel?.font = UIFont(name: "Cafe24Syongsyong", size: 60)
         $0.addBorder(.black, 1)
         $0.addCornerRadius(20)
@@ -271,8 +272,10 @@ class BRMeasureView: UIView {
             UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.4) {
                 startButton.center.x = hrMeasureView.center.x
                 startButton.alpha = 1
+                resultView.alpha = 0
                 countDownView.alpha = 0
-                self.cancelButton.alpha = 0
+                measureButton.alpha = 0
+                cancelButton.alpha = 0
             }
             
             UIView.addKeyframe(withRelativeStartTime: 0.1, relativeDuration: 0.5) {
@@ -289,7 +292,7 @@ class BRMeasureView: UIView {
     
     func waitingViewSetupWithAnimation() {
         UIView.animateKeyframes(withDuration: 0.6, delay: 0, options: []) {
-            
+             
             UIView.addKeyframe(withRelativeStartTime: 0, relativeDuration: 0.4) {
                 self.timeSettingLabel.center.x -= Constants.viewWidth
                 self.timeSettingLabel.alpha = 0
@@ -314,6 +317,7 @@ class BRMeasureView: UIView {
     }
     
     func measureViewSetupWithAnimation() {
+        
         UIView.animate(withDuration: 0.5) {
             self.cancelButton.center.x -= Constants.viewWidth
             self.cancelButton.alpha = 0

@@ -260,7 +260,8 @@ class MainViewController: UIViewController, View {
                 if indexPath.row == 0 {
                     
                     let hrmeasureVC = BRMeasureViewController()
-                    hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: selectedPet)
+                    hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: selectedPet,
+                                                               provider: reactor.provider)
                     
                     let naviC = UINavigationController(rootViewController: hrmeasureVC)
                     

@@ -132,7 +132,10 @@ class MainView: UIView {
         
         mainFrameTableView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(padding*2)
-            $0.leading.trailing.bottom.equalTo(marginGuide)
+//            $0.leading.trailing.bottom.equalTo(marginGuide)
+            $0.leading.equalTo(safeAreaLayoutGuide).offset(padding*2)
+            $0.trailing.equalTo(safeAreaLayoutGuide).inset(padding*2)
+            $0.bottom.equalToSuperview()
         }   
     }
     
