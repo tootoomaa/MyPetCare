@@ -31,7 +31,7 @@ class PetProfileView: UIView {
     
     var petName = UILabel().then {
         $0.textColor = .black
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 25)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 25)
         $0.textAlignment = .center
         $0.adjustsFontSizeToFitWidth = true
         $0.minimumScaleFactor = 0.5
@@ -43,29 +43,30 @@ class PetProfileView: UIView {
     
     var ageLabel = UILabel().then {
         $0.text = "Age"
-        $0.font = .systemFont(ofSize: 11, weight: .semibold)
+
+        $0.font = .dynamicSystemFont(size: 11, weight: .semibold)
         $0.textColor = .systemGray2
     }
     
     var ageValueLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 14, weight: .semibold)
+        $0.font = .dynamicSystemFont(size: 14, weight: .semibold)
     }
     
     var weightLabel = UILabel().then {
         $0.text = "Weight"
-        $0.font = .systemFont(ofSize: 11, weight: .semibold)
+        $0.font = .dynamicSystemFont(size: 11, weight: .semibold)
         $0.textColor = .systemGray2
     }
     
     var weightValueLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 14, weight: .semibold)
+        $0.font = .dynamicSystemFont(size: 14, weight: .semibold)
     }
     
     var heightLabel = UILabel().then {
         $0.text = "Height"
-        $0.font = .systemFont(ofSize: 11, weight: .semibold)
+        $0.font = .dynamicSystemFont(size: 11, weight: .semibold)
         $0.textColor = .systemGray2
     }
     
@@ -76,7 +77,7 @@ class PetProfileView: UIView {
     
     let editButton = UIButton().then {
         $0.setTitle("  eidt", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        $0.titleLabel?.font = .dynamicSystemFont(size: 20, weight: .bold)
         $0.setTitleColor(.white, for: .normal)
         $0.backgroundColor = .systemBlue
         $0.clipsToBounds = true
@@ -86,7 +87,7 @@ class PetProfileView: UIView {
     
     let deleteButton = UIButton().then {
         $0.setTitle("  delete", for: .normal)
-        $0.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        $0.titleLabel?.font = .dynamicSystemFont(size: 20, weight: .bold)
         $0.setTitleColor(.white, for: .normal)
         $0.backgroundColor = .red
         $0.clipsToBounds = true
@@ -103,7 +104,7 @@ class PetProfileView: UIView {
     
     let petEmptyLabel = UILabel().then {
         $0.text = "가족을 등록해주세요!"
-        $0.font = .systemFont(ofSize: 14, weight: .medium)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 14)
         $0.textColor = .gray 
     }
     
@@ -160,13 +161,13 @@ class PetProfileView: UIView {
         
         let axisXPadding = self.frame.size.width/2/4
         petName.snp.makeConstraints {
-            $0.top.equalTo(dashBoardView).offset(25)
+            $0.top.equalTo(dashBoardView).offset(25*Constants.widthRatio)
             $0.leading.equalTo(petImageView.snp.trailing).offset(10)
             $0.trailing.equalTo(dashBoardView.snp.trailing).offset(-10)
         }
         
         ageLabel.snp.makeConstraints {
-            $0.top.equalTo(petName.snp.bottom).offset(20)
+            $0.top.equalTo(petName.snp.bottom).offset(20*Constants.widthRatio)
             $0.centerX.equalTo(petImageView.snp.trailing).offset(axisXPadding*0.8)
         }
         
@@ -202,7 +203,7 @@ class PetProfileView: UIView {
         petEmtpyImage.snp.makeConstraints {
             $0.centerX.equalTo(dashBoardView.safeAreaLayoutGuide)
             $0.centerY.equalTo(dashBoardView.safeAreaLayoutGuide).offset(-padding)
-            $0.width.height.equalTo(80)
+            $0.width.height.equalTo(80*Constants.widthRatio)
         }
 
         petEmptyLabel.snp.makeConstraints {
@@ -242,8 +243,8 @@ class PetProfileView: UIView {
                 $0.leading.equalTo(petImageView.snp.trailing)
                 $0.trailing.equalTo(petName.snp.leading)
             }
-            $0.width.equalTo(10.4)
-            $0.height.equalTo(20)
+            $0.width.equalTo(10.4*Constants.widthRatio)
+            $0.height.equalTo(20*Constants.widthRatio)
         }
         
         petMaleImageView.image = UIImage(named: Male(rawValue: pet.male!)!.rawValue)

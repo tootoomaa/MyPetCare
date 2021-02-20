@@ -289,7 +289,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
                 serviceCollectionView.snp.makeConstraints {
                     $0.top.leading.equalToSuperview()
                     $0.bottom.trailing.equalToSuperview().offset(-8)
-                    $0.height.equalTo(60)
+                    $0.height.equalTo(60*Constants.widthRatio)
                 }
             }
         }

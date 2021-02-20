@@ -226,6 +226,22 @@ class BRMeasureViewController: UIViewController, View {
             .map{Reactor.Action.plusBRCount}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        // 측정 안내 버튼
+        mainView.howToMeasureButton.rx.tap
+            .subscribe(onNext: {
+                // 측정 중인 경우 버튼 비활성호
+                guard reactor.currentState.viewState != .measuring else { return }
+                self.present(
+                    BRMeasureHowInfoViewController().then {
+                        $0.modalPresentationStyle = .overFullScreen
+                        $0.modalTransitionStyle = .crossDissolve
+                    },
+                    animated: true,
+                    completion: nil)
+                
+                
+            }).disposed(by: disposeBag)
     }
     
     // MARK: - Handler

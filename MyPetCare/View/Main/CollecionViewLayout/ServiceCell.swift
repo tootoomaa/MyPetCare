@@ -14,8 +14,7 @@ class ServiceCell: UICollectionViewCell {
     let imageView = UIImageView()
     
     let titleLabel = UILabel().then {
-        $0.text = "서비스"
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 15)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 15)
         $0.numberOfLines = 0
         $0.textAlignment = .center
     }

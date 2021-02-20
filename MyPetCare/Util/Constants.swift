@@ -19,11 +19,25 @@ class Constants {
     static let currentLocale = Locale(identifier: "ko_KR")
     
     // UI
+    static var widthbase: CGFloat = 375
+    static var heigthbase: CGFloat = 700
+    
     static var viewHeigth = UIScreen.main.bounds.height
     static var viewWidth = UIScreen.main.bounds.width
     
+    static var heightRatio = UIScreen.main.bounds.height / Constants.heigthbase
+    static var widthRatio = UIScreen.main.bounds.width / Constants.widthbase
+    
+    // Color
     static var mainColor = UIColor.lightGreen
     
     static var mainViewPetPlusButtonUUID = "itisButtonUUIDforAddPet"
     
+    
+    class ScreenHeight {
+        
+        static let iphoneSE1Gen: CGFloat = 568.0   // se1 , 5s
+        static let iphoneSE2Gen: CGFloat = 667.0   // se2, 6, 7, 8
+        static let maxDevice: CGFloat = 900        // max
+    }
 }

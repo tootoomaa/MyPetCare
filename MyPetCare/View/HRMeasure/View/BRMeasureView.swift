@@ -20,7 +20,7 @@ class BRMeasureView: UIView {
         $0.setTitle("측정 방법", for: .normal)
         $0.setTitleColor(.black, for: .normal)
         
-        $0.titleLabel?.font = UIFont(name: "Cafe24Syongsyong", size: 10)
+        $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 10)
         
         let image = UIImage(systemName: "questionmark.circle")?
                         .withRenderingMode(.alwaysOriginal)
@@ -31,11 +31,8 @@ class BRMeasureView: UIView {
                                           height: howToMeasureButtonHeight/3)
         
         $0.backgroundColor = .white
-        
-        $0.layer.cornerRadius = howToMeasureButtonHeight/2
-        $0.layer.borderWidth = 1
-        $0.layer.borderColor = UIColor.black.cgColor
-        $0.clipsToBounds = true
+        $0.addCornerRadius(10)
+        $0.addBorder(.black, 1)
     }
     
     var petImageView = UIImageView().then {
@@ -46,7 +43,7 @@ class BRMeasureView: UIView {
     
     var petName = UILabel().then {
         $0.textColor = .black
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 25)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 25)
         $0.textAlignment = .center
     }
     
@@ -56,13 +53,13 @@ class BRMeasureView: UIView {
     
     var petAge = UILabel().then {
         $0.textColor = .black
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 25)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 25)
     }
     
     var paddingLabel = UILabel().then {
         $0.text = "|"
         $0.textColor = .lightGray
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 25)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 25)
     }
     
     var hrMeasureView = UIView().then {
@@ -78,13 +75,13 @@ class BRMeasureView: UIView {
     
     var timeSettingLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 25)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 25)
         $0.textAlignment = .left
         $0.text = "시간 설정"
     }
     
     let secondSegmentController = UISegmentedControl(items: ["10초", "20초", "30초", "60초"]).then {
-        $0.removeBorder()
+        $0.removeBorder(nomal: .white, selected: .lightGreen)
         $0.selectedSegmentIndex = 0
         $0.layer.borderWidth = 1
         $0.layer.backgroundColor = UIColor.systemGray4.cgColor
@@ -154,10 +151,9 @@ class BRMeasureView: UIView {
          petMaleImageView, petName, petAge, paddingLabel, petImageView,
          timeSettingView,               // For time Selecte View -> Change
          countDownView,                 // For Count Down View ---> Change
-         cancelButton, startButton, measureButton,
-         resultView].forEach {
-            addSubview($0)
-        }
+         cancelButton, startButton, measureButton,      // Button
+         resultView,                                    // 측정 결과
+        ].forEach { addSubview($0) }
         
         hrMeasureView.snp.makeConstraints {
             $0.top.equalTo(petImageView.snp.centerY)
@@ -265,7 +261,6 @@ class BRMeasureView: UIView {
             $0.trailing.equalTo(timeSettingView).offset(2)
             $0.bottom.equalTo(safeGuide).offset(-padding*2)
         }
-        
     }
     
     // MARK: - Animation handler

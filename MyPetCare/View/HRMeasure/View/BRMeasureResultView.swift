@@ -11,22 +11,43 @@ import UIKit
 class BPMeasureResultView: UIView {
     
     let padding: CGFloat = 16
+    var brNumber: Int = 20 {
+        didSet {
+            
+            let numberAttrString = [NSAttributedString.Key.font: UIFont.dynamicFont(name: "Cafe24Syongsyong", size: 35),
+                                    NSAttributedString.Key.foregroundColor: UIColor.red]
+            let countLabelAttrString = [NSAttributedString.Key.font: UIFont.dynamicFont(name: "Cafe24Syongsyong", size: 25),
+                                    NSAttributedString.Key.foregroundColor: UIColor.black]
+            
+            let attrString = NSMutableAttributedString(string: "\(brNumber)",attributes: numberAttrString)
+            attrString.append(NSAttributedString(string: "회/분", attributes: countLabelAttrString))
+            
+            self.measureInfoValueLabel.attributedText = attrString
+        }
+    }
     
     // MARK: - Properties
     let measureInfoLabel = UILabel().then {
-        $0.text = "평균 심박수 : 10회/분"
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 30)
+        $0.text = "평균 심박수"
+        $0.font = UIFont.dynamicFont(name: "Cafe24Syongsyong", size: 25)
+        $0.textAlignment = .center
+    }
+    
+    let measureInfoValueLabel = UILabel().then {
+        $0.font = UIFont.dynamicFont(name: "Cafe24Syongsyong", size: 30)
         $0.textAlignment = .center
     }
     
     let guideInfoLabel = UILabel().then {
         $0.numberOfLines = 0
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 20)
+        $0.font = UIFont.dynamicFont(name: "Cafe24Syongsyong", size: 20)
+        $0.textAlignment = .center
         $0.text = """
-            강아지 : 수면 호흡수 6~25\n
-                       휴식 호흡수 14~35\n
-
-            고양이 : 수면 호흡수 8~35
+            [ 강아지 ]
+            수면 호흡수 6~25
+            휴식 호흡수 14~35\n
+            [ 고양이 ]
+            수면 호흡수 8~35
             """
     }
     
@@ -74,20 +95,27 @@ class BPMeasureResultView: UIView {
     
     private func configureLayout() {
         
-        [measureInfoLabel,
+        [measureInfoLabel, measureInfoValueLabel,
          guideInfoLabel,
          cancelButton, saveButton].forEach {
             addSubview($0)
         }
         
         measureInfoLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().offset(padding*2)
+            $0.top.equalToSuperview().offset(padding*4)
             $0.leading.equalToSuperview().offset(padding*2)
+        }
+        
+        measureInfoValueLabel.snp.makeConstraints {
+            $0.centerY.equalTo(measureInfoLabel)
+            $0.leading.equalTo(measureInfoLabel.snp.trailing)
             $0.trailing.equalToSuperview().inset(padding*2)
+            $0.width.equalTo(measureInfoLabel)
         }
         
         guideInfoLabel.snp.makeConstraints {
-            $0.leading.trailing.equalTo(measureInfoLabel)
+            $0.leading.equalTo(measureInfoLabel)
+            $0.trailing.equalTo(measureInfoValueLabel)
             $0.bottom.equalTo(cancelButton.snp.top).offset(-padding*2)
         }
         
@@ -103,7 +131,7 @@ class BPMeasureResultView: UIView {
             $0.size.equalTo(cancelButton)
         }
         
-        
+        brNumber = 30
         
     }
     

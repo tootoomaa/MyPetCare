@@ -37,7 +37,7 @@ class NewPetAddView: UIView {
     }
     
     let maleSegmentController = UISegmentedControl(items: ["아들", "딸"]).then {
-        $0.removeBorder()
+        $0.removeBorder(nomal: .white, selected: .lightGreen)
         $0.selectedSegmentIndex = 0
         $0.backgroundColor = .none
     }
