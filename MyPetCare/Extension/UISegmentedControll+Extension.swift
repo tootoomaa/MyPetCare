@@ -10,24 +10,25 @@ import UIKit
 
 extension UISegmentedControl {
     
-    func removeBorder() {
+    func removeBorder(nomal: UIColor, selected: UIColor) {
         
-        let backgroundImage = UIImage.getColoredRectImageWith(color: UIColor.white.cgColor, andSize: self.bounds.size)
-        self.setBackgroundImage(backgroundImage, for: .normal, barMetrics: .default)
-        self.setBackgroundImage(backgroundImage, for: .selected, barMetrics: .default)
-        self.setBackgroundImage(backgroundImage, for: .highlighted, barMetrics: .default)
+        let nomalBackgroundImg = UIImage.getColoredRectImageWith(color: nomal.cgColor, andSize: self.bounds.size)
+        let selectedBackGroundImg = UIImage.getColoredRectImageWith(color: selected.cgColor, andSize: self.bounds.size)
+        self.setBackgroundImage(nomalBackgroundImg, for: .normal, barMetrics: .default)
+        self.setBackgroundImage(selectedBackGroundImg, for: .selected, barMetrics: .default)
+//        self.setBackgroundImage(backgroundImage, for: .highlighted, barMetrics: .default)
 
-        let deviderImage = UIImage.getColoredRectImageWith(color: UIColor.white.cgColor, andSize: CGSize(width: 1.0, height: self.bounds.size.height))
+        let deviderImage = UIImage.getColoredRectImageWith(color: UIColor.black.cgColor, andSize: CGSize(width: 1.0, height: self.bounds.size.height))
         
         self.setDividerImage(deviderImage, forLeftSegmentState: .selected, rightSegmentState: .normal, barMetrics: .default)
         
         self.setTitleTextAttributes(
             [NSAttributedString.Key.foregroundColor: UIColor.systemGray5,
-             NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 17)], for: .normal)
-//
+             NSAttributedString.Key.font: UIFont(name: "Cafe24Syongsyong", size: 17)!], for: .normal)
+        
         self.setTitleTextAttributes(
             [NSAttributedString.Key.foregroundColor: UIColor.black,
-             NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 17)], for: .selected)
+             NSAttributedString.Key.font: UIFont(name: "Cafe24Syongsyong", size: 17)!], for: .selected)
     }
 }
 

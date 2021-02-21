@@ -21,7 +21,7 @@ class MainView: UIView {
     // MARK: - Properties
     let titleLabel = UILabel().then {
         $0.text = "My Pets"
-        $0.font = .systemFont(ofSize: 30, weight: .bold)
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 30)
     }
     
     let selectedPetName = UILabel().then {
@@ -89,6 +89,7 @@ class MainView: UIView {
             $0.register(PetProfileImageCell.self,
                         forCellWithReuseIdentifier: PetProfileImageCell.identifier)
             $0.layer.cornerRadius = 20
+            $0.showsHorizontalScrollIndicator = false
         }
     }
     
@@ -131,7 +132,10 @@ class MainView: UIView {
         
         mainFrameTableView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(padding*2)
-            $0.leading.trailing.bottom.equalTo(marginGuide)
+//            $0.leading.trailing.bottom.equalTo(marginGuide)
+            $0.leading.equalTo(safeAreaLayoutGuide).offset(padding*2)
+            $0.trailing.equalTo(safeAreaLayoutGuide).inset(padding*2)
+            $0.bottom.equalToSuperview()
         }   
     }
     

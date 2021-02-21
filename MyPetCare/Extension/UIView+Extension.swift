@@ -22,7 +22,19 @@ extension UIView {
             $0.bottom.equalToSuperview().offset(1)
             $0.height.equalTo(height)
         }
+    }
+    
+    func addCornerRadius(_ radius: CGFloat) {
+    
+        self.layer.cornerRadius = radius
+        self.clipsToBounds = true
         
     }
     
+    func addBorder(_ color: UIColor, _ width: CGFloat) {
+        
+        self.layer.borderColor = color.cgColor
+        self.layer.borderWidth = width
+        
+    }
 }

@@ -14,8 +14,7 @@ class ServiceCell: UICollectionViewCell {
     let imageView = UIImageView()
     
     let titleLabel = UILabel().then {
-        $0.text = "서비스"
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 15)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 15)
         $0.numberOfLines = 0
         $0.textAlignment = .center
     }
@@ -32,8 +31,14 @@ class ServiceCell: UICollectionViewCell {
     }
     
     private func configureContentView() {
-        contentView.backgroundColor = .serviceColor
-        contentView.layer.cornerRadius = 20
+        
+        _ = contentView.then {
+            $0.layer.cornerRadius = 20
+            $0.layer.borderWidth = 1
+            $0.layer.borderColor = UIColor.serviceBorderColor.cgColor
+            $0.clipsToBounds = true
+            $0.backgroundColor = .serviceColor
+        }
     }
     
     private func configureLayout() {

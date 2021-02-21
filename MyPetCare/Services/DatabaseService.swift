@@ -14,8 +14,6 @@ protocol DatabaseServiceType {
     
     func db() -> Realm
     
-    func loadPetList() -> Results<PetObject>
-    
     func add (_ object: Object?)
     
     func set (_ object: Object?)
@@ -28,6 +26,9 @@ protocol DatabaseServiceType {
     func update(_ objects: [Object]?)
     
     func write(_ block: (() throws -> Void))
+    
+    func loadPetList() -> Results<PetObject>
+    func loadPetBRLog() -> Results<BRObject>
 }
 
 class DatabaseService: BaseService, DatabaseServiceType {
@@ -38,10 +39,6 @@ class DatabaseService: BaseService, DatabaseServiceType {
     
     func db() -> Realm {
         return self.realm
-    }
-    
-    func loadPetList() -> Results<PetObject> {
-        return db().objects(PetObject.self)
     }
     
     func add (_ object:Object?) {
@@ -123,5 +120,13 @@ class DatabaseService: BaseService, DatabaseServiceType {
                 try block()
             }
         }
+    }
+    
+    func loadPetList() -> Results<PetObject> {
+        return db().objects(PetObject.self)
+    }
+    
+    func loadPetBRLog() -> Results<BRObject> {
+        return db().objects(BRObject.self)
     }
 }

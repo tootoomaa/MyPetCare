@@ -13,7 +13,10 @@ extension UINavigationController {
     /// 배경 white, backButton, tintColor black
     func configureNavigationBarAppearance(_ color: UIColor) {
         
-        let titleAttrStringOption = [NSAttributedString.Key.foregroundColor: UIColor.black]
+        let titleAttrStringOption = [
+            NSAttributedString.Key.foregroundColor: UIColor.black,
+            NSAttributedString.Key.font: UIFont(name: "Cafe24Syongsyong", size: 20)!
+        ]
 
         let appearance = UINavigationBarAppearance(idiom: .phone)
         appearance.titleTextAttributes = titleAttrStringOption     // title 설정

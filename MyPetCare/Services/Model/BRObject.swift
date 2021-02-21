@@ -8,15 +8,14 @@
 import Foundation
 import RealmSwift
 
-class BPObject: Object {
+class BRObject: Object {
     
     @objc dynamic var id: String?
     @objc dynamic var petId: String?
     @objc dynamic var createDate: Date?
+    @objc dynamic var originalBR: Int = 0
+    @objc dynamic var resultBR: Int = 0
     @objc dynamic var userSettingTime: Int = 0
-    @objc dynamic var bloodPressure: Double = 0
-//    @objc dynamic var
-        
     
     override static func primaryKey() -> String? {
         return "id"

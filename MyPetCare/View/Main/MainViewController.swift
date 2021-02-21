@@ -62,7 +62,7 @@ class MainViewController: UIViewController, View {
                          forCellWithReuseIdentifier: ServiceCell.identifier)
         }
         
-        Observable.just(["심박수\n측정","몸무게"])
+        Observable.just(["호흡수\n측정","몸무게\n키"])
             .bind(to: serviceCollectionView.rx.items(cellIdentifier: ServiceCell.identifier,
                                                      cellType: ServiceCell.self)) { row, data, cell in
                 
@@ -259,10 +259,15 @@ class MainViewController: UIViewController, View {
                 guard let selectedPet = reactor.currentState.selectedPet else { return }
                 if indexPath.row == 0 {
                     
-                    let pbmeasureVC = HRMeasureViewController()
-                    pbmeasureVC.reactor = BPMeasureViewReactor(selectedPat: selectedPet)
+                    let hrmeasureVC = BRMeasureViewController()
+                    hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: selectedPet,
+                                                               provider: reactor.provider)
                     
-                    navigationController?.pushViewController(pbmeasureVC, animated: true)
+                    let naviC = UINavigationController(rootViewController: hrmeasureVC)
+                    
+                    naviC.modalPresentationStyle = .overFullScreen
+                    
+                    self.present(naviC, animated: true, completion: nil)
                 }
                 
             }).disposed(by: disposeBag)
@@ -285,7 +290,7 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
                 serviceCollectionView.snp.makeConstraints {
                     $0.top.leading.equalToSuperview()
                     $0.bottom.trailing.equalToSuperview().offset(-8)
-                    $0.height.equalTo(60)
+                    $0.height.equalTo(60*Constants.widthRatio)
                 }
             }
         }
