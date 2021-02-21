@@ -50,10 +50,17 @@ class BRMeasureViewReactor: Reactor {
     var provider: ServiceProviderType
     let waitingForCount: Int = 3
     var initialState: State
+    
+    // For Result
     var resultBRCount: Int {
         // 사용자가 선택한 시간에 비례하여 1분 기준으로 리턴
         let multiply = Constants.maxMeasureCount/currentState.selectedMeatureTime
         return currentState.brCount * multiply
+    }
+    
+    // For Result
+    var resultUserMeasureData: (Int, Int) {
+        return (currentState.brCount, currentState.selectedMeatureTime)
     }
     
     init(selectedPat: PetObject, provider: ServiceProviderType) {

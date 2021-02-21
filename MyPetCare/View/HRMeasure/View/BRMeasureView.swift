@@ -328,8 +328,9 @@ class BRMeasureView: UIView {
         }
     }
     
-    func finishViewSetupWithAnimation(_ brCount: Int) {
+    func finishViewSetupWithAnimation(_ brCount: Int, _ measureValueByData: (Int,Int)) {
         resultView.brNumber = brCount
+        resultView.measureValueByData = measureValueByData
         UIView.animate(withDuration: 0.5) {
             self.resultView.alpha = 1
         }

@@ -20,9 +20,15 @@ class BPMeasureResultView: UIView {
                                     NSAttributedString.Key.foregroundColor: UIColor.black]
             
             let attrString = NSMutableAttributedString(string: "\(brNumber)",attributes: numberAttrString)
-            attrString.append(NSAttributedString(string: "회/분", attributes: countLabelAttrString))
+            attrString.append(NSAttributedString(string: " 회/분", attributes: countLabelAttrString))
             
             self.measureInfoValueLabel.attributedText = attrString
+        }
+    }
+    
+    var measureValueByData: (brNumber: Int, measureTime: Int) = (0,0) {
+        didSet {
+            self.detailMeasureInfoValueLabel.text = "(\(measureValueByData.brNumber)회 \(measureValueByData.measureTime)초)"
         }
     }
     
@@ -35,6 +41,11 @@ class BPMeasureResultView: UIView {
     
     let measureInfoValueLabel = UILabel().then {
         $0.font = UIFont.dynamicFont(name: "Cafe24Syongsyong", size: 30)
+        $0.textAlignment = .center
+    }
+    
+    let detailMeasureInfoValueLabel = UILabel().then {
+        $0.font = UIFont.dynamicFont(name: "Cafe24Syongsyong", size: 15)
         $0.textAlignment = .center
     }
     
@@ -96,6 +107,7 @@ class BPMeasureResultView: UIView {
     private func configureLayout() {
         
         [measureInfoLabel, measureInfoValueLabel,
+         detailMeasureInfoValueLabel,
          guideInfoLabel,
          cancelButton, saveButton].forEach {
             addSubview($0)
@@ -111,6 +123,11 @@ class BPMeasureResultView: UIView {
             $0.leading.equalTo(measureInfoLabel.snp.trailing)
             $0.trailing.equalToSuperview().inset(padding*2)
             $0.width.equalTo(measureInfoLabel)
+        }
+        
+        detailMeasureInfoValueLabel.snp.makeConstraints {
+            $0.top.equalTo(measureInfoValueLabel.snp.bottom).offset(3)
+            $0.centerX.equalTo(measureInfoValueLabel)
         }
         
         guideInfoLabel.snp.makeConstraints {

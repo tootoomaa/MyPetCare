@@ -77,7 +77,9 @@ class BRMeasureViewController: UIViewController, View {
                 case .ready:        mainView.readyViewSetupWithAnimation()
                 case .waiting:      mainView.waitingViewSetupWithAnimation()
                 case .measuring:    mainView.measureViewSetupWithAnimation()
-                case .finish:       mainView.finishViewSetupWithAnimation(reactor.resultBRCount)
+                case .finish:
+                    mainView.finishViewSetupWithAnimation(reactor.resultBRCount,
+                                                          reactor.resultUserMeasureData)
                 }
             }).disposed(by: disposeBag)
         
@@ -90,6 +92,7 @@ class BRMeasureViewController: UIViewController, View {
         reactor.state.map{$0.brCount}                   // Measure Button Touch 시 라벨 즉시 갱신
             .distinctUntilChanged()
             .compactMap{$0}
+            .filter{$0 != 0}
             .map{"\(reactor.currentState.countTimeNumber) 초       |       \($0)회"}
             .bind(to: mainView.countDownLabel.rx.text)
             .disposed(by: disposeBag)
