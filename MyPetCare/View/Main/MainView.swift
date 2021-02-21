@@ -15,7 +15,6 @@ class MainView: UIView {
     
     let padding: CGFloat = 8
     var petNameWidth: CGFloat = 0
-    lazy var customEdgeInsets = UIEdgeInsets(top: padding*2, left: padding, bottom: padding, right: padding)
     var isMainFrameScrolled = false
     
     // MARK: - Properties
@@ -35,7 +34,7 @@ class MainView: UIView {
         $0.alpha = 0
     }
     
-    var petMaleImageView = UIImageView().then {
+    var selectedPetMaleImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.alpha = 0
     }
@@ -47,12 +46,7 @@ class MainView: UIView {
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
     
-    let topPadding = PetProfileCollecionViewFlowLayout.BaseLayout.height
-    lazy var pfvWidth = Constants.viewWidth-customEdgeInsets.right-customEdgeInsets.left
-    lazy var pfvHeight = pfvWidth/2 + topPadding + padding
-    lazy var pfvFrame = CGRect(x: 0, y: 0, width: pfvWidth, height: pfvHeight)
-    
-    lazy var petProfileView = PetProfileView(frame: pfvFrame, topPadding: topPadding, bottomPadding: padding)
+    var petProfileView: PetProfileView
     
     lazy var mainFrameTableView = UITableView().then {
         $0.backgroundColor = .none
@@ -68,9 +62,21 @@ class MainView: UIView {
     
     // MARK: - Life cycle
     override init(frame: CGRect) {
+        
+        let topPadding = PetProfileCollecionViewFlowLayout.BaseLayout.height
+        let pfvWidth = frame.width-padding*2
+        let pfvHeight = pfvWidth/2 + topPadding + padding
+        let pfvFrame = CGRect(x: 0, y: 0, width: pfvWidth, height: pfvHeight)
+        
+        petProfileView = PetProfileView(frame: pfvFrame, topPadding: topPadding, bottomPadding: padding)
+        
         super.init(frame: frame)
         
-        self.layoutMargins = customEdgeInsets
+        self.layoutMargins = UIEdgeInsets(top: padding*2,
+                                          left: padding,
+                                          bottom: padding,
+                                          right: padding)
+        
         backgroundColor = Constants.mainColor
         
         configurePetProfileCollectionView()
@@ -96,16 +102,20 @@ class MainView: UIView {
     private func configureLayout() {
         let marginGuide = self.layoutMarginsGuide
 
-        [titleLabel, selectPetImageView, selectedPetName, petMaleImageView,
-         mainFrameTableView, petProfileCollectionView].forEach {
+        [titleLabel,
+         selectPetImageView, selectedPetName, selectedPetMaleImageView,
+         petProfileCollectionView,
+         mainFrameTableView].forEach {
             addSubview($0)
         }
         
+        // For Title
         titleLabel.snp.makeConstraints {
             $0.top.equalTo(marginGuide).offset(padding*2)
             $0.leading.trailing.equalTo(marginGuide)
         }
         
+        // For Selcted Pet Info When MainFrame TableView Scrolled
         selectPetImageView.snp.makeConstraints {
             $0.bottom.equalTo(titleLabel)
             $0.trailing.equalTo(marginGuide)
@@ -117,24 +127,24 @@ class MainView: UIView {
             $0.centerY.equalTo(selectPetImageView)
         }
         
-        petMaleImageView.snp.makeConstraints {
+        selectedPetMaleImageView.snp.makeConstraints {
             $0.trailing.equalTo(selectedPetName.snp.leading).offset(-5)
             $0.centerY.equalTo(selectPetImageView)
             $0.height.equalTo(15)
             $0.width.equalTo(9)
         }
         
+        // Pet Collection View bottom at Title
         petProfileCollectionView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(padding)
             $0.leading.trailing.equalTo(marginGuide)
             $0.height.equalTo(PetProfileCollecionViewFlowLayout.BaseLayout.height)
         }
         
+        // Main Frame TableView
         mainFrameTableView.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(padding*2)
-//            $0.leading.trailing.bottom.equalTo(marginGuide)
-            $0.leading.equalTo(safeAreaLayoutGuide).offset(padding*2)
-            $0.trailing.equalTo(safeAreaLayoutGuide).inset(padding*2)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(padding*2) // <--오류
+            $0.leading.trailing.equalTo(marginGuide)
             $0.bottom.equalToSuperview()
         }   
     }
@@ -184,13 +194,20 @@ class MainView: UIView {
         
         // Selected Pet Display Animation
         if offset > 80 && isMainFrameScrolled == true {
-            self.petMaleImageView.alpha = 1
+            self.selectedPetMaleImageView.alpha = 1
             self.selectedPetName.alpha = 1
             self.selectPetImageView.alpha = 1
         } else if offset < 80 && isMainFrameScrolled == true {
-            self.petMaleImageView.alpha = 0
+            self.selectedPetMaleImageView.alpha = 0
             self.selectedPetName.alpha = 0
             self.selectPetImageView.alpha = 0
         }
+    }
+    
+    // MARK: - UI Data Setter
+    func configureSelectedPetData(pet: PetObject) {
+        selectedPetMaleImageView.image = UIImage(named: "\(pet.male ?? "boy")")
+        selectedPetName.text = pet.name
+        selectPetImageView.image = UIImage(data: pet.image!)
     }
 }

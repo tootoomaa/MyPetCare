@@ -113,7 +113,7 @@ class PetProfileView: UIView {
         petNameWidth = frame.size.width/2 - 20
         super.init(frame: frame)
         
-        configureLayout(topPadding, bottomPadding)
+        configureLayout(frame, topPadding, bottomPadding)
     }
     
     required init?(coder: NSCoder) {
@@ -121,7 +121,7 @@ class PetProfileView: UIView {
     }
     
     // MARK: - Layout
-    private func configureLayout(_ topPadding: CGFloat, _ bottomPadding: CGFloat) {
+    private func configureLayout(_ frame: CGRect, _ topPadding: CGFloat, _ bottomPadding: CGFloat) {
         
         [editButton, deleteButton, dashBoardView].forEach {
             addSubview($0)
@@ -157,11 +157,11 @@ class PetProfileView: UIView {
             $0.trailing.equalTo(self.snp.centerX)
         }
         
-        let axisXPadding = self.frame.size.width/2/4
+        let axisXPadding = frame.size.width/2/4
         petName.snp.makeConstraints {
             $0.top.equalTo(dashBoardView).offset(25*Constants.widthRatio)
-            $0.leading.equalTo(petImageView.snp.trailing).offset(10)
-            $0.trailing.equalTo(dashBoardView.snp.trailing).offset(-10)
+            $0.leading.lessThanOrEqualTo(petImageView.snp.trailing).offset(10)
+            $0.trailing.greaterThanOrEqualTo(dashBoardView.snp.trailing).offset(-10)
         }
         
         ageLabel.snp.makeConstraints {

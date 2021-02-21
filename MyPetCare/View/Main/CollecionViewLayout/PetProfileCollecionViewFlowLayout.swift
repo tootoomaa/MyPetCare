@@ -15,7 +15,7 @@ class PetProfileCollecionViewFlowLayout:NSObject, UICollectionViewDelegateFlowLa
         static var miniMumItemSpacing: CGFloat = 0
         static var miniMumLineSpacing: CGFloat = 10
         static var egdeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
-        static var height: CGFloat = 60
+        static var height: CGFloat = 62
         static var collectionViewCellHeight: CGFloat {
             let layout = PetProfileCollecionViewFlowLayout.BaseLayout.self
             return layout.height - layout.egdeInsets.top - layout.egdeInsets.bottom

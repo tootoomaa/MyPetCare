@@ -20,7 +20,9 @@ class MainViewController: UIViewController, View {
         .withTintColor(.deepGreen)
         .pngData()!
     
-    let mainView = MainView()
+    let mainView = MainView(frame: CGRect(x: 0, y: 0,
+                                          width: Constants.viewWidth,
+                                          height: Constants.viewHeigth))
     
     let servicelayout = ServiceCollecionViewFlowLayout()
     var serviceCollectionView: UICollectionView = {
@@ -132,9 +134,7 @@ class MainViewController: UIViewController, View {
             .filter{$0.id != Constants.mainViewPetPlusButtonUUID} // Plus Button 처리
             .subscribe(onNext: { [unowned self] pet in
 
-                mainView.petMaleImageView.image = UIImage(named: "\(pet.male ?? "boy")")
-                mainView.selectedPetName.text = pet.name
-                mainView.selectPetImageView.image = UIImage(data: pet.image!)
+                mainView.configureSelectedPetData(pet: pet)
                 mainView.petProfileView.configurePetView(pet: pet)
                 mainView.mainFrameTableView.reloadData()
 
@@ -275,13 +275,13 @@ class MainViewController: UIViewController, View {
 }
 
 extension MainViewController: UITableViewDataSource, UITableViewDelegate {
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 2
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
+
         if indexPath.row == 0 { // Service Collection View
             return UITableViewCell().then {
                 $0.selectionStyle = .none
@@ -290,11 +290,11 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
                 serviceCollectionView.snp.makeConstraints {
                     $0.top.leading.equalToSuperview()
                     $0.bottom.trailing.equalToSuperview().offset(-8)
-                    $0.height.equalTo(60*Constants.widthRatio)
+                    $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
                 }
             }
         }
-        
+
         return UITableViewCell().then {
             $0.selectionStyle = .none
             $0.backgroundColor = .blue
