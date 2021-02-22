@@ -98,6 +98,7 @@ class BRMeasureViewReactor: Reactor {
             return .just(.plusBRCount)
             
         case .saveBRResult:
+            // Save Measured Breath Rate
             let bpObject = BRObject().then {
                 $0.id = UUID().uuidString
                 $0.petId = currentState.selectedPet.id
@@ -107,6 +108,14 @@ class BRMeasureViewReactor: Reactor {
                 $0.userSettingTime = currentState.selectedMeatureTime
             }
             provider.dataBaseService.add(bpObject)
+            
+            // Last Data Save
+            let lastData = provider.dataBaseService
+                            .loadLastData(currentState.selectedPet.id!)
+                            .toArray()
+            provider.dataBaseService.write {
+                lastData.first!.resultBR = resultBRCount
+            }
             return .just(.saveCompleteAndDismiss)
         }
     }

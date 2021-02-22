@@ -125,6 +125,7 @@ class MainViewController: UIViewController, View {
                                 scrollPosition: .centeredVertically)
             }).disposed(by: disposeBag)
         
+        // 펫 선택 시 처리 사항
         reactor.state.map{$0.selectedPet}
             .observeOn(MainScheduler.instance)
             .do(onNext: { // pet 리스트가 없는 경우 Empty View 표시
@@ -140,11 +141,11 @@ class MainViewController: UIViewController, View {
 
             }).disposed(by: disposeBag)
         
+        // Pet Profile 선택시 변경 사항
         reactor.state.map{$0.selectedIndexPath}
             .filter{$0.row != reactor.plusButtonIndex}
             .observeOn(MainScheduler.asyncInstance)
             .compactMap{$0}
-//            .distinctUntilChanged()
             .subscribe(onNext: { [unowned self] indexPath in
                 
                 let view = mainView.petProfileCollectionView
@@ -170,6 +171,14 @@ class MainViewController: UIViewController, View {
                 cell.cellIndex = row
                 
             }.disposed(by: disposeBag)
+        
+//        reactor.state.map{$0.selectedLastedPetData}
+//            .compactMap{$0}
+//            .observeOn(MainScheduler.asyncInstance)
+//            .subscribe(onNext: {
+//
+////                self.mainView.mainFrameTableView.reloadData()
+//            }).disposed(by: disposeBag)
         
         // plusButton 처리
         mainView.petProfileCollectionView.rx.itemSelected
@@ -262,6 +271,15 @@ class MainViewController: UIViewController, View {
                     let hrmeasureVC = BRMeasureViewController()
                     hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: selectedPet,
                                                                provider: reactor.provider)
+                    // Save Button 선택시 tableView Label 재구성
+                    hrmeasureVC.mainView.resultView.saveButton.rx.tap
+                        .subscribe(onNext: {
+                            let cellBRcount = IndexPath(row: 0, section: 0)
+                            let heightWidthBRcount = IndexPath(row: 1, section: 0)
+                            self.mainView.mainFrameTableView.reloadRows(
+                                at: [cellBRcount, heightWidthBRcount],
+                                with: .automatic)
+                        }).disposed(by: disposeBag)
                     
                     let naviC = UINavigationController(rootViewController: hrmeasureVC)
                     
@@ -277,11 +295,13 @@ class MainViewController: UIViewController, View {
 extension MainViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
+        return 3
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
+        guard let reactor = reactor else { return UITableViewCell() }
+        let lastData = reactor.currentState.selectedLastedPetData
+        
         if indexPath.row == 0 { // Service Collection View
             return UITableViewCell().then {
                 $0.selectionStyle = .none
@@ -298,9 +318,30 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
             let cell = LastMeasureServiceCell(
                 style: .default,
                 reuseIdentifier: LastMeasureServiceCell.identifier).then {
-                    $0.titleLabel.text = "체중"
+                    $0.titleLabel.text = "최근 호흡수"
                 }
+            cell.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
+            
+            let resultBR = lastData == nil ? " - /분" : "\(lastData?.resultBR ?? 0)/분"
+            
+            cell.valeuLabel.text = "\(resultBR)"
             return cell
+            
+        } else if indexPath.row == 2 {
+            
+            let cell = LastMeasureServiceCell(
+                style: .default,
+                reuseIdentifier: LastMeasureServiceCell.identifier).then {
+                    $0.titleLabel.text = "최근 체중/키"
+                }
+            cell.customBackgroundView.backgroundColor = UIColor(rgb: 0xeffad3)
+            
+            let height = lastData == nil ? "- cm" : "\(lastData?.height ?? 0)"
+            let weight = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)"
+            
+            cell.valeuLabel.text = "\(weight), \(height)"
+            return cell
+            
         }
         
         return UITableViewCell()

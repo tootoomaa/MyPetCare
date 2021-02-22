@@ -31,10 +31,11 @@ protocol DatabaseServiceType {
     
     func loadPetBRLog() -> Results<BRObject>
     func loadPetBRLog(_ petId: String) -> Results<BRObject>
+    
+    func loadLastData(_ petId: String) -> Results<LastMeasureObject>
 }
 
 class DatabaseService: BaseService, DatabaseServiceType {
-    
 //    let config = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
     var config = Realm.Configuration(deleteRealmIfMigrationNeeded: false)
     lazy var realm = try! Realm(configuration: config)
@@ -135,5 +136,10 @@ class DatabaseService: BaseService, DatabaseServiceType {
     func loadPetBRLog(_ petId: String) -> Results<BRObject> {
         let predicate = NSPredicate(format: "id = %@", petId)
         return db().objects(BRObject.self).filter(predicate)
+    }
+    
+    func loadLastData(_ petId: String) -> Results<LastMeasureObject> {
+        let predicate = NSPredicate(format: "petId = %@", petId)
+        return db().objects(LastMeasureObject.self).filter(predicate)
     }
 }

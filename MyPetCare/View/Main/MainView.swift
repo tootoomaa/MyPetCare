@@ -56,6 +56,7 @@ class MainView: UIView {
         
         $0.tableHeaderView = petProfileView
         $0.scrollIndicatorInsets = .zero
+        $0.separatorStyle = .none
         $0.showsVerticalScrollIndicator = false
     }
     
