@@ -293,11 +293,16 @@ extension MainViewController: UITableViewDataSource, UITableViewDelegate {
                     $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
                 }
             }
+        } else if indexPath.row == 1 {
+            
+            let cell = LastMeasureServiceCell(
+                style: .default,
+                reuseIdentifier: LastMeasureServiceCell.identifier).then {
+                    $0.titleLabel.text = "체중"
+                }
+            return cell
         }
-
-        return UITableViewCell().then {
-            $0.selectionStyle = .none
-            $0.backgroundColor = .blue
-        }
+        
+        return UITableViewCell()
     }
 }

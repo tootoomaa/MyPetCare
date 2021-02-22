@@ -104,8 +104,8 @@ class MainView: UIView {
 
         [titleLabel,
          selectPetImageView, selectedPetName, selectedPetMaleImageView,
-         petProfileCollectionView,
-         mainFrameTableView].forEach {
+         mainFrameTableView,
+         petProfileCollectionView].forEach {
             addSubview($0)
         }
         

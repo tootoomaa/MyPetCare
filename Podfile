@@ -19,6 +19,9 @@ target 'MyPetCare' do
 
   # Realm
   pod 'RealmSwift'
+  
+  # Charts
+  pod 'Charts'
 
   target 'MyPetCareTests' do
     inherit! :search_paths

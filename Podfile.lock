@@ -1,4 +1,7 @@
 PODS:
+  - Charts (3.6.0):
+    - Charts/Core (= 3.6.0)
+  - Charts/Core (3.6.0)
   - ReactorKit (2.1.1):
     - RxSwift (~> 5.0)
     - WeakMapTable (~> 1.1)
@@ -29,6 +32,7 @@ PODS:
   - WeakMapTable (1.2.0)
 
 DEPENDENCIES:
+  - Charts
   - ReactorKit
   - RealmSwift
   - RxCocoa
@@ -41,6 +45,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Charts
     - ReactorKit
     - Realm
     - RealmSwift
@@ -55,6 +60,7 @@ SPEC REPOS:
     - WeakMapTable
 
 SPEC CHECKSUMS:
+  Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   ReactorKit: 6d894a20c3d508344320901cd8e386fde92df4b6
   Realm: 77fcb4e0b9f2963ea06f584749a0d7dc9cab95e1
   RealmSwift: 6abe6aa6cd8b70cc1a87afcb9232cabea74ff1ac
@@ -68,6 +74,6 @@ SPEC CHECKSUMS:
   Then: acfe0be7e98221c6204e12f8161459606d5d822d
   WeakMapTable: 05c694ce8439a7a9ebabb56187287a63c57673d6
 
-PODFILE CHECKSUM: 1a77bb1854ed57bf93f7465408378759153e3fef
+PODFILE CHECKSUM: 00b3c44d38b14ea362189ed398112bab9eb1bde5
 
 COCOAPODS: 1.10.0

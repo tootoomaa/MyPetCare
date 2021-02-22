@@ -40,7 +40,9 @@ class MyPetCustomNavigationController: UITabBarController {
     }
     
     private func makeStaticticsViewController(_ imageName: String) -> UINavigationController{
+        let reactor = StatisticsViewReactor(provider: provider)
         let vc = StatisticsViewController()
+        vc.reactor = reactor
         
         let image = makeNomalSelectedImage(imageName)
         let tabBar = UITabBarItem(title: nil, image: image.0, selectedImage: image.1)
