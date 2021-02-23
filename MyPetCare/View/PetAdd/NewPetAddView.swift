@@ -40,6 +40,7 @@ class NewPetAddView: UIView {
         $0.removeBorder(nomal: .white, selected: .lightGreen)
         $0.selectedSegmentIndex = 0
         $0.backgroundColor = .none
+        $0.addBorder(.black, 1)
     }
     
     let datePicker = UIDatePicker().then {

@@ -18,6 +18,7 @@ enum BRMeasureViewState {
 class BRMeasureViewReactor: Reactor {
     
     enum Action {
+        // BRMeasureViewController
         case selectedTime(Int)
         case viewStateChange(BRMeasureViewState)
         case countDownLabelText(String)
@@ -25,12 +26,15 @@ class BRMeasureViewReactor: Reactor {
         case plusBRCount
         case resetState
         case saveBRResult
+        // PhysicsMeasureViewContoller
+        case savePhysicsData(Double, Double)
     }
     
     enum Mutation {
+        // BRMeasureViewController
         case setMeasureTime(Int)                    // 측정시간 설정 (10~60초)
         case setViewState(BRMeasureViewState)       // View상태에 따라 UI,Animation
-        case setCountDownLabelText(String?)          // 카운트 다운 텍스트
+        case setCountDownLabelText(String?)         // 카운트 다운 텍스트
         case setCountDownNumber(Int)                // 카운트 다운 숫자
         case plusBRCount                            // 호흡수 측정값
         case resetBRCount                           // 호흡수 측정값 초기화
@@ -38,6 +42,7 @@ class BRMeasureViewReactor: Reactor {
     }
     
     struct State {
+        // BRMeasureViewController
         var selectedPet: PetObject                  // 선택된 펫 정보
         var selectedMeatureTime: Int                // 선택된 측정 시간 (10~60초)
         var viewState: BRMeasureViewState?          // View의 상태, 대기/준비/측정
@@ -117,6 +122,24 @@ class BRMeasureViewReactor: Reactor {
                 lastData.first!.resultBR = resultBRCount
             }
             return .just(.saveCompleteAndDismiss)
+            
+        case .savePhysicsData(let height, let weight):
+            
+            // DB 저장
+            let petObj = currentState.selectedPet
+            provider.dataBaseService.write {
+                petObj.height = height
+                petObj.weight = weight
+            }
+            
+            // 최근 데이터 저장
+            let lastData = provider.dataBaseService.loadLastData(petObj.id!).toArray().first
+            provider.dataBaseService.write {
+                lastData?.height = height
+                lastData?.weight = weight
+            }
+            
+            return .empty()
         }
     }
     

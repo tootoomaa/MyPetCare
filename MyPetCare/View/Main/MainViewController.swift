@@ -15,6 +15,8 @@ class MainViewController: UIViewController, View {
     // MARK: - Properties
     var disposeBag: DisposeBag = DisposeBag()
     
+    var selectedPet = PetObject()
+    
     let plusImageData = UIImage(systemName: "plus.circle.fill")?
         .withRenderingMode(.alwaysOriginal)
         .withTintColor(.deepGreen)
@@ -64,7 +66,7 @@ class MainViewController: UIViewController, View {
                          forCellWithReuseIdentifier: ServiceCell.identifier)
         }
         
-        Observable.just(["호흡수\n측정","몸무게\n키"])
+        Observable.just(["호흡수\n측정","체중, 키\n측정"])
             .bind(to: serviceCollectionView.rx.items(cellIdentifier: ServiceCell.identifier,
                                                      cellType: ServiceCell.self)) { row, data, cell in
                 
@@ -127,6 +129,7 @@ class MainViewController: UIViewController, View {
         
         // 펫 선택 시 처리 사항
         reactor.state.map{$0.selectedPet}
+            .do(onNext: { self.selectedPet = $0 ?? PetObject() })
             .observeOn(MainScheduler.instance)
             .do(onNext: { // pet 리스트가 없는 경우 Empty View 표시
                 self.mainView.petProfileView.configureEmptyViewComponentsByPetList($0 == nil)
@@ -207,21 +210,21 @@ class MainViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
+        //펫 CollectionView 선택 처리
         mainView.petProfileCollectionView.rx.itemSelected
             .filter{$0.row != reactor.plusButtonIndex}
             .map{Reactor.Action.selectedIndexPath($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        // 펫 수정 버튼
         mainView.petProfileView.editButton.rx.tap
             .observeOn(MainScheduler.asyncInstance)
             .subscribe(onNext:{ [unowned self] in
                 
-                guard let selectedPet = reactor.currentState.selectedPet else { return }
-                
                 let vc = NewPetAddViewController()
                 vc.reactor = PetAddViewReactor(isEditMode: true,
-                                               petData: selectedPet,
+                                               petData: self.selectedPet,
                                                provider: reactor.provider)
                 
                 let naviC = UINavigationController(rootViewController: vc)
@@ -239,6 +242,7 @@ class MainViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
+        // 삭제 버튼 처리
         mainView.petProfileView.deleteButton.rx.tap
             .subscribe(onNext: { [unowned self] in
                 
@@ -262,6 +266,7 @@ class MainViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
+        // 서비스 선택시 처리
         serviceCollectionView.rx.itemSelected
             .subscribe(onNext: { [unowned self] indexPath in
                 
@@ -269,7 +274,7 @@ class MainViewController: UIViewController, View {
                 if indexPath.row == 0 {
                     
                     let hrmeasureVC = BRMeasureViewController()
-                    hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: selectedPet,
+                    hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: self.selectedPet,
                                                                provider: reactor.provider)
                     // Save Button 선택시 tableView Label 재구성
                     hrmeasureVC.mainView.resultView.saveButton.rx.tap
@@ -284,7 +289,27 @@ class MainViewController: UIViewController, View {
                     let naviC = UINavigationController(rootViewController: hrmeasureVC)
                     
                     naviC.modalPresentationStyle = .overFullScreen
+                    self.present(naviC, animated: true, completion: nil)
                     
+                } else if indexPath.row == 1 {
+                    
+                    let physicsMeasureVC = PhysicsMeasureViewController()
+                    physicsMeasureVC.reactor = BRMeasureViewReactor(
+                                                    selectedPat: self.selectedPet,
+                                                    provider: reactor.provider)
+                    // Save Button 선택시 tableView Label 재구성
+//                    physicsMeasureVC.mainView.resultView.saveButton.rx.tap
+//                        .subscribe(onNext: {
+//                            let cellBRcount = IndexPath(row: 0, section: 0)
+//                            let heightWidthBRcount = IndexPath(row: 1, section: 0)
+//                            self.mainView.mainFrameTableView.reloadRows(
+//                                at: [cellBRcount, heightWidthBRcount],
+//                                with: .automatic)
+//                        }).disposed(by: disposeBag)
+                    
+                    let naviC = UINavigationController(rootViewController: physicsMeasureVC)
+                    
+                    naviC.modalPresentationStyle = .overFullScreen
                     self.present(naviC, animated: true, completion: nil)
                 }
                 
@@ -292,6 +317,7 @@ class MainViewController: UIViewController, View {
     }
 }
 
+// MARK: - UITableViewDelegate
 extension MainViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
