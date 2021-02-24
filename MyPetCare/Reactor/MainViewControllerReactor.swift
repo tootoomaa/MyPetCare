@@ -17,8 +17,8 @@ enum MeasureServiceType: String, CaseIterable {
 
 enum MainFrameMenuType: String, CaseIterable {
     case measureServices
-    case breathRate = "최근 호흡수"
-    case physics = "최근 체중/키"
+    case breathRate = "호흡수"
+    case physics = "체중/키"
 }
 
 class MainViewControllerReactor: Reactor {

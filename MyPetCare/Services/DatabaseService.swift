@@ -33,6 +33,9 @@ protocol DatabaseServiceType {
     func loadPetBRLog(_ petId: String) -> Results<BRObject>
     
     func loadLastData(_ petId: String) -> Results<LastMeasureObject>
+    
+    func laodBrCountDataHistory(_ petId: String) -> Results<BRObject>
+    func loadPhysicsDataHistory(_ pedId: String) -> Results<PhysicsObject>
 }
 
 class DatabaseService: BaseService, DatabaseServiceType {
@@ -141,5 +144,21 @@ class DatabaseService: BaseService, DatabaseServiceType {
     func loadLastData(_ petId: String) -> Results<LastMeasureObject> {
         let predicate = NSPredicate(format: "petId = %@", petId)
         return db().objects(LastMeasureObject.self).filter(predicate)
+    }
+    
+    func laodBrCountDataHistory(_ petId: String) -> Results<BRObject> {
+        let predicate = NSPredicate(format: "petId = %@", petId)
+        return db().objects(BRObject.self).filter(predicate)
+    }
+    
+    func loadPhysicsDataHistory(_ petId: String) -> Results<PhysicsObject> {
+        let predicate = NSPredicate(format: "petId = %@", petId)
+        return db().objects(PhysicsObject.self).filter(predicate)
+    }
+    
+    func loadData<T: Object>(type: T, petId: String) -> Results<T> {
+        let predicate = NSPredicate(format: "petId = %@", petId)
+        return db().objects(T.self).filter(predicate)
+        
     }
 }

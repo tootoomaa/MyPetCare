@@ -41,8 +41,6 @@ class MainViewController: UIViewController, View {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        mainView.mainFrameTableView.dataSource = self
-        
         configureServiceCollectionView()
         
         configurePanGuesture()
@@ -114,41 +112,6 @@ class MainViewController: UIViewController, View {
     
     // MARK: - Reactor Binding
     func bind(reactor: MainViewControllerReactor) {
-        // Main Frame Table View
-        Observable.of(MainFrameMenuType.allCases)
-            .bind(to: mainView.mainFrameTableView.rx.items) { [unowned self] _, row, menuType in
-            
-            let lastData = reactor.currentState.selectedLastedPetData
-            
-            switch menuType {
-            case .measureServices:
-                return UITableViewCell().then {
-                    $0.selectionStyle = .none
-                    $0.contentView.addSubview(serviceCollectionView)
-                    $0.backgroundColor = Constants.mainColor
-                    serviceCollectionView.snp.makeConstraints {
-                        $0.top.leading.equalToSuperview()
-                        $0.bottom.trailing.equalToSuperview().offset(-8)
-                        $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
-                    }
-                }
-                
-            case .breathRate:
-                return LastMeasureServiceCell(menuType).then {
-                    $0.titleLabel.text = menuType.rawValue
-                    $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
-                    let resultBR = lastData == nil ? " - /분" : "\(lastData?.resultBR ?? 0)/분"
-                    $0.valeuLabel.text = "\(resultBR)" }
-                
-            case .physics:
-                return LastMeasureServiceCell(menuType).then {
-                    $0.titleLabel.text = menuType.rawValue
-                    $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xeffad3)
-                    let height = lastData == nil ? "- cm" : "\(lastData?.height ?? 0)"
-                    let weight = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)"
-                    $0.valeuLabel.text = "\(weight), \(height)" }
-            }
-        }.disposed(by: disposeBag)
         
         self.rx.viewDidLoad
             .map{Reactor.Action.loadInitialData}
@@ -220,6 +183,67 @@ class MainViewController: UIViewController, View {
 ////                self.mainView.mainFrameTableView.reloadData()
 //            }).disposed(by: disposeBag)
         
+        // MARK: - Main Frame TableView Cell
+        Observable.of(MainFrameMenuType.allCases)
+            .bind(to: mainView.mainFrameTableView.rx.items) { [unowned self] _, row, menuType in
+            
+            let lastData = reactor.currentState.selectedLastedPetData
+            
+            switch menuType {
+            case .measureServices:
+                return UITableViewCell().then {
+                    $0.selectionStyle = .none
+                    $0.contentView.addSubview(serviceCollectionView)
+                    $0.backgroundColor = Constants.mainColor
+                    serviceCollectionView.snp.makeConstraints {
+                        $0.top.leading.equalToSuperview()
+                        $0.bottom.trailing.equalToSuperview().offset(-8)
+                        $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
+                    }
+                }
+                
+            case .breathRate:
+                return LastMeasureServiceCell(menuType).then {
+                    $0.titleLabel.text = "최근\(menuType.rawValue)"
+                    $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
+                    let resultBR = lastData == nil ? " - /분" : "\(lastData?.resultBR ?? 0)/분"
+                    $0.valeuLabel.text = "\(resultBR)"
+                    $0.showMoreButton.rx.tap
+                        .subscribeOn(MainScheduler.asyncInstance)
+                        .subscribe(onNext: {
+                            
+                            guard let selectedPet = reactor.currentState.selectedPet else { return }
+                            let measureDetailVC = MeasureDetailViewController(type: menuType)
+                            measureDetailVC.reactor = MeasureViewReactor(selectedPat: selectedPet,
+                                                                         provider: reactor.provider)
+                            self.navigationController?.pushViewController(measureDetailVC, animated: true)
+                            
+                        }).disposed(by: disposeBag)
+                }
+                
+            case .physics:
+                return LastMeasureServiceCell(menuType).then {
+                    $0.titleLabel.text = "최근 \(menuType.rawValue)"
+                    $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xeffad3)
+                    let height = lastData == nil ? "- cm" : "\(lastData?.height ?? 0)cm"
+                    let weight = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)kg"
+                    $0.valeuLabel.text = "\(weight),  \(height)"
+                    $0.showMoreButton.rx.tap
+                        .subscribeOn(MainScheduler.asyncInstance)
+                        .subscribe(onNext: {
+                            
+                            guard let selectedPet = reactor.currentState.selectedPet else { return }
+                            let measureDetailVC = MeasureDetailViewController(type: menuType)
+                            measureDetailVC.reactor = MeasureViewReactor(selectedPat: selectedPet,
+                                                                         provider: reactor.provider)
+                            self.navigationController?.pushViewController(measureDetailVC, animated: true)
+                            
+                        }).disposed(by: disposeBag)
+                }
+            }
+        }.disposed(by: disposeBag)
+        
+        // MARK: - PetProfile CollectionView Cell & Pet Profile View
         // plusButton 처리
         mainView.petProfileCollectionView.rx.itemSelected
             .filter{$0.row == reactor.plusButtonIndex}
@@ -303,6 +327,8 @@ class MainViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
+        // MARK: - MeasureSevice CollecionView
+        
         // 측정 서비스 선택 시 처리 사항
         serviceCollectionView.rx.itemSelected
             .compactMap{self.serviceCollectionView.cellForItem(at: $0) as? MeasureServiceCell}
@@ -314,7 +340,7 @@ class MainViewController: UIViewController, View {
                 
                 case .breathRate:
                     let hrmeasureVC = BRMeasureViewController()
-                    hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: self.selectedPet,
+                    hrmeasureVC.reactor = MeasureViewReactor(selectedPat: self.selectedPet,
                                                                provider: reactor.provider)
                     // Save Button 선택시 tableView Label 재구성
                     hrmeasureVC.mainView.resultView.saveButton.rx.tap
@@ -333,18 +359,9 @@ class MainViewController: UIViewController, View {
                     
                 case .phycis:
                     let physicsMeasureVC = PhysicsMeasureViewController()
-                    physicsMeasureVC.reactor = BRMeasureViewReactor(
+                    physicsMeasureVC.reactor = MeasureViewReactor(
                                                     selectedPat: self.selectedPet,
                                                     provider: reactor.provider)
-                    // Save Button 선택시 tableView Label 재구성
-//                    physicsMeasureVC.mainView.resultView.saveButton.rx.tap
-//                        .subscribe(onNext: {
-//                            let cellBRcount = IndexPath(row: 0, section: 0)
-//                            let heightWidthBRcount = IndexPath(row: 1, section: 0)
-//                            self.mainView.mainFrameTableView.reloadRows(
-//                                at: [cellBRcount, heightWidthBRcount],
-//                                with: .automatic)
-//                        }).disposed(by: disposeBag)
                     
                     let naviC = UINavigationController(rootViewController: physicsMeasureVC)
                     

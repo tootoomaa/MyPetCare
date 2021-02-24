@@ -109,7 +109,7 @@ class PhysicsMeasureViewController: UIViewController, View {
     }
     
     // MARK: - Reactor bind
-    func bind(reactor: BRMeasureViewReactor) {
+    func bind(reactor: MeasureViewReactor) {
         
         // 선택된 펫 관련 UI 초기 셋팅
         reactor.state.map{$0.selectedPet}

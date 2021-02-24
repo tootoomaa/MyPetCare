@@ -36,7 +36,10 @@ class MyPetCustomNavigationController: UITabBarController {
         
         vc.tabBarItem = tabBar
         
-        return UINavigationController(rootViewController: vc)
+        let naviC = UINavigationController(rootViewController: vc)
+        naviC.configureNavigationBarAppearance(.white)
+        
+        return naviC
     }
     
     private func makeStaticticsViewController(_ imageName: String) -> UINavigationController{
