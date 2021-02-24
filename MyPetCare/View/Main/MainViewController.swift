@@ -41,7 +41,7 @@ class MainViewController: UIViewController, View {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        mainView.mainFrameTableView.dataSource = self
+//        mainView.mainFrameTableView.dataSource = self
         
         configureServiceCollectionView()
         
@@ -112,6 +112,41 @@ class MainViewController: UIViewController, View {
     
     // MARK: - Reactor Binding
     func bind(reactor: MainViewControllerReactor) {
+        // Main Frame Table View
+        Observable.of(MainFrameMenuType.allCases)
+            .bind(to: mainView.mainFrameTableView.rx.items) { [unowned self] _, row, menuType in
+            
+            let lastData = reactor.currentState.selectedLastedPetData
+            
+            switch menuType {
+            case .measureServices:
+                return UITableViewCell().then {
+                    $0.selectionStyle = .none
+                    $0.contentView.addSubview(serviceCollectionView)
+                    $0.backgroundColor = Constants.mainColor
+                    serviceCollectionView.snp.makeConstraints {
+                        $0.top.leading.equalToSuperview()
+                        $0.bottom.trailing.equalToSuperview().offset(-8)
+                        $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
+                    }
+                }
+                
+            case .breathRate:
+                return LastMeasureServiceCell(menuType).then {
+                    $0.titleLabel.text = "최근 호흡수"
+                    $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
+                    let resultBR = lastData == nil ? " - /분" : "\(lastData?.resultBR ?? 0)/분"
+                    $0.valeuLabel.text = "\(resultBR)" }
+                
+            case .physics:
+                return LastMeasureServiceCell(menuType).then {
+                    $0.titleLabel.text = "최근 체중/키"
+                    $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xeffad3)
+                    let height = lastData == nil ? "- cm" : "\(lastData?.height ?? 0)"
+                    let weight = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)"
+                    $0.valeuLabel.text = "\(weight), \(height)" }
+            }
+        }.disposed(by: disposeBag)
         
         self.rx.viewDidLoad
             .map{Reactor.Action.loadInitialData}
@@ -314,62 +349,5 @@ class MainViewController: UIViewController, View {
                 }
                 
             }).disposed(by: disposeBag)
-    }
-}
-
-// MARK: - UITableViewDelegate
-extension MainViewController: UITableViewDataSource, UITableViewDelegate {
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let reactor = reactor else { return UITableViewCell() }
-        let lastData = reactor.currentState.selectedLastedPetData
-        
-        if indexPath.row == 0 { // Service Collection View
-            return UITableViewCell().then {
-                $0.selectionStyle = .none
-                $0.contentView.addSubview(serviceCollectionView)
-                $0.backgroundColor = Constants.mainColor
-                serviceCollectionView.snp.makeConstraints {
-                    $0.top.leading.equalToSuperview()
-                    $0.bottom.trailing.equalToSuperview().offset(-8)
-                    $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
-                }
-            }
-        } else if indexPath.row == 1 {
-            
-            let cell = LastMeasureServiceCell(
-                style: .default,
-                reuseIdentifier: LastMeasureServiceCell.identifier).then {
-                    $0.titleLabel.text = "최근 호흡수"
-                }
-            cell.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
-            
-            let resultBR = lastData == nil ? " - /분" : "\(lastData?.resultBR ?? 0)/분"
-            
-            cell.valeuLabel.text = "\(resultBR)"
-            return cell
-            
-        } else if indexPath.row == 2 {
-            
-            let cell = LastMeasureServiceCell(
-                style: .default,
-                reuseIdentifier: LastMeasureServiceCell.identifier).then {
-                    $0.titleLabel.text = "최근 체중/키"
-                }
-            cell.customBackgroundView.backgroundColor = UIColor(rgb: 0xeffad3)
-            
-            let height = lastData == nil ? "- cm" : "\(lastData?.height ?? 0)"
-            let weight = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)"
-            
-            cell.valeuLabel.text = "\(weight), \(height)"
-            return cell
-            
-        }
-        
-        return UITableViewCell()
     }
 }

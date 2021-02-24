@@ -12,6 +12,8 @@ class LastMeasureServiceCell: UITableViewCell {
     // MARK: - Properties
     static let identifier = "LastMeasureServiceCell"
     
+    let cellType: MainFrameMenuType
+    
     let customBackgroundView = UIView().then {
         $0.backgroundColor = .white
         $0.addCornerRadius(20)
@@ -28,23 +30,32 @@ class LastMeasureServiceCell: UITableViewCell {
     }
     
     let showMoreButton = UIButton().then {
-        let image = UIImage(systemName: "chevron.forward")?
+        let normalImage = UIImage(systemName: "chevron.forward")?
                         .withRenderingMode(.alwaysOriginal)
                         .withTintColor(.black)
-        $0.setImage(image, for: .normal)
+        let selectImage = UIImage(systemName: "chevron.forward")?
+                        .withRenderingMode(.alwaysOriginal)
+                        .withTintColor(.gray)
+        $0.setImage(normalImage, for: .normal)
+        $0.setImage(selectImage, for: .highlighted)
+        
+        $0.setTitle("더보기", for: .normal)
+        $0.setTitleColor(.black, for: .normal)
+        $0.setTitleColor(.gray, for: .highlighted)
+        
         $0.imageView?.contentMode = .scaleAspectFit
         $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 20)
-        $0.imageEdgeInsets = UIEdgeInsets(top: 5, left: 45, bottom: 5, right: 0)
-        $0.setTitle("더보기", for: .normal)
+        $0.imageEdgeInsets = UIEdgeInsets(top: 5, left: 40, bottom: 5, right: 0)
+        
         $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 13)
-        $0.setTitleColor(.black, for: .normal)
         $0.addCornerRadius(10)
-        $0.addBorder(.black, 0.5)
     }
     
     // MARK: - Life cycle
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    init(_ cellType: MainFrameMenuType) {
+        
+        self.cellType = cellType
+        super.init(style: .default, reuseIdentifier: LastMeasureServiceCell.identifier)
         
         backgroundColor = Constants.mainColor
         addCornerRadius(20)
@@ -86,7 +97,7 @@ class LastMeasureServiceCell: UITableViewCell {
         }
         
         showMoreButton.snp.makeConstraints {
-            $0.bottom.trailing.equalTo(safeGuide).offset(-10)
+            $0.bottom.trailing.equalTo(safeGuide).offset(-8)
             $0.width.equalTo(65)
             $0.height.equalTo(20)
         }

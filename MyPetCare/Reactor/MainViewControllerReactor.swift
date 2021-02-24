@@ -10,6 +10,11 @@ import ReactorKit
 import RxSwift
 import RxCocoa
 
+enum MainFrameMenuType: CaseIterable {
+    case measureServices
+    case breathRate
+    case physics
+}
 
 class MainViewControllerReactor: Reactor {
     

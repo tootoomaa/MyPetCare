@@ -102,7 +102,7 @@ class BRMeasureViewReactor: Reactor {
         case .plusBRCount:
             return .just(.plusBRCount)
             
-        case .saveBRResult:
+        case .saveBRResult:                           // 호흡수 측정 데이터 저장
             // Save Measured Breath Rate
             let bpObject = BRObject().then {
                 $0.id = UUID().uuidString
@@ -123,7 +123,7 @@ class BRMeasureViewReactor: Reactor {
             }
             return .just(.saveCompleteAndDismiss)
             
-        case .savePhysicsData(let height, let weight):
+        case .savePhysicsData(let height, let weight): // 키 몸무게 저장 로직
             
             // DB 저장
             let petObj = currentState.selectedPet
