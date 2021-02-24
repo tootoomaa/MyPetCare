@@ -62,15 +62,17 @@ class MainViewController: UIViewController, View {
         _ = serviceCollectionView.then {
             $0.delegate = servicelayout
             $0.backgroundColor = .none
-            $0.register(ServiceCell.self,
-                         forCellWithReuseIdentifier: ServiceCell.identifier)
+            $0.register(MeasureServiceCell.self,
+                         forCellWithReuseIdentifier: MeasureServiceCell.identifier)
         }
         
-        Observable.just(["호흡수\n측정","체중, 키\n측정"])
-            .bind(to: serviceCollectionView.rx.items(cellIdentifier: ServiceCell.identifier,
-                                                     cellType: ServiceCell.self)) { row, data, cell in
+        Observable.just(MeasureServiceType.allCases)
+            .bind(to: serviceCollectionView.rx.items(
+                    cellIdentifier: MeasureServiceCell.identifier,
+                    cellType: MeasureServiceCell.self)) { row, measureServiceType, cell in
                 
-                cell.titleLabel.text = data
+                cell.titleLabel.text = measureServiceType.rawValue
+                cell.cellType = measureServiceType
                 
             }.disposed(by: disposeBag)
     }
@@ -133,14 +135,14 @@ class MainViewController: UIViewController, View {
                 
             case .breathRate:
                 return LastMeasureServiceCell(menuType).then {
-                    $0.titleLabel.text = "최근 호흡수"
+                    $0.titleLabel.text = menuType.rawValue
                     $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
                     let resultBR = lastData == nil ? " - /분" : "\(lastData?.resultBR ?? 0)/분"
                     $0.valeuLabel.text = "\(resultBR)" }
                 
             case .physics:
                 return LastMeasureServiceCell(menuType).then {
-                    $0.titleLabel.text = "최근 체중/키"
+                    $0.titleLabel.text = menuType.rawValue
                     $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xeffad3)
                     let height = lastData == nil ? "- cm" : "\(lastData?.height ?? 0)"
                     let weight = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)"
@@ -301,13 +303,16 @@ class MainViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
-        // 서비스 선택시 처리
+        // 측정 서비스 선택 시 처리 사항
         serviceCollectionView.rx.itemSelected
-            .subscribe(onNext: { [unowned self] indexPath in
+            .compactMap{self.serviceCollectionView.cellForItem(at: $0) as? MeasureServiceCell}
+            .compactMap{$0.cellType}
+            .subscribeOn(MainScheduler.asyncInstance)
+            .subscribe(onNext: { [unowned self] serviceType in
                 
-                guard let selectedPet = reactor.currentState.selectedPet else { return }
-                if indexPath.row == 0 {
-                    
+                switch serviceType {
+                
+                case .breathRate:
                     let hrmeasureVC = BRMeasureViewController()
                     hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: self.selectedPet,
                                                                provider: reactor.provider)
@@ -326,8 +331,7 @@ class MainViewController: UIViewController, View {
                     naviC.modalPresentationStyle = .overFullScreen
                     self.present(naviC, animated: true, completion: nil)
                     
-                } else if indexPath.row == 1 {
-                    
+                case .phycis:
                     let physicsMeasureVC = PhysicsMeasureViewController()
                     physicsMeasureVC.reactor = BRMeasureViewReactor(
                                                     selectedPat: self.selectedPet,
@@ -346,8 +350,8 @@ class MainViewController: UIViewController, View {
                     
                     naviC.modalPresentationStyle = .overFullScreen
                     self.present(naviC, animated: true, completion: nil)
-                }
                 
+                }
             }).disposed(by: disposeBag)
     }
 }

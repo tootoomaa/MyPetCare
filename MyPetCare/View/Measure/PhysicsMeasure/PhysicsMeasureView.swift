@@ -59,7 +59,8 @@ class PhysicsMeasureView: UIView {
         $0.autocorrectionType = .no
         $0.autocapitalizationType = .none
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 40)
-        $0.enablesReturnKeyAutomatically = true
+        $0.textAlignment = .right
+        $0.adjustsFontSizeToFitWidth = true
     }
     
     let heightValueLabel = UILabel().then {
@@ -78,6 +79,8 @@ class PhysicsMeasureView: UIView {
         $0.autocorrectionType = .no
         $0.autocapitalizationType = .none
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 40)
+        $0.textAlignment = .right
+        $0.adjustsFontSizeToFitWidth = true
     }
     
     let weightValueLabel = UILabel().then {
@@ -148,11 +151,13 @@ class PhysicsMeasureView: UIView {
         
         heightValueLabel.snp.makeConstraints {
             $0.centerY.equalTo(heightTitleLabel.snp.centerY)
-            $0.trailing.equalTo(safeGuide).inset(35)
+            $0.trailing.equalTo(safeGuide).inset(30)
+            $0.width.equalTo(40)
         }
         
         heightTextField.snp.makeConstraints {
             $0.centerY.equalTo(heightTitleLabel.snp.centerY)
+            $0.leading.equalTo(heightTitleLabel.snp.trailing).offset(20)
             $0.trailing.equalTo(heightValueLabel.snp.leading).offset(-10)
         }
         
@@ -163,10 +168,12 @@ class PhysicsMeasureView: UIView {
         
         weightValueLabel.snp.makeConstraints {
             $0.centerY.equalTo(weightTitleLabel.snp.centerY)
-            $0.trailing.equalTo(safeGuide).inset(35)
+            $0.trailing.equalTo(safeGuide).inset(30)
+            $0.width.equalTo(40)
         }
         
         weightTextField.snp.makeConstraints {
+            $0.leading.equalTo(heightTextField)
             $0.centerY.equalTo(weightTitleLabel.snp.centerY)
             $0.trailing.equalTo(weightValueLabel.snp.leading).offset(-10)
         }

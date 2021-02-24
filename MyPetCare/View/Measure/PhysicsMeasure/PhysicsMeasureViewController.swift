@@ -16,7 +16,6 @@ class PhysicsMeasureViewController: UIViewController, View {
     
     let mainView = PhysicsMeasureView()
     
-    let addNaviButton = UIBarButtonItem(barButtonSystemItem: .add, target: nil, action: nil)
     let closeNanviButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: nil, action: nil)
     
     // MARK: - Life Cycle
@@ -29,8 +28,9 @@ class PhysicsMeasureViewController: UIViewController, View {
         
         configureNavigation()
         
+        // 저장버튼이 TextFiled Toolbar안에 있기 때문에 키보드가 내려가면 안됨!
+        // 별도로 touchBegin EndEditing을 통해서 키보드를 내리지 않음
         configureTextFieldDelegate()
-        
     }
     
     private func configureNavigation() {
@@ -44,11 +44,6 @@ class PhysicsMeasureViewController: UIViewController, View {
             }).disposed(by: disposeBag)
         
         navigationItem.leftBarButtonItem = closeNanviButton
-        navigationItem.rightBarButtonItem = addNaviButton
-    }
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        view.endEditing(true)
     }
     
     // MARK: - custom Keyboar & TextField
@@ -71,12 +66,20 @@ class PhysicsMeasureViewController: UIViewController, View {
         keyboardToolbar.sizeToFit()
         keyboardToolbar.barStyle = .default
         
-        
         let flexBarButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
-        let dot = UIBarButtonItem(title: "   ●   ", style: .plain, target: nil, action: nil)
+        let dot = UIBarButtonItem(title: "   ●   ", style: .plain, target: nil, action: nil).then {
+            // dot의 특수문자는 "Cafe24Syongsyong" 폰트에 없음
+            $0.tintColor = .black
+        }
         let next = UIBarButtonItem(title: "Next", style: .plain, target: nil, action: nil)
-        let done = UIBarButtonItem(title: "Done", style: .plain, target: nil, action: nil)
+        let done = UIBarButtonItem(title: "Save", style: .plain, target: nil, action: nil)
+        
+        [next, done].forEach {
+            $0.setTitleTextAttributes(
+                [NSAttributedString.Key.foregroundColor: UIColor.black,
+                 NSAttributedString.Key.font: UIFont(name: "Cafe24Syongsyong", size: 20)!], for: .normal)
+        }
         
         dot.rx.tap
             .subscribe(onNext: {
@@ -126,17 +129,10 @@ class PhysicsMeasureViewController: UIViewController, View {
             .subscribe(onNext: { [unowned self] in
                 saveAlertController()
             }).disposed(by: disposeBag)
-        
-        // 저장 버튼
-        addNaviButton.rx.tap
-            .observeOn(MainScheduler.asyncInstance)
-            .subscribe(onNext: { [unowned self] in
-                saveAlertController()
-            }).disposed(by: disposeBag)
     }
     
     private func saveAlertController() {
-        // 리엑터 체크
+
         guard let reactor = reactor else {fatalError("Check Reactor")}
         
         // 숫자가 아닌 경우 필터링
@@ -153,14 +149,15 @@ class PhysicsMeasureViewController: UIViewController, View {
         }
         
         // 소수점 2자리 까지 변경
-        let heightTwoDown = round(height*100)/100
-        let weightTwoDown = round(weight*100)/100
+        let heightTwoDown = round(height*10)/10
+        let weightTwoDown = round(weight*10)/10
         
         let alertC = UIAlertController(title: "저장", message: "변경 사항을 저장하시겠습니까?", preferredStyle: .actionSheet)
         
         let saveAction = UIAlertAction(title: "변경 사항저장", style: .default) { [unowned self]  _ in
             
             reactor.action.onNext(.savePhysicsData(heightTwoDown, weightTwoDown))
+            GlobalState.lastDateUpdate.onNext(Void())
             self.dismiss(animated: true, completion: nil)
         }
         

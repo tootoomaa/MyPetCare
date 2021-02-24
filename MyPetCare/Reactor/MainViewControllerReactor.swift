@@ -10,10 +10,15 @@ import ReactorKit
 import RxSwift
 import RxCocoa
 
-enum MainFrameMenuType: CaseIterable {
+enum MeasureServiceType: String, CaseIterable {
+    case breathRate = "호흡수\n측정"
+    case phycis = "체중, 키\n측정"
+}
+
+enum MainFrameMenuType: String, CaseIterable {
     case measureServices
-    case breathRate
-    case physics
+    case breathRate = "최근 호흡수"
+    case physics = "최근 체중/키"
 }
 
 class MainViewControllerReactor: Reactor {
@@ -128,10 +133,10 @@ class MainViewControllerReactor: Reactor {
     }
     
     // MARK: - Transfrom
-//    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
-//        let lastData = provider.dataBaseService.loadLastData(currentState.selectedPet?.id ?? "").toArray()
-//        return Observable.merge([mutation,
-//                                 GlobalState.savedNewBrData.map{
-//                                    .setSelectedLastedPerData(lastData.first!)}])
-//    }
+    func transform(action: Observable<Action>) -> Observable<Action> {
+        let indexPath = currentState.selectedIndexPath
+        return Observable.merge([action,
+                                 GlobalState.lastDateUpdate
+                                    .map{.selectedIndexPath(indexPath)}])
+    }
 }

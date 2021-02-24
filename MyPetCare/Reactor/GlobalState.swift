@@ -11,6 +11,6 @@ import RxCocoa
 
 class GlobalState {
     
-//    static let savedNewBrData = PublishSubject<Void>()
+    static let lastDateUpdate = PublishSubject<Void>()
     
 }
