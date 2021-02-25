@@ -15,6 +15,8 @@ class MainViewController: UIViewController, View {
     // MARK: - Properties
     var disposeBag: DisposeBag = DisposeBag()
     
+    var selectedPet = PetObject()
+    
     let plusImageData = UIImage(systemName: "plus.circle.fill")?
         .withRenderingMode(.alwaysOriginal)
         .withTintColor(.deepGreen)
@@ -39,8 +41,6 @@ class MainViewController: UIViewController, View {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        mainView.mainFrameTableView.dataSource = self
-        
         configureServiceCollectionView()
         
         configurePanGuesture()
@@ -60,15 +60,17 @@ class MainViewController: UIViewController, View {
         _ = serviceCollectionView.then {
             $0.delegate = servicelayout
             $0.backgroundColor = .none
-            $0.register(ServiceCell.self,
-                         forCellWithReuseIdentifier: ServiceCell.identifier)
+            $0.register(MeasureServiceCell.self,
+                         forCellWithReuseIdentifier: MeasureServiceCell.identifier)
         }
         
-        Observable.just(["호흡수\n측정","몸무게\n키"])
-            .bind(to: serviceCollectionView.rx.items(cellIdentifier: ServiceCell.identifier,
-                                                     cellType: ServiceCell.self)) { row, data, cell in
+        Observable.just(MeasureServiceType.allCases)
+            .bind(to: serviceCollectionView.rx.items(
+                    cellIdentifier: MeasureServiceCell.identifier,
+                    cellType: MeasureServiceCell.self)) { row, measureServiceType, cell in
                 
-                cell.titleLabel.text = data
+                cell.titleLabel.text = measureServiceType.rawValue
+                cell.cellType = measureServiceType
                 
             }.disposed(by: disposeBag)
     }
@@ -125,7 +127,9 @@ class MainViewController: UIViewController, View {
                                 scrollPosition: .centeredVertically)
             }).disposed(by: disposeBag)
         
+        // 펫 선택 시 처리 사항
         reactor.state.map{$0.selectedPet}
+            .do(onNext: { self.selectedPet = $0 ?? PetObject() })
             .observeOn(MainScheduler.instance)
             .do(onNext: { // pet 리스트가 없는 경우 Empty View 표시
                 self.mainView.petProfileView.configureEmptyViewComponentsByPetList($0 == nil)
@@ -140,11 +144,11 @@ class MainViewController: UIViewController, View {
 
             }).disposed(by: disposeBag)
         
+        // Pet Profile 선택시 변경 사항
         reactor.state.map{$0.selectedIndexPath}
             .filter{$0.row != reactor.plusButtonIndex}
             .observeOn(MainScheduler.asyncInstance)
             .compactMap{$0}
-//            .distinctUntilChanged()
             .subscribe(onNext: { [unowned self] indexPath in
                 
                 let view = mainView.petProfileCollectionView
@@ -171,6 +175,75 @@ class MainViewController: UIViewController, View {
                 
             }.disposed(by: disposeBag)
         
+//        reactor.state.map{$0.selectedLastedPetData}
+//            .compactMap{$0}
+//            .observeOn(MainScheduler.asyncInstance)
+//            .subscribe(onNext: {
+//
+////                self.mainView.mainFrameTableView.reloadData()
+//            }).disposed(by: disposeBag)
+        
+        // MARK: - Main Frame TableView Cell
+        Observable.of(MainFrameMenuType.allCases)
+            .bind(to: mainView.mainFrameTableView.rx.items) { [unowned self] _, row, menuType in
+            
+            let lastData = reactor.currentState.selectedLastedPetData
+            
+            switch menuType {
+            case .measureServices:
+                return UITableViewCell().then {
+                    $0.selectionStyle = .none
+                    $0.contentView.addSubview(serviceCollectionView)
+                    $0.backgroundColor = Constants.mainColor
+                    serviceCollectionView.snp.makeConstraints {
+                        $0.top.leading.equalToSuperview()
+                        $0.bottom.trailing.equalToSuperview().offset(-8)
+                        $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
+                    }
+                }
+                
+            case .breathRate:
+                return LastMeasureServiceCell(menuType).then {
+                    $0.titleLabel.text = "최근\(menuType.rawValue)"
+                    $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
+                    let resultBR = lastData == nil ? " - 회/분" : "\(lastData?.resultBR ?? 0)회/분"
+                    $0.valeuLabel.text = "\(resultBR)"
+                    $0.showMoreButton.rx.tap
+                        .subscribeOn(MainScheduler.asyncInstance)
+                        .subscribe(onNext: {
+                            
+                            guard let selectedPet = reactor.currentState.selectedPet else { return }
+                            let measureDetailVC = MeasureDetailViewController(type: menuType)
+                            measureDetailVC.reactor = MeasureViewReactor(selectedPat: selectedPet,
+                                                                         provider: reactor.provider)
+                            self.navigationController?.pushViewController(measureDetailVC, animated: true)
+                            
+                        }).disposed(by: disposeBag)
+                }
+                
+            case .physics:
+                return LastMeasureServiceCell(menuType).then {
+                    $0.titleLabel.text = "최근 \(menuType.rawValue)"
+                    $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xeffad3)
+                    let height = lastData == nil ? "- cm" : "\(lastData?.height ?? 0)cm"
+                    let weight = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)kg"
+                    $0.valeuLabel.text = "\(weight),  \(height)"
+                    $0.showMoreButton.rx.tap
+                        .subscribeOn(MainScheduler.asyncInstance)
+                        .subscribe(onNext: {
+                            
+                            guard let selectedPet = reactor.currentState.selectedPet else { return }
+                            let measureDetailVC = MeasureDetailViewController(type: menuType)
+                            measureDetailVC.reactor = MeasureViewReactor(selectedPat: selectedPet,
+                                                                         provider: reactor.provider)
+                            self.navigationController?.pushViewController(measureDetailVC, animated: true)
+                            
+                        }).disposed(by: disposeBag)
+                }
+            }
+        }.disposed(by: disposeBag)
+        
+        // MARK: - PetProfile CollectionView Cell & Pet Profile View
         // plusButton 처리
         mainView.petProfileCollectionView.rx.itemSelected
             .filter{$0.row == reactor.plusButtonIndex}
@@ -198,21 +271,21 @@ class MainViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
+        //펫 CollectionView 선택 처리
         mainView.petProfileCollectionView.rx.itemSelected
             .filter{$0.row != reactor.plusButtonIndex}
             .map{Reactor.Action.selectedIndexPath($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        // 펫 수정 버튼
         mainView.petProfileView.editButton.rx.tap
             .observeOn(MainScheduler.asyncInstance)
             .subscribe(onNext:{ [unowned self] in
                 
-                guard let selectedPet = reactor.currentState.selectedPet else { return }
-                
                 let vc = NewPetAddViewController()
                 vc.reactor = PetAddViewReactor(isEditMode: true,
-                                               petData: selectedPet,
+                                               petData: self.selectedPet,
                                                provider: reactor.provider)
                 
                 let naviC = UINavigationController(rootViewController: vc)
@@ -230,6 +303,7 @@ class MainViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
+        // 삭제 버튼 처리
         mainView.petProfileView.deleteButton.rx.tap
             .subscribe(onNext: { [unowned self] in
                 
@@ -253,51 +327,48 @@ class MainViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
+        // MARK: - MeasureSevice CollecionView
+        
+        // 측정 서비스 선택 시 처리 사항
         serviceCollectionView.rx.itemSelected
-            .subscribe(onNext: { [unowned self] indexPath in
+            .compactMap{self.serviceCollectionView.cellForItem(at: $0) as? MeasureServiceCell}
+            .compactMap{$0.cellType}
+            .subscribeOn(MainScheduler.asyncInstance)
+            .subscribe(onNext: { [unowned self] serviceType in
                 
-                guard let selectedPet = reactor.currentState.selectedPet else { return }
-                if indexPath.row == 0 {
-                    
+                switch serviceType {
+                
+                case .breathRate:
                     let hrmeasureVC = BRMeasureViewController()
-                    hrmeasureVC.reactor = BRMeasureViewReactor(selectedPat: selectedPet,
+                    hrmeasureVC.reactor = MeasureViewReactor(selectedPat: self.selectedPet,
                                                                provider: reactor.provider)
+                    // Save Button 선택시 tableView Label 재구성
+                    hrmeasureVC.mainView.resultView.saveButton.rx.tap
+                        .subscribe(onNext: {
+                            let cellBRcount = IndexPath(row: 0, section: 0)
+                            let heightWidthBRcount = IndexPath(row: 1, section: 0)
+                            self.mainView.mainFrameTableView.reloadRows(
+                                at: [cellBRcount, heightWidthBRcount],
+                                with: .automatic)
+                        }).disposed(by: disposeBag)
                     
                     let naviC = UINavigationController(rootViewController: hrmeasureVC)
                     
                     naviC.modalPresentationStyle = .overFullScreen
-                    
                     self.present(naviC, animated: true, completion: nil)
-                }
+                    
+                case .phycis:
+                    let physicsMeasureVC = PhysicsMeasureViewController()
+                    physicsMeasureVC.reactor = MeasureViewReactor(
+                                                    selectedPat: self.selectedPet,
+                                                    provider: reactor.provider)
+                    
+                    let naviC = UINavigationController(rootViewController: physicsMeasureVC)
+                    
+                    naviC.modalPresentationStyle = .overFullScreen
+                    self.present(naviC, animated: true, completion: nil)
                 
-            }).disposed(by: disposeBag)
-    }
-}
-
-extension MainViewController: UITableViewDataSource, UITableViewDelegate {
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 2
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
-        if indexPath.row == 0 { // Service Collection View
-            return UITableViewCell().then {
-                $0.selectionStyle = .none
-                $0.contentView.addSubview(serviceCollectionView)
-                $0.backgroundColor = Constants.mainColor
-                serviceCollectionView.snp.makeConstraints {
-                    $0.top.leading.equalToSuperview()
-                    $0.bottom.trailing.equalToSuperview().offset(-8)
-                    $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
                 }
-            }
-        }
-
-        return UITableViewCell().then {
-            $0.selectionStyle = .none
-            $0.backgroundColor = .blue
-        }
+            }).disposed(by: disposeBag)
     }
 }

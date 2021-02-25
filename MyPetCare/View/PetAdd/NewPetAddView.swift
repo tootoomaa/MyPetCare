@@ -40,6 +40,7 @@ class NewPetAddView: UIView {
         $0.removeBorder(nomal: .white, selected: .lightGreen)
         $0.selectedSegmentIndex = 0
         $0.backgroundColor = .none
+        $0.addBorder(.black, 1)
     }
     
     let datePicker = UIDatePicker().then {
@@ -78,7 +79,8 @@ class NewPetAddView: UIView {
         let marginGuide = self.layoutMarginsGuide
         
         [basicTitle, petImageView, nameTextField, maleSegmentController, datePicker,
-         healthTitle, tableView].forEach {
+//         healthTitle, tableView
+        ].forEach {
             addSubview($0)
         }
         
@@ -96,8 +98,8 @@ class NewPetAddView: UIView {
         
         maleSegmentController.snp.makeConstraints {
             $0.centerY.equalTo(petImageView)
-            $0.leading.equalTo(snp.centerX).offset(padding)
-            $0.trailing.equalTo(marginGuide)
+            $0.leading.lessThanOrEqualTo(snp.centerX).offset(padding)
+            $0.trailing.greaterThanOrEqualTo(marginGuide)
             $0.height.equalTo(25)
         }
         
@@ -112,19 +114,19 @@ class NewPetAddView: UIView {
             $0.height.centerX.equalTo(maleSegmentController)
         }
         
-        healthTitle.snp.makeConstraints {
-            $0.top.equalTo(petImageView.snp.bottom).offset(30)
-            $0.leading.equalTo(basicTitle)
-            $0.trailing.equalTo(marginGuide)
-        }
-        
-        healthTitle.addButtonBorder(.black, 2)
-        
-        tableView.snp.makeConstraints {
-            $0.top.equalTo(healthTitle.snp.bottom).offset(padding*2)
-            $0.leading.trailing.equalTo(marginGuide)
-            $0.height.equalTo(150)
-        }
+//        healthTitle.snp.makeConstraints {
+//            $0.top.equalTo(petImageView.snp.bottom).offset(30)
+//            $0.leading.equalTo(basicTitle)
+//            $0.trailing.equalTo(marginGuide)
+//        }
+//
+//        healthTitle.addButtonBorder(.black, 2)
+//
+//        tableView.snp.makeConstraints {
+//            $0.top.equalTo(healthTitle.snp.bottom).offset(padding*2)
+//            $0.leading.trailing.equalTo(marginGuide)
+//            $0.height.equalTo(150)
+//        }
         
     }
     

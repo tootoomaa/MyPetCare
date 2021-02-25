@@ -16,17 +16,14 @@ class PetProfileView: UIView {
     // MARK: - Properties
     var dashBoardView = UIView().then {
         $0.backgroundColor = .systemGray6
-        $0.layer.cornerRadius = 20
-        $0.clipsToBounds = true
-        $0.layer.borderWidth = 2
-        $0.layer.borderColor = UIColor(rgb: 0xe7e6e1).cgColor
+        $0.addCornerRadius(20)
+        $0.addBorder(UIColor(rgb: 0xe7e6e1), 2)
         $0.backgroundColor = UIColor(rgb: 0xe7e6e1)
     }
     
     var petImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
-        $0.layer.cornerRadius = 20
-        $0.clipsToBounds = true
+        $0.addCornerRadius(20)
     }
     
     var petName = UILabel().then {
@@ -43,7 +40,6 @@ class PetProfileView: UIView {
     
     var ageLabel = UILabel().then {
         $0.text = "Age"
-
         $0.font = .dynamicSystemFont(size: 11, weight: .semibold)
         $0.textColor = .systemGray2
     }

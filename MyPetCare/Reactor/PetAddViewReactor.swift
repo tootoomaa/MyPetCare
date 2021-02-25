@@ -90,6 +90,11 @@ class PetAddViewReactor: Reactor {
                     $0.image = currentState.petImageData
                 }
                 provider.dataBaseService.add(petObj)
+                // 최근 데이터 저장
+                let lastMeasureObj = LastMeasureObject().then {
+                    $0.petId = petObj.id
+                }
+                provider.dataBaseService.add(lastMeasureObj)
                 
             } else {
                 // 기존 펫 수정 - uuid 수정하면 안됨

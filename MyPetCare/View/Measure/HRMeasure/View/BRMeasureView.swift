@@ -170,7 +170,7 @@ class BRMeasureView: UIView {
         
         // MARK: - Pet Profile View
         petImageView.snp.makeConstraints {
-            $0.top.equalTo(safeGuide).offset(50)
+            $0.top.equalTo(safeGuide).offset(30)
             $0.leading.equalTo(hrMeasureView.snp.leading).offset(30)
             $0.width.height.equalTo(Constants.viewWidth/4)
         }

@@ -22,20 +22,26 @@ class Constants {
     static let currentLocale = Locale(identifier: "ko_KR")
     
     // UI
-    static var widthbase: CGFloat = 375
-    static var heigthbase: CGFloat = 700
+    static let widthbase: CGFloat = 375
+    static let heigthbase: CGFloat = 700
     
-    static var viewHeigth = UIScreen.main.bounds.height
-    static var viewWidth = UIScreen.main.bounds.width
+    static let viewHeigth = UIScreen.main.bounds.height
+    static let viewWidth = UIScreen.main.bounds.width
     
-    static var heightRatio = UIScreen.main.bounds.height / Constants.heigthbase
-    static var widthRatio = UIScreen.main.bounds.width / Constants.widthbase
+    static let heightRatio = UIScreen.main.bounds.height / Constants.heigthbase
+    static let widthRatio = UIScreen.main.bounds.width / Constants.widthbase
     
     // Color
     static var mainColor = UIColor.lightGreen
     
     static var mainViewPetPlusButtonUUID = "itisButtonUUIDforAddPet"
     
+    
+    // Statictic
+    enum duration: Int, CaseIterable {
+        case weak = 0
+        case month = 1
+    }
     
     class ScreenHeight {
         

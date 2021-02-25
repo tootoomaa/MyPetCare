@@ -1,5 +1,5 @@
 //
-//  ServiceCell.swift
+//  MeasureServiceCell.swift
 //  MyPetCare
 //
 //  Created by 김광수 on 2021/02/06.
@@ -8,10 +8,11 @@
 import Foundation
 import UIKit
 
-class ServiceCell: UICollectionViewCell {
+class MeasureServiceCell: UICollectionViewCell {
     static let identifier = "ServiceCell"
     
     let imageView = UIImageView()
+    var cellType: MeasureServiceType?
     
     let titleLabel = UILabel().then {
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 15)

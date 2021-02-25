@@ -56,6 +56,7 @@ class MainView: UIView {
         
         $0.tableHeaderView = petProfileView
         $0.scrollIndicatorInsets = .zero
+        $0.separatorStyle = .none
         $0.showsVerticalScrollIndicator = false
     }
     
@@ -104,8 +105,8 @@ class MainView: UIView {
 
         [titleLabel,
          selectPetImageView, selectedPetName, selectedPetMaleImageView,
-         petProfileCollectionView,
-         mainFrameTableView].forEach {
+         mainFrameTableView,
+         petProfileCollectionView].forEach {
             addSubview($0)
         }
         

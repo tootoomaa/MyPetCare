@@ -15,9 +15,10 @@ enum BRMeasureViewState {
     case finish
 }
 
-class BRMeasureViewReactor: Reactor {
+class MeasureViewReactor: Reactor {
     
     enum Action {
+        // BRMeasureViewController
         case selectedTime(Int)
         case viewStateChange(BRMeasureViewState)
         case countDownLabelText(String)
@@ -25,19 +26,30 @@ class BRMeasureViewReactor: Reactor {
         case plusBRCount
         case resetState
         case saveBRResult
+        // PhysicsMeasureViewContoller
+        case savePhysicsData(Double, Double)
+        // MeasureDetailViewController
+        case loadBrCountData
+        case loadPhysicsData
+        case removeMeasureData(Int, MainFrameMenuType)
     }
     
     enum Mutation {
+        // BRMeasureViewController
         case setMeasureTime(Int)                    // 측정시간 설정 (10~60초)
         case setViewState(BRMeasureViewState)       // View상태에 따라 UI,Animation
-        case setCountDownLabelText(String?)          // 카운트 다운 텍스트
+        case setCountDownLabelText(String?)         // 카운트 다운 텍스트
         case setCountDownNumber(Int)                // 카운트 다운 숫자
         case plusBRCount                            // 호흡수 측정값
         case resetBRCount                           // 호흡수 측정값 초기화
         case saveCompleteAndDismiss                 // 저장 완료 및 dismiss
+        // MeasureDetailVC
+        case setBrCountLiat([BRObject])
+        case setPhysicsList([PhysicsObject])
     }
     
     struct State {
+        // BRMeasureViewController
         var selectedPet: PetObject                  // 선택된 펫 정보
         var selectedMeatureTime: Int                // 선택된 측정 시간 (10~60초)
         var viewState: BRMeasureViewState?          // View의 상태, 대기/준비/측정
@@ -45,11 +57,18 @@ class BRMeasureViewReactor: Reactor {
         var countTimeNumber: Int                    // Count Down Time
         var brCount: Int                            // 호흡수 측정값
         var saveCompleteAndDismiss: Bool?           // 저장 완료 및 dismiss
+        // MeasureDetailVC
+        var brCountHistory: [BRObject]
+        var physicsHistory: [PhysicsObject]
     }
     
     var provider: ServiceProviderType
+    var selectedPet: PetObject
     let waitingForCount: Int = 3
     var initialState: State
+    var petId: String {
+        return selectedPet.id ?? ""
+    }
     
     // For Result
     var resultBRCount: Int {
@@ -65,13 +84,16 @@ class BRMeasureViewReactor: Reactor {
     
     init(selectedPat: PetObject, provider: ServiceProviderType) {
         self.provider = provider
+        self.selectedPet = selectedPat
         initialState = State(selectedPet: selectedPat,
                              selectedMeatureTime: 0,
                              viewState: nil,
                              countDownLabelText: nil,
                              countTimeNumber: 0,
                              brCount: 0,
-                             saveCompleteAndDismiss: nil)
+                             saveCompleteAndDismiss: nil,
+                             brCountHistory: [],
+                             physicsHistory: [])
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -97,7 +119,8 @@ class BRMeasureViewReactor: Reactor {
         case .plusBRCount:
             return .just(.plusBRCount)
             
-        case .saveBRResult:
+        case .saveBRResult:                           // 호흡수 측정 데이터 저장
+            // Save Measured Breath Rate
             let bpObject = BRObject().then {
                 $0.id = UUID().uuidString
                 $0.petId = currentState.selectedPet.id
@@ -107,7 +130,88 @@ class BRMeasureViewReactor: Reactor {
                 $0.userSettingTime = currentState.selectedMeatureTime
             }
             provider.dataBaseService.add(bpObject)
+            
+            // Last Data Save
+            let lastData = provider.dataBaseService
+                            .loadLastData(currentState.selectedPet.id!)
+                            .toArray()
+            provider.dataBaseService.write {
+                lastData.first!.resultBR = resultBRCount
+            }
             return .just(.saveCompleteAndDismiss)
+            
+        case .savePhysicsData(let height, let weight): // 키 몸무게 저장 로직
+            
+            // DB 저장
+            let petObj = currentState.selectedPet
+            provider.dataBaseService.write {
+                petObj.height = height
+                petObj.weight = weight
+            }
+            
+            // 최근 데이터 저장
+            let lastData = provider.dataBaseService.loadLastData(petObj.id!).toArray().first
+            provider.dataBaseService.write {
+                lastData?.height = height
+                lastData?.weight = weight
+            }
+            
+            let newPhysicObj = PhysicsObject().then {
+                $0.id = UUID().uuidString
+                $0.petId = currentState.selectedPet.id
+                $0.createDate = Date()
+                $0.height = height
+                $0.weight = weight
+            }
+            provider.dataBaseService.add(newPhysicObj)
+            
+            return .empty()
+            
+        case .loadBrCountData:
+            let list = provider.dataBaseService.laodBrCountDataHistory(petId)
+            return .just(.setBrCountLiat(list))
+            
+        case .loadPhysicsData:
+            let list = provider.dataBaseService.loadPhysicsDataHistory(petId)
+            return .just(.setPhysicsList(list))
+            
+        case .removeMeasureData(let index, let type):
+            
+            switch type {
+            case .breathRate:
+                var list = currentState.brCountHistory
+                let deleteObj = list.remove(at: index)
+                provider.dataBaseService.delete(deleteObj)
+                
+                if index == 0 {
+                    let obj = provider.dataBaseService.loadLastData(petId).first
+                    provider.dataBaseService.write {
+                        obj?.resultBR = list.first?.resultBR ?? 0
+                    }
+                    GlobalState.lastDateUpdate.onNext(Void())
+                }
+                return .just(.setBrCountLiat(list))
+                
+            case .physics:
+                var list = currentState.physicsHistory
+                let deleteObj = list.remove(at: index)
+                
+                provider.dataBaseService.delete(deleteObj)
+                if index == 0 {
+                    let obj = provider.dataBaseService.loadLastData(petId).first
+                    provider.dataBaseService.write {
+                        obj?.height = list.first?.height ?? 0
+                        obj?.weight = list.first?.weight ?? 0
+                    }
+                    GlobalState.lastDateUpdate.onNext(Void())
+                }
+                
+                return .just(.setPhysicsList(list))
+                
+            case .measureServices:
+                return .empty()
+            }
+            
         }
     }
     
@@ -135,6 +239,13 @@ class BRMeasureViewReactor: Reactor {
             
         case .saveCompleteAndDismiss:
             newState.saveCompleteAndDismiss = true
+            
+        case .setBrCountLiat(let list):
+            newState.brCountHistory = list
+            
+        case .setPhysicsList(let list):
+            newState.physicsHistory = list
+            
         }
         
         return newState

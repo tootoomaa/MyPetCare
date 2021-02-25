@@ -54,7 +54,7 @@ class BRMeasureViewController: UIViewController, View {
     }
     
     // MARK: - Reactor Binding
-    func bind(reactor: BRMeasureViewReactor) {
+    func bind(reactor: MeasureViewReactor) {
         
         // 선택된 펫 관련 UI 초기 셋팅
         reactor.state.map{$0.selectedPet}
@@ -89,7 +89,8 @@ class BRMeasureViewController: UIViewController, View {
             .bind(to: mainView.countDownLabel.rx.text)
             .disposed(by: disposeBag)
         
-        reactor.state.map{$0.brCount}                   // Measure Button Touch 시 라벨 즉시 갱신
+        // Measure Button Touch 시 라벨 즉시 갱신 (or CountDown에 의한 갱신)
+        reactor.state.map{$0.brCount}
             .distinctUntilChanged()
             .compactMap{$0}
             .filter{$0 != 0}
@@ -152,9 +153,12 @@ class BRMeasureViewController: UIViewController, View {
                 watingTimers.append(watingTimer) // 타이머 추가
                 
                 DispatchQueue.main.asyncAfter(deadline: .now()+4, execute: {
-                    [waitingTimerIndexForStop] in
+                    [weak self, waitingTimerIndexForStop] in
                     // +1 되기 index를 Capture
-                    watingTimers[waitingTimerIndexForStop]?.dispose()
+                    guard self?.watingTimers.count ?? 0 < waitingTimerIndexForStop else {
+                        return
+                    }
+                    self?.watingTimers[waitingTimerIndexForStop]?.dispose()
                 })
                 
                 waitingTimerIndexForStop += 1 // 종료할 타이머 index
@@ -168,7 +172,6 @@ class BRMeasureViewController: UIViewController, View {
             .filter{$0 == .measuring}
             .subscribe(onNext: { [unowned self] _ in
                 
-//                let maxInt = reactor.currentState.selectedMeatureTime
                 mainView.measureButton.isEnabled = true
                 
                 let measureTimer = measureTimeCreator(reactor)
@@ -296,7 +299,7 @@ class BRMeasureViewController: UIViewController, View {
         
     }
     
-    private func measureTimeCreator(_ reactor: BRMeasureViewReactor) -> Observable<String> {
+    private func measureTimeCreator(_ reactor: MeasureViewReactor) -> Observable<String> {
         let maxInt = reactor.currentState.selectedMeatureTime
         
         return Observable<Int>
