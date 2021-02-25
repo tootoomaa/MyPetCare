@@ -31,6 +31,7 @@ class MeasureViewReactor: Reactor {
         // MeasureDetailViewController
         case loadBrCountData
         case loadPhysicsData
+        case removeMeasureData(Int, MainFrameMenuType)
     }
     
     enum Mutation {
@@ -43,8 +44,8 @@ class MeasureViewReactor: Reactor {
         case resetBRCount                           // 호흡수 측정값 초기화
         case saveCompleteAndDismiss                 // 저장 완료 및 dismiss
         // MeasureDetailVC
-        case setBrCountLiat([BRObject]?)
-        case setPhysicsList([PhysicsObject]?)
+        case setBrCountLiat([BRObject])
+        case setPhysicsList([PhysicsObject])
     }
     
     struct State {
@@ -57,8 +58,8 @@ class MeasureViewReactor: Reactor {
         var brCount: Int                            // 호흡수 측정값
         var saveCompleteAndDismiss: Bool?           // 저장 완료 및 dismiss
         // MeasureDetailVC
-        var brCountHistory: [BRObject]?
-        var physicsHistory: [PhysicsObject]?
+        var brCountHistory: [BRObject]
+        var physicsHistory: [PhysicsObject]
     }
     
     var provider: ServiceProviderType
@@ -90,7 +91,9 @@ class MeasureViewReactor: Reactor {
                              countDownLabelText: nil,
                              countTimeNumber: 0,
                              brCount: 0,
-                             saveCompleteAndDismiss: nil)
+                             saveCompleteAndDismiss: nil,
+                             brCountHistory: [],
+                             physicsHistory: [])
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -165,12 +168,49 @@ class MeasureViewReactor: Reactor {
             return .empty()
             
         case .loadBrCountData:
-            let list = provider.dataBaseService.loadPetBRLog(petId).toArray()
+            let list = provider.dataBaseService.laodBrCountDataHistory(petId)
             return .just(.setBrCountLiat(list))
             
         case .loadPhysicsData:
-            let list = provider.dataBaseService.loadPhysicsDataHistory(petId).toArray()
+            let list = provider.dataBaseService.loadPhysicsDataHistory(petId)
             return .just(.setPhysicsList(list))
+            
+        case .removeMeasureData(let index, let type):
+            
+            switch type {
+            case .breathRate:
+                var list = currentState.brCountHistory
+                let deleteObj = list.remove(at: index)
+                provider.dataBaseService.delete(deleteObj)
+                
+                if index == 0 {
+                    let obj = provider.dataBaseService.loadLastData(petId).first
+                    provider.dataBaseService.write {
+                        obj?.resultBR = list.first?.resultBR ?? 0
+                    }
+                    GlobalState.lastDateUpdate.onNext(Void())
+                }
+                return .just(.setBrCountLiat(list))
+                
+            case .physics:
+                var list = currentState.physicsHistory
+                let deleteObj = list.remove(at: index)
+                
+                provider.dataBaseService.delete(deleteObj)
+                if index == 0 {
+                    let obj = provider.dataBaseService.loadLastData(petId).first
+                    provider.dataBaseService.write {
+                        obj?.height = list.first?.height ?? 0
+                        obj?.weight = list.first?.weight ?? 0
+                    }
+                    GlobalState.lastDateUpdate.onNext(Void())
+                }
+                
+                return .just(.setPhysicsList(list))
+                
+            case .measureServices:
+                return .empty()
+            }
             
         }
     }

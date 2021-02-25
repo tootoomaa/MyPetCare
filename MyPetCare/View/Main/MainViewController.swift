@@ -206,7 +206,7 @@ class MainViewController: UIViewController, View {
                 return LastMeasureServiceCell(menuType).then {
                     $0.titleLabel.text = "최근\(menuType.rawValue)"
                     $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
-                    let resultBR = lastData == nil ? " - /분" : "\(lastData?.resultBR ?? 0)/분"
+                    let resultBR = lastData == nil ? " - 회/분" : "\(lastData?.resultBR ?? 0)회/분"
                     $0.valeuLabel.text = "\(resultBR)"
                     $0.showMoreButton.rx.tap
                         .subscribeOn(MainScheduler.asyncInstance)
