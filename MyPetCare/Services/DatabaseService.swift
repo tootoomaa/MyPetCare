@@ -137,7 +137,7 @@ class DatabaseService: BaseService, DatabaseServiceType {
     }
     
     func loadPetBRLog(_ petId: String) -> Results<BRObject> {
-        let predicate = NSPredicate(format: "id = %@", petId)
+        let predicate = NSPredicate(format: "petId = %@", petId)
         return db().objects(BRObject.self).filter(predicate)
     }
     

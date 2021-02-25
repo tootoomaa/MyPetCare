@@ -15,11 +15,12 @@ extension UINavigationController {
         
         let titleAttrStringOption = [
             NSAttributedString.Key.foregroundColor: UIColor.black,
-            NSAttributedString.Key.font: UIFont(name: "Cafe24Syongsyong", size: 20)!
+            NSAttributedString.Key.font: UIFont(name: "Cafe24Syongsyong", size: 25)!
         ]
 
         let appearance = UINavigationBarAppearance(idiom: .phone)
         appearance.titleTextAttributes = titleAttrStringOption     // title 설정
+        appearance.largeTitleTextAttributes = titleAttrStringOption
         appearance.shadowColor = .clear                            // 하단의 가로 선 제거
         appearance.backgroundColor = color                         // 배경색
 
@@ -27,6 +28,7 @@ extension UINavigationController {
         navigationBarApear.compactAppearance = appearance
         navigationBarApear.standardAppearance = appearance
         navigationBarApear.scrollEdgeAppearance = appearance
+        
 
         self.navigationBar.topItem?.title = ""
         self.navigationBar.tintColor = .black
