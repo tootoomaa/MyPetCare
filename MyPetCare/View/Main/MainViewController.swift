@@ -370,5 +370,6 @@ class MainViewController: UIViewController, View {
                 
                 }
             }).disposed(by: disposeBag)
+        
     }
 }

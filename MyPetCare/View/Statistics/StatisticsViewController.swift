@@ -55,6 +55,11 @@ class StatisticsViewController: UIViewController, View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        reactor.state.map{$0.charData}
+            .subscribe(onNext: {
+                print($0)
+            }).disposed(by: disposeBag)
+        
             
     }
 }

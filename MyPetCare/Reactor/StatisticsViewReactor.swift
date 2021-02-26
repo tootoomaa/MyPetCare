@@ -17,14 +17,14 @@ class StatisticsViewReactor: Reactor {
     
     enum Mutation {
         case setPetObjectList([PetObject])
-        case setChartData([(PetObject, [BRObject])])
+        case setChartData([(PetObject, [BrObject])])
         case setDuration(Constants.duration)
     }
     
     struct State {
         var petList: [PetObject]?
         var selectedDuration: Constants.duration
-        var charData: [(PetObject, [BRObject])]?
+        var charData: [(PetObject, [BrObject])]?
     }
     
     var initialState: State
@@ -47,9 +47,11 @@ class StatisticsViewReactor: Reactor {
             
             let brData = list
                 .compactMap{$0}
-                .map{ pet -> (PetObject, [BRObject]) in
+                .map{ pet -> (PetObject, [BrObject]) in
                     let brList = provider.dataBaseService.loadPetBRLog(pet.id!).toArray()
-                    return (pet, brList)
+                    let changeData = brList.map{BrObject(brObj: $0)}
+                    
+                    return (pet, changeData)
                 }
             
             return Observable.merge([.just(.setPetObjectList(list)),
