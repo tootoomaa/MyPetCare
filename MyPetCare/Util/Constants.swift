@@ -10,10 +10,14 @@ import UIKit
 
 class Constants {
     
-    enum MainFrameTableViewItem: CaseIterable {
-        case petProfile
-        case service
+    // System
+    class ScreenHeight {
+        static let iphoneSE1Gen: CGFloat = 568.0   // se1 , 5s
+        static let iphoneSE2Gen: CGFloat = 667.0   // se2, 6, 7, 8
+        static let maxDevice: CGFloat = 900        // max
     }
+    
+    static let DB_VERSION: UInt64 = 2
     
     // Measure View
     static let maxMeasureCount: Int = 60
@@ -37,16 +41,15 @@ class Constants {
     static var mainViewPetPlusButtonUUID = "itisButtonUUIDforAddPet"
     
     
+    // Main View Controller
+    enum MainFrameTableViewItem: CaseIterable {
+        case petProfile
+        case service
+    }
+    
     // Statictic
     enum duration: Int, CaseIterable {
         case weak = 0
         case month = 1
-    }
-    
-    class ScreenHeight {
-        
-        static let iphoneSE1Gen: CGFloat = 568.0   // se1 , 5s
-        static let iphoneSE2Gen: CGFloat = 667.0   // se2, 6, 7, 8
-        static let maxDevice: CGFloat = 900        // max
     }
 }

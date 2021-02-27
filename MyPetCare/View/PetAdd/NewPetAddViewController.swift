@@ -139,7 +139,7 @@ class NewPetAddViewController: UIViewController, View {
             .disposed(by: disposeBag)
         
         reactor.state.map{$0.isComplete}
-            .observeOn(MainScheduler.asyncInstance)
+            .observe(on: MainScheduler.asyncInstance)
             .filter{$0 == true}
             .subscribe(onNext: { _ in
                 

@@ -9,6 +9,11 @@ import Foundation
 import UIKit
 import RealmSwift
 
+enum PetType: String, CaseIterable {
+    case dog = "강아지"
+    case cat = "고양이"
+}
+
 class PetObject: Object {
     
     @objc dynamic var id: String?
@@ -19,7 +24,7 @@ class PetObject: Object {
     @objc dynamic var birthDate: Date?
     @objc dynamic var image: Data?
     @objc dynamic var weight: Double = 0.0
-    @objc dynamic var height: Double = 0.0
+    @objc dynamic var petType: PetType.RawValue?
     
     override static func primaryKey() -> String? {
         return "id"

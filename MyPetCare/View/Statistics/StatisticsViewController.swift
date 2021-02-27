@@ -25,6 +25,12 @@ class StatisticsViewController: UIViewController, View {
         
         view.backgroundColor = .white
         
+        self.rx.viewWillAppear
+            .withUnretained(self)
+            .subscribe(onNext: { _ in
+                self.configureNavigation()
+            }).disposed(by: disposeBag)
+        
         configureNavigation()
     }
     

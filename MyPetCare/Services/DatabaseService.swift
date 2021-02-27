@@ -40,7 +40,28 @@ protocol DatabaseServiceType {
 
 class DatabaseService: BaseService, DatabaseServiceType {
 //    let config = Realm.Configuration(deleteRealmIfMigrationNeeded: true)
-    var config = Realm.Configuration(deleteRealmIfMigrationNeeded: false)
+//    var config = Realm.Configuration(deleteRealmIfMigrationNeeded: false)
+    
+    let config = Realm.Configuration(
+//        fileURL: <#T##URL?#>,
+//        inMemoryIdentifier: <#T##String?#>,
+//        syncConfiguration: SyncConfiguration,
+//        encryptionKey: <#T##Data?#>,
+//        readOnly: <#T##Bool#>,
+//        deleteRealmIfMigrationNeeded: false,
+//        shouldCompactOnLaunch: <#T##((Int, Int) -> Bool)?##((Int, Int) -> Bool)?##(Int, Int) -> Bool#>,
+//        objectTypes: <#T##[ObjectBase.Type]?#>
+        // 새로운 스키마 버전을 셋팅한다. 이 값은 이전에 사용했던 버전보다 반드시 커야한다.
+        schemaVersion: Constants.DB_VERSION,
+        migrationBlock: { migration, oldSchemaVersion in
+            // We haven’t migrated anything yet, so oldSchemaVersion == 0
+            if (oldSchemaVersion < Constants.DB_VERSION) {
+                // Nothing to do!
+                // Realm will automatically detect new properties and removed properties
+                // And will update the schema on disk automatically
+            }}
+    )
+    
     lazy var realm = try! Realm(configuration: config)
     
     func db() -> Realm {

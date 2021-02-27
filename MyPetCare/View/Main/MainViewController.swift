@@ -130,7 +130,7 @@ class MainViewController: UIViewController, View {
         // 펫 선택 시 처리 사항
         reactor.state.map{$0.selectedPet}
             .do(onNext: { self.selectedPet = $0 ?? PetObject() })
-            .observeOn(MainScheduler.instance)
+            .observe(on: MainScheduler.instance)
             .do(onNext: { // pet 리스트가 없는 경우 Empty View 표시
                 self.mainView.petProfileView.configureEmptyViewComponentsByPetList($0 == nil)
             }) // 상태에 따른 UI 변화
@@ -147,7 +147,7 @@ class MainViewController: UIViewController, View {
         // Pet Profile 선택시 변경 사항
         reactor.state.map{$0.selectedIndexPath}
             .filter{$0.row != reactor.plusButtonIndex}
-            .observeOn(MainScheduler.asyncInstance)
+            .observe(on: MainScheduler.asyncInstance)
             .compactMap{$0}
             .subscribe(onNext: { [unowned self] indexPath in
                 
@@ -190,7 +190,7 @@ class MainViewController: UIViewController, View {
             let lastData = reactor.currentState.selectedLastedPetData
             
             switch menuType {
-            case .measureServices:
+            case .measureSV:
                 return UITableViewCell().then {
                     $0.selectionStyle = .none
                     $0.contentView.addSubview(serviceCollectionView)
@@ -202,14 +202,14 @@ class MainViewController: UIViewController, View {
                     }
                 }
                 
-            case .breathRate:
+            case .breathRateSV:
                 return LastMeasureServiceCell(menuType).then {
                     $0.titleLabel.text = "최근\(menuType.rawValue)"
                     $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
                     let resultBR = lastData == nil ? " - 회/분" : "\(lastData?.resultBR ?? 0)회/분"
                     $0.valeuLabel.text = "\(resultBR)"
                     $0.showMoreButton.rx.tap
-                        .subscribeOn(MainScheduler.asyncInstance)
+                        .subscribe(on: MainScheduler.asyncInstance)
                         .subscribe(onNext: {
                             
                             guard let selectedPet = reactor.currentState.selectedPet else { return }
@@ -221,15 +221,13 @@ class MainViewController: UIViewController, View {
                         }).disposed(by: disposeBag)
                 }
                 
-            case .physics:
+            case .physicsSV:
                 return LastMeasureServiceCell(menuType).then {
                     $0.titleLabel.text = "최근 \(menuType.rawValue)"
                     $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xeffad3)
-                    let height = lastData == nil ? "- cm" : "\(lastData?.height ?? 0)cm"
-                    let weight = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)kg"
-                    $0.valeuLabel.text = "\(weight),  \(height)"
+                    _ = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)kg"
                     $0.showMoreButton.rx.tap
-                        .subscribeOn(MainScheduler.asyncInstance)
+                        .subscribe(on: MainScheduler.asyncInstance)
                         .subscribe(onNext: {
                             
                             guard let selectedPet = reactor.currentState.selectedPet else { return }
@@ -259,7 +257,7 @@ class MainViewController: UIViewController, View {
                 naviC.modalPresentationStyle = .overFullScreen
                 
                 vc.rx.tapPetAddButton
-                    .observeOn(MainScheduler.asyncInstance)
+                    .observe(on: MainScheduler.asyncInstance)
                     .map{Reactor.Action.loadInitialData}
                     .bind(to: reactor.action)
                     .disposed(by: self.disposeBag)
@@ -280,7 +278,7 @@ class MainViewController: UIViewController, View {
         
         // 펫 수정 버튼
         mainView.petProfileView.editButton.rx.tap
-            .observeOn(MainScheduler.asyncInstance)
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext:{ [unowned self] in
                 
                 let vc = NewPetAddViewController()
@@ -292,7 +290,7 @@ class MainViewController: UIViewController, View {
                 naviC.modalPresentationStyle = .overFullScreen
                 
                 vc.rx.tapPetAddButton
-                    .observeOn(MainScheduler.instance)
+                    .observe(on: MainScheduler.instance)
                     .map{Reactor.Action.loadInitialData}
                     .bind(to: reactor.action)
                     .disposed(by: self.disposeBag)
@@ -333,7 +331,7 @@ class MainViewController: UIViewController, View {
         serviceCollectionView.rx.itemSelected
             .compactMap{self.serviceCollectionView.cellForItem(at: $0) as? MeasureServiceCell}
             .compactMap{$0.cellType}
-            .subscribeOn(MainScheduler.asyncInstance)
+            .subscribe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [unowned self] serviceType in
                 
                 switch serviceType {
@@ -357,7 +355,7 @@ class MainViewController: UIViewController, View {
                     naviC.modalPresentationStyle = .overFullScreen
                     self.present(naviC, animated: true, completion: nil)
                     
-                case .phycis:
+                case .weight:
                     let physicsMeasureVC = PhysicsMeasureViewController()
                     physicsMeasureVC.reactor = MeasureViewReactor(
                                                     selectedPat: self.selectedPet,

@@ -12,13 +12,13 @@ import RxCocoa
 
 enum MeasureServiceType: String, CaseIterable {
     case breathRate = "호흡수\n측정"
-    case phycis = "체중, 키\n측정"
+    case weight = "체중\n측정"
 }
 
 enum MainFrameMenuType: String, CaseIterable {
-    case measureServices
-    case breathRate = "호흡수"
-    case physics = "체중/키"
+    case measureSV
+    case breathRateSV = "호흡수"
+    case physicsSV = "체중"
 }
 
 class MainViewControllerReactor: Reactor {

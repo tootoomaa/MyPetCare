@@ -49,9 +49,7 @@ class PhysicsMeasureViewController: UIViewController, View {
     // MARK: - custom Keyboar & TextField
     private func configureTextFieldDelegate() {
         // 키 입력 텍스트 필트 첫 응답으로 설정
-        mainView.heightTextField.becomeFirstResponder()
-        
-        configureKeyboardToolBar(mainView.heightTextField)
+        mainView.weightTextField.becomeFirstResponder()
         configureKeyboardToolBar(mainView.weightTextField)
     }
     
@@ -72,10 +70,10 @@ class PhysicsMeasureViewController: UIViewController, View {
             // dot의 특수문자는 "Cafe24Syongsyong" 폰트에 없음
             $0.tintColor = .black
         }
-        let next = UIBarButtonItem(title: "Next", style: .plain, target: nil, action: nil)
+        
         let done = UIBarButtonItem(title: "Save", style: .plain, target: nil, action: nil)
         
-        [next, done].forEach {
+        [done].forEach {
             $0.setTitleTextAttributes(
                 [NSAttributedString.Key.foregroundColor: UIColor.black,
                  NSAttributedString.Key.font: UIFont(name: "Cafe24Syongsyong", size: 20)!], for: .normal)
@@ -86,25 +84,12 @@ class PhysicsMeasureViewController: UIViewController, View {
                 textField.text?.append(".")
             }).disposed(by: disposeBag)
         
-        // Next Button 선택 시 서로 다른 TextField BecomeFirstResponder 설정
-        if textField == mainView.weightTextField {
-            next.rx.tap
-                .subscribe(onNext: {
-                    self.mainView.heightTextField.becomeFirstResponder()
-                }).disposed(by: disposeBag)
-        } else {
-            next.rx.tap
-                .subscribe(onNext: {
-                    self.mainView.weightTextField.becomeFirstResponder()
-                }).disposed(by: disposeBag)
-        }
-        
         done.rx.tap
             .subscribe(onNext: {
                 self.saveAlertController()
             }).disposed(by: disposeBag)
         
-        keyboardToolbar.items = [dot, flexBarButton, next, done]
+        keyboardToolbar.items = [dot, flexBarButton, done]
         textField.inputAccessoryView = keyboardToolbar
     }
     
@@ -125,7 +110,7 @@ class PhysicsMeasureViewController: UIViewController, View {
         
         // weightTextFeild Return 입력 종료 시 edit 종료 및 데이터 저장여부 검증
         mainView.weightTextField.rx.controlEvent(.editingDidEndOnExit)
-            .observeOn(MainScheduler.asyncInstance)
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [unowned self] in
                 saveAlertController()
             }).disposed(by: disposeBag)
@@ -136,11 +121,9 @@ class PhysicsMeasureViewController: UIViewController, View {
         guard let reactor = reactor else {fatalError("Check Reactor")}
         
         // 숫자가 아닌 경우 필터링
-        guard let height = Double(mainView.heightTextField.text ?? "ErrorValue"),
-              let weight = Double(mainView.weightTextField.text ?? "ErrorValue") else {
+        guard let weight = Double(mainView.weightTextField.text ?? "ErrorValue") else {
             let alertC = UIAlertController(title: "입력값 오류", message: "숫자만 입력해주세요. 입력된 값은 초기화 됩니다.", preferredStyle: .alert)
             let okAction = UIAlertAction(title: "확인", style: .default) { [unowned self] _ in
-                mainView.heightTextField.text = ""
                 mainView.weightTextField.text = ""
             }
             alertC.addAction(okAction)
@@ -149,14 +132,13 @@ class PhysicsMeasureViewController: UIViewController, View {
         }
         
         // 소수점 2자리 까지 변경
-        let heightTwoDown = round(height*10)/10
         let weightTwoDown = round(weight*10)/10
         
         let alertC = UIAlertController(title: "저장", message: "변경 사항을 저장하시겠습니까?", preferredStyle: .actionSheet)
         
         let saveAction = UIAlertAction(title: "변경 사항저장", style: .default) { [unowned self]  _ in
             
-            reactor.action.onNext(.savePhysicsData(heightTwoDown, weightTwoDown))
+            reactor.action.onNext(.savePhysicsData(weightTwoDown))
             GlobalState.lastDateUpdate.onNext(Void())
             self.dismiss(animated: true, completion: nil)
         }

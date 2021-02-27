@@ -245,6 +245,5 @@ class PetProfileView: UIView {
         
         ageValueLabel.text = "\(pet.age) yrs"
         weightValueLabel.text = Int(pet.weight) == 0 ? "-" : "\(pet.weight) kg"
-        heightValueLabel.text = Int(pet.height) == 0 ? "-" : "\(pet.height) cm"
     }
 }
