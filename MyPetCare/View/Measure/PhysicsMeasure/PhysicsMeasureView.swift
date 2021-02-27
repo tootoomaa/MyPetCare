@@ -129,7 +129,7 @@ class PhysicsMeasureView: UIView {
         }
         
         weightValueLabel.snp.makeConstraints {
-            $0.centerY.equalTo(weightTitleLabel.snp.centerY)
+            $0.centerY.equalTo(weightTitleLabel)
             $0.trailing.equalTo(safeGuide).inset(30)
             $0.width.equalTo(40)
         }
@@ -137,7 +137,7 @@ class PhysicsMeasureView: UIView {
         weightTextField.snp.makeConstraints {
             $0.centerY.equalTo(weightTitleLabel.snp.centerY)
             $0.leading.equalTo(weightTitleLabel.snp.trailing).offset(20)
-            $0.trailing.equalTo(weightTitleLabel.snp.leading).offset(-10)
+            $0.trailing.equalTo(weightValueLabel.snp.leading).offset(-10)
         }
     }
 }

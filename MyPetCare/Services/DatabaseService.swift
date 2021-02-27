@@ -43,14 +43,6 @@ class DatabaseService: BaseService, DatabaseServiceType {
 //    var config = Realm.Configuration(deleteRealmIfMigrationNeeded: false)
     
     let config = Realm.Configuration(
-//        fileURL: <#T##URL?#>,
-//        inMemoryIdentifier: <#T##String?#>,
-//        syncConfiguration: SyncConfiguration,
-//        encryptionKey: <#T##Data?#>,
-//        readOnly: <#T##Bool#>,
-//        deleteRealmIfMigrationNeeded: false,
-//        shouldCompactOnLaunch: <#T##((Int, Int) -> Bool)?##((Int, Int) -> Bool)?##(Int, Int) -> Bool#>,
-//        objectTypes: <#T##[ObjectBase.Type]?#>
         // 새로운 스키마 버전을 셋팅한다. 이 값은 이전에 사용했던 버전보다 반드시 커야한다.
         schemaVersion: Constants.DB_VERSION,
         migrationBlock: { migration, oldSchemaVersion in
@@ -59,7 +51,9 @@ class DatabaseService: BaseService, DatabaseServiceType {
                 // Nothing to do!
                 // Realm will automatically detect new properties and removed properties
                 // And will update the schema on disk automatically
-            }}
+            }
+        },
+        deleteRealmIfMigrationNeeded: false
     )
     
     lazy var realm = try! Realm(configuration: config)

@@ -67,9 +67,17 @@ class MainViewControllerReactor: Reactor {
         switch action {
         
         case .loadInitialData:
-            var list = provider.dataBaseService.loadPetList()
-                          .toArray()
-                          .sorted(by: { $0.createDate! < $1.createDate!})
+            var list = provider.dataBaseService.loadPetList().toArray()
+            ///Data Change ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            provider.dataBaseService.write {
+                list.forEach {
+                    if $0.male == "boy" || $0.male == "gril" {
+                        let maleString = $0.male == "boy" ? "아들" : "딸"
+                        $0.male = maleString
+                    }
+                }
+            }
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             list.append(emptyPet)
             self.plusButtonIndex = list.count - 1
             

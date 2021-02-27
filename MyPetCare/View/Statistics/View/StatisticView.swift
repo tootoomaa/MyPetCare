@@ -27,10 +27,8 @@ class StatisticView: UIView {
     )
     
     lazy var mainFrameTable = UITableView().then {
-        
         $0.estimatedRowHeight = 300
         $0.tableHeaderView = barChartView
-        
     }
     
     // MARK: - Life Cycle
@@ -43,7 +41,7 @@ class StatisticView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func configureLayout() {
         
         [mainFrameTable].forEach {

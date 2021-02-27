@@ -30,7 +30,7 @@ class StatisticChartView: UIView {
         let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         let unitsSold = [20.0, 4.0, 6.0, 3.0, 12.0, 16.0, 4.0, 18.0, 2.0, 4.0, 5.0, 4.0]
                 
-//        setChart(dataPoints: months, values: unitsSold)
+        setChart(dataPoints: months, values: unitsSold)
     }
     
     required init?(coder: NSCoder) {
@@ -79,20 +79,43 @@ class StatisticChartView: UIView {
             let dataEntry = BarChartDataEntry(x: Double(i), y: values[i])
             dataEntries.append(dataEntry)
         }
+        
+        var newDataEntries: [BarChartDataEntry] = []
+        let newDataArray = [20.0, 4.0, 6.0, 3.0, 12.0, 16.0, 4.0, 18.0, 2.0, 4.0, 5.0, 4.0].map{$0*1.5}
+        for i in 0..<dataPoints.count {
+            let newDataEntrie = BarChartDataEntry(x: Double(i), y: newDataArray[i])
+            newDataEntries.append(newDataEntrie)
+        }
 
         // 데이터 입력
-        let chartDataSet = BarChartDataSet(entries: dataEntries, label: "판매량")
-        chartDataSet.colors = [.systemBlue]         // 차트 컬러
-        chartDataSet.highlightEnabled = false       // 터치 가능 유무
+        let exportDataSet = BarChartDataSet(entries: newDataEntries, label: "수출량").then {
+            $0.colors = [.yellow]
+            $0.highlightEnabled = false
+        }
+        
+        let chartDataSet = BarChartDataSet(entries: dataEntries, label: "판매량").then {
+            $0.colors = [.systemBlue]         // 차트 컬러
+            $0.highlightEnabled = false       // 터치 가능 유무
+        }
         
         // X축
         barChartView.xAxis.labelPosition = .bottom  // X축 레이블 위치 조정
         barChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: dataPoints) // X축 레이블 포맷 지정
         barChartView.xAxis.setLabelCount(dataPoints.count, force: false)
 
+        
         // 데이터 삽입
-        let chartData = BarChartData(dataSet: chartDataSet)
-        barChartView.data = chartData
+//        let chartData = BarChartData(dataSet: chartDataSet)
+//        barChartView.data = chartData
+//
+        //        let chartData = BarChartData(dataSet: chartDataSet)
+        let newCharData = BarChartData(dataSets: [chartDataSet, exportDataSet])
+        barChartView.data = newCharData
+        
+        barChartView.fitBars = true
+        barChartView.xAxis.granularityEnabled = true
+        barChartView.xAxis.granularity = 1.0
+        barChartView.groupBars(fromX: 0, groupSpace: 0, barSpace: 0)
         
         // 리미트라인
         let ll = ChartLimitLine(limit: 10.0, label: "타겟")

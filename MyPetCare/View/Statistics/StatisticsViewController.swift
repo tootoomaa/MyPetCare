@@ -15,6 +15,14 @@ class StatisticsViewController: UIViewController, View {
     var disposeBag: DisposeBag = DisposeBag()
     let statisticView = StatisticView()
     
+    var charDataFilteringButton = UIButton().then {
+        let image = UIImage(systemName: "slider.horizontal.3")?
+            .withRenderingMode(.alwaysOriginal)
+            .withTintColor(.black)
+        
+        $0.setImage(image, for: .normal)
+    }
+    
     // MARK: - Life Cycle
     override func loadView() {
         view = statisticView
@@ -35,9 +43,16 @@ class StatisticsViewController: UIViewController, View {
     }
     
     private func configureNavigation() {
-        navigationController?.configureNavigationBarAppearance(.white)
-        navigationController?.navigationBar.prefersLargeTitles = true
+        self.navigationController?.configureNavigationBarAppearance(.white)
+        self.navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.title = "통계"
+        
+        self.navigationController?.navigationBar.addSubview(charDataFilteringButton)
+        charDataFilteringButton.snp.makeConstraints {
+            $0.trailing.equalToSuperview().inset(20)
+            $0.bottom.equalToSuperview().offset(-8)
+            $0.size.equalTo(30)
+        }
     }
     
     // MARK: - ReactorKit Binder
@@ -62,10 +77,11 @@ class StatisticsViewController: UIViewController, View {
             .disposed(by: disposeBag)
         
         reactor.state.map{$0.charData}
-            .subscribe(onNext: {
-                print($0)
+            .compactMap{$0}
+            .withUnretained(self)
+            .subscribe(onNext: { owner, data in
+//                let newData = data.filter{ $0.0.id == "B296C812-36AC-4869-B20F-B53C9F7C6093" }
+//                owner.statisticView.barChartView.setChart(dataPoints: [1,2,3,4,5], values: newData)
             }).disposed(by: disposeBag)
-        
-            
     }
 }

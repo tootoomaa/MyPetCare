@@ -17,7 +17,7 @@ class Constants {
         static let maxDevice: CGFloat = 900        // max
     }
     
-    static let DB_VERSION: UInt64 = 2
+    static let DB_VERSION: UInt64 = 5
     
     // Measure View
     static let maxMeasureCount: Int = 60

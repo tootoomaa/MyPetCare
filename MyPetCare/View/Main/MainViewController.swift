@@ -225,7 +225,7 @@ class MainViewController: UIViewController, View {
                 return LastMeasureServiceCell(menuType).then {
                     $0.titleLabel.text = "최근 \(menuType.rawValue)"
                     $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xeffad3)
-                    _ = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)kg"
+                    $0.valeuLabel.text = lastData == nil ? "- kg" : "\(lastData?.weight ?? 0)kg"
                     $0.showMoreButton.rx.tap
                         .subscribe(on: MainScheduler.asyncInstance)
                         .subscribe(onNext: {
@@ -248,7 +248,7 @@ class MainViewController: UIViewController, View {
             .subscribe(onNext: { [unowned self] index in
                 
                 // 신규 펫 추가
-                let vc = NewPetAddViewController()
+                let vc = NewPetAddViewController(isEditMode: false)
                 vc.reactor = PetAddViewReactor(isEditMode: false,
                                                petData: PetObject(),
                                                provider: reactor.provider)
@@ -281,7 +281,7 @@ class MainViewController: UIViewController, View {
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext:{ [unowned self] in
                 
-                let vc = NewPetAddViewController()
+                let vc = NewPetAddViewController(isEditMode: true)
                 vc.reactor = PetAddViewReactor(isEditMode: true,
                                                petData: self.selectedPet,
                                                provider: reactor.provider)

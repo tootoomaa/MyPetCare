@@ -36,11 +36,22 @@ class NewPetAddView: UIView {
         $0.autocapitalizationType = .none
     }
     
-    let maleSegmentController = UISegmentedControl(items: ["아들", "딸"]).then {
-        $0.removeBorder(nomal: .white, selected: .lightGreen)
+    let maleSegmentController = UISegmentedControl(
+        items: Male.allCases.map{$0.rawValue}
+    ).then {
+        $0.removeBorder(nomal: .white, selected: .lightGreen, centerBoarderWidth: 0.5)
         $0.selectedSegmentIndex = 0
         $0.backgroundColor = .none
-        $0.addBorder(.black, 1)
+        $0.addBorder(.black, 0.5)
+    }
+    
+    let sepicesSegmentController = UISegmentedControl(
+        items: SpeciesType.allCases.map{$0.rawValue}
+    ).then {
+        $0.removeBorder(nomal: .white, selected: .lightOrange, centerBoarderWidth: 0.5)
+        $0.selectedSegmentIndex = 0
+        $0.backgroundColor = .none
+        $0.addBorder(.black, 0.5)
     }
     
     let datePicker = UIDatePicker().then {
@@ -50,17 +61,10 @@ class NewPetAddView: UIView {
         $0.tintColor = .black
     }
     
-    let healthTitle = UILabel().then {
-        $0.text = "상세 정보"
-        $0.font = .systemFont(ofSize: 25, weight: .bold)
-    }
-    
-    let tableView = UITableView().then {
-        $0.backgroundColor = .extraLightPink
-        $0.separatorStyle = .none
-        $0.rowHeight = 50
-        $0.register(HealthDataCell.self,
-                    forCellReuseIdentifier: HealthDataCell.identifier)
+    let infoLabel = UILabel().then {
+        $0.text = "프로필사진까지 등록해야 저장이 가능합니다."
+        $0.textColor = .systemGray3
+        $0.font = .systemFont(ofSize: 14, weight: .bold)
     }
     
     // MARK: - Life Cycle
@@ -78,8 +82,9 @@ class NewPetAddView: UIView {
         layoutMargins = UIEdgeInsets(top: 30, left: 30, bottom: 30, right: 30)
         let marginGuide = self.layoutMarginsGuide
         
-        [basicTitle, petImageView, nameTextField, maleSegmentController, datePicker,
-//         healthTitle, tableView
+        [basicTitle, petImageView,
+         nameTextField, maleSegmentController, sepicesSegmentController, datePicker,
+         infoLabel,
         ].forEach {
             addSubview($0)
         }
@@ -91,16 +96,21 @@ class NewPetAddView: UIView {
         basicTitle.addButtonBorder(.black, 2)
         
         petImageView.snp.makeConstraints {
-            $0.top.equalTo(basicTitle.snp.bottom).offset(padding*2)
+            $0.top.equalTo(basicTitle.snp.bottom).offset(padding*4)
             $0.leading.equalTo(basicTitle)
             $0.height.width.equalTo(viewWidthMinusPadding/2*0.8)
         }
         
         maleSegmentController.snp.makeConstraints {
-            $0.centerY.equalTo(petImageView)
             $0.leading.lessThanOrEqualTo(snp.centerX).offset(padding)
             $0.trailing.greaterThanOrEqualTo(marginGuide)
+            $0.bottom.equalTo(petImageView.snp.centerY).offset(-padding)
             $0.height.equalTo(25)
+        }
+        
+        sepicesSegmentController.snp.makeConstraints {
+            $0.top.equalTo(petImageView.snp.centerY).offset(padding)
+            $0.leading.trailing.height.equalTo(maleSegmentController)
         }
         
         nameTextField.snp.makeConstraints {
@@ -110,24 +120,13 @@ class NewPetAddView: UIView {
         }
         
         datePicker.snp.makeConstraints {
-            $0.top.equalTo(maleSegmentController.snp.bottom).offset(padding*2)
-            $0.height.centerX.equalTo(maleSegmentController)
+            $0.top.equalTo(sepicesSegmentController.snp.bottom).offset(padding*2)
+            $0.height.centerX.equalTo(sepicesSegmentController)
         }
         
-//        healthTitle.snp.makeConstraints {
-//            $0.top.equalTo(petImageView.snp.bottom).offset(30)
-//            $0.leading.equalTo(basicTitle)
-//            $0.trailing.equalTo(marginGuide)
-//        }
-//
-//        healthTitle.addButtonBorder(.black, 2)
-//
-//        tableView.snp.makeConstraints {
-//            $0.top.equalTo(healthTitle.snp.bottom).offset(padding*2)
-//            $0.leading.trailing.equalTo(marginGuide)
-//            $0.height.equalTo(150)
-//        }
-        
+        infoLabel.snp.makeConstraints {
+            $0.top.equalTo(datePicker.snp.bottom).offset(padding*4)
+            $0.centerX.equalTo(safeAreaLayoutGuide)
+        }
     }
-    
 }

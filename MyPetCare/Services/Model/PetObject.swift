@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import RealmSwift
 
-enum PetType: String, CaseIterable {
+enum SpeciesType: String, CaseIterable {
     case dog = "강아지"
     case cat = "고양이"
 }
@@ -24,7 +24,7 @@ class PetObject: Object {
     @objc dynamic var birthDate: Date?
     @objc dynamic var image: Data?
     @objc dynamic var weight: Double = 0.0
-    @objc dynamic var petType: PetType.RawValue?
+    @objc dynamic var species: SpeciesType.RawValue?
     
     override static func primaryKey() -> String? {
         return "id"
@@ -37,7 +37,16 @@ extension PetObject {
     }
 }
 
-enum Male: String {
-    case boy
-    case girl
+enum Male: String, CaseIterable {
+    case boy = "아들"
+    case girl = "딸"
+    
+    var getPetMaleImage: UIImage {
+        switch self {
+        case .boy:
+            return UIImage(named: "boy")!
+        case .girl:
+            return UIImage(named: "girl")!
+        }
+    }
 }
