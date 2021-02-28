@@ -31,6 +31,16 @@ class StatisticView: UIView {
         $0.tableHeaderView = barChartView
     }
     
+    let filterOptionTableView = UITableView().then {
+        $0.alpha = 0
+        $0.backgroundColor = UIColor.black.withAlphaComponent(0.2)
+        $0.estimatedRowHeight = UITableView.automaticDimension
+        $0.separatorStyle = .none
+        $0.isScrollEnabled = false
+        $0.register(UITableViewCell.self,
+                    forCellReuseIdentifier: "Cell")
+    }
+    
     // MARK: - Life Cycle
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,9 +52,10 @@ class StatisticView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Layout
     private func configureLayout() {
         
-        [mainFrameTable].forEach {
+        [mainFrameTable, filterOptionTableView].forEach {
             addSubview($0)
         }
         
@@ -53,5 +64,9 @@ class StatisticView: UIView {
             $0.trailing.bottom.equalTo(safeAreaLayoutGuide).offset(-padding)
         }
         
+        filterOptionTableView.snp.makeConstraints {
+            $0.top.leading.trailing.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
+        }
     }
 }

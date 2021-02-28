@@ -1,28 +1,25 @@
 //
-//  MainPetsProfileImageCell.swift
+//  PetOptionCollectionViewCell.swift
 //  MyPetCare
 //
-//  Created by 김광수 on 2021/02/04.
+//  Created by 김광수 on 2021/02/28.
 //
 
 import Foundation
 import UIKit
 
-class PetProfileImageCell: UICollectionViewCell {
+class PetOptionCollectionViewCell: UICollectionViewCell {
     
-    static let identifier = "MainPetsProfileImageCell"
-    
-    var cellIndex: Int?
+    static let identifier = "PetOptionCollectionViewCell"
     
     let selectedBoarderColor: UIColor = .cViolet
     
-    let petProfileImageView = UIImageView().then {
-        let height = PetProfileCollecionViewFlowLayout.BaseLayout
-                            .collectionViewCellHeight
-        $0.layer.cornerRadius = height/2
+    lazy var petProfileImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
         $0.backgroundColor = .extraGray
+        $0.layer.cornerRadius = 25
+        $0.layer.borderColor = UIColor.cViolet.cgColor
     }
     
     lazy var selectMarkImage = UIImageView().then {
@@ -32,15 +29,15 @@ class PetProfileImageCell: UICollectionViewCell {
         $0.image = image
         $0.layer.cornerRadius = 10
         $0.clipsToBounds = true
-        $0.isHidden = true
         $0.backgroundColor = .white
+        $0.isHidden = true
     }
     
     override var isSelected: Bool {
         didSet {
+            print("Pet Option CEll is Changed", isSelected)
             self.selectMarkImage.isHidden = !isSelected
-            petProfileImageView.layer.borderWidth = isSelected ? 2 : 0
-            petProfileImageView.layer.borderColor = selectedBoarderColor.cgColor
+            self.petProfileImageView.layer.borderWidth = isSelected ? 2 : 0
         }
     }
     
@@ -67,14 +64,17 @@ class PetProfileImageCell: UICollectionViewCell {
         selectMarkImage.snp.makeConstraints {
             $0.bottom.trailing.equalTo(contentView.safeAreaLayoutGuide)
             $0.width.height.equalTo(17)
-        }        
+        }
+    }
+    
+    func configureCell(petObj: PetObject) {
+        self.petProfileImageView.image = UIImage(data: (petObj.image!))
+        self.petProfileImageView.layer.cornerRadius = 25
     }
     
     override func prepareForReuse() {
         self.backgroundColor = .none
-        self.cellIndex = nil
-        petProfileImageView.image = nil
-        self.isSelected = false
+        self.petProfileImageView.image = nil
     }
     
 }

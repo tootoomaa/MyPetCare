@@ -12,6 +12,7 @@ import Charts
 class StatisticChartView: UIView {
     // MARK: - Properties
     let durationString = ["주간","월간"]
+    
     lazy var durationSegmentController = UISegmentedControl(items: durationString).then {
         $0.selectedSegmentIndex = 0
     }
@@ -25,7 +26,6 @@ class StatisticChartView: UIView {
         configureLayout(frame, segmentHeight)
         
         configureBarchart()
-        
         
         let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         let unitsSold = [20.0, 4.0, 6.0, 3.0, 12.0, 16.0, 4.0, 18.0, 2.0, 4.0, 5.0, 4.0]

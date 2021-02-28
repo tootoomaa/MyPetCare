@@ -315,7 +315,7 @@ class MainViewController: UIViewController, View {
                          vc: .none)
                     .subscribe(onNext: { action in
                         
-                        if action.index == 1 {
+                        if action.index == 1 { // 삭제 선택
                             reactor.action.onNext(.deletePet)
                             reactor.action.onNext(.loadInitialData)
                             mainView.setOriginalOffsetPetProfileView()
