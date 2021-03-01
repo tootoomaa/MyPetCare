@@ -20,7 +20,7 @@ class MainViewController: UIViewController, View {
     let plusImageData = UIImage(systemName: "plus.circle.fill")?
         .withRenderingMode(.alwaysOriginal)
         .withTintColor(.deepGreen)
-        .pngData()!
+//        .pngData()!
     
     let mainView = MainView(frame: CGRect(x: 0, y: 0,
                                           width: Constants.viewWidth,
@@ -168,9 +168,12 @@ class MainViewController: UIViewController, View {
                     .items(cellIdentifier: PetProfileImageCell.identifier,
                            cellType: PetProfileImageCell.self)) { row, petData , cell in
                 
-                let image = UIImage(data: (petData.image ?? self.plusImageData)!)
+                if let data = petData.image {
+                    cell.petProfileImageView.image = UIImage(data: data)
+                } else {
+                    cell.petProfileImageView.image = self.plusImageData
+                }
                 
-                cell.petProfileImageView.image = image
                 cell.cellIndex = row
                 
             }.disposed(by: disposeBag)

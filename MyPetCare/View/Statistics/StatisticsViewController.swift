@@ -24,6 +24,19 @@ class StatisticsViewController: UIViewController, View {
         $0.setImage(image, for: .normal)
     }
     
+    let selectedPetName = UILabel().then {
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 15)
+    }
+    
+    let selectPetImageView = UIImageView().then {
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = 12
+    }
+    
+    var selectedPetMaleImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
+    }
+    
     let petListLayout = UICollectionViewFlowLayout().then {
         $0.scrollDirection = .horizontal
         $0.itemSize = CGSize(width: 50, height: 50)
@@ -85,11 +98,32 @@ class StatisticsViewController: UIViewController, View {
         self.navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.title = "통계"
         
-        self.navigationController?.navigationBar.addSubview(charDataFilteringButton)
+        [charDataFilteringButton, selectedPetMaleImageView, selectedPetName, selectPetImageView].forEach {
+            self.navigationController?.navigationBar.addSubview($0)
+        }
+        
         charDataFilteringButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(20)
             $0.bottom.equalToSuperview().offset(-8)
             $0.size.equalTo(30)
+        }
+        
+        selectPetImageView.snp.makeConstraints {
+            $0.centerY.equalTo(charDataFilteringButton)
+            $0.trailing.equalTo(charDataFilteringButton.snp.leading).offset(-10)
+            $0.width.height.equalTo(24)
+        }
+        
+        selectedPetName.snp.makeConstraints {
+            $0.trailing.equalTo(selectPetImageView.snp.leading).offset(-3)
+            $0.centerY.equalTo(selectPetImageView)
+        }
+        
+        selectedPetMaleImageView.snp.makeConstraints {
+            $0.trailing.equalTo(selectedPetName.snp.leading).offset(-5)
+            $0.centerY.equalTo(selectPetImageView)
+            $0.height.equalTo(12)
+            $0.width.equalTo(6)
         }
     }
     
@@ -108,15 +142,29 @@ class StatisticsViewController: UIViewController, View {
 //                let newData = data.filter{ $0.0.id == "B296C812-36AC-4869-B20F-B53C9F7C6093" }
 //                owner.statisticView.barChartView.setChart(dataPoints: [1,2,3,4,5], values: newData)
             }).disposed(by: disposeBag)
-//        
-//        reactor.state.map{$0.filterOption.measureData}
-//            .distinctUntilChanged()
-//            .subscribe(onNext: {
-//                print($0)
-//            }).disposed(by: disposeBag)
+
+        reactor.state.map{$0.selectedPet}
+            .distinctUntilChanged()
+            .compactMap{$0}
+            .subscribe(onNext: {
+                self.selectedPetName.text = $0.name
+                self.selectPetImageView.image = UIImage(data: $0.image ?? UIImage().pngData()!)
+                self.selectedPetMaleImageView.image = Male(rawValue: $0.male!)?.getPetMaleImage
+            }).disposed(by: disposeBag)
+        
+        reactor.state.map{$0.filterOption}
+            .distinctUntilChanged { (filter1, filter2) -> Bool in
+                guard filter1.pet == filter2.pet else { return false }
+                guard filter1.measureData == filter2.measureData else { return false }
+                return true
+            }.subscribe(onNext: { [unowned self] filterOption in
+                
+                statisticView.statisticChartView.setChart(filterOption: filterOption)
+                
+            }).disposed(by: disposeBag)
         
         // 기간 선택 segment 설정
-        statisticView.barChartView
+        statisticView.statisticChartView
             .durationSegmentController.rx.value.changed
             .distinctUntilChanged()
             .map{ index -> Constants.duration in
@@ -131,14 +179,10 @@ class StatisticsViewController: UIViewController, View {
         charDataFilteringButton.rx.tap
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-                
                 let beforeAlpa = owner.statisticView.filterOptionTableView.alpha
-                
                 UIView.animate(withDuration: 0.5) {
                     owner.statisticView.filterOptionTableView.alpha = beforeAlpa == 1 ? 0 : 1
                 }
-                
-                
             }).disposed(by: disposeBag)
         
         // MARK: - Filter Option TableView
@@ -155,10 +199,10 @@ class StatisticsViewController: UIViewController, View {
                     reactor.state.map{$0.petList}
                         .distinctUntilChanged()
                         .compactMap{$0}
-                        .debug()
                         .bind(to: petListCollectionView.rx
                                 .items(cellIdentifier: PetOptionCollectionViewCell.identifier,
                                        cellType: PetOptionCollectionViewCell.self)) { row, petData , cell in
+                            
                             cell.configureCell(petObj: petData)
                             
                             // 첫 셀은 무조건 선택 되도록

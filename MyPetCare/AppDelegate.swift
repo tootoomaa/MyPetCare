@@ -34,7 +34,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // delete all Pet List
 //        let list = provider.dataBaseService.loadPetList().toArray()
 //        provider.dataBaseService.delete(list)
-        
+//        let day = 60*60*24
+//        let value1 = BRObject().then {
+//            $0.id = UUID().uuidString
+//            $0.petId = "08CAD4B0-25B2-4387-8E61-DC7D9B3E7F31"
+//            $0.createDate = Date().addingTimeInterval(TimeInterval(-day))
+//            $0.originalBR = 1
+//            $0.resultBR = 6
+//            $0.userSettingTime = 10
+//        }
+//        
+//        let value2 = BRObject().then {
+//            $0.id = UUID().uuidString
+//            $0.petId = "08CAD4B0-25B2-4387-8E61-DC7D9B3E7F31"
+//            $0.createDate = Date().addingTimeInterval(TimeInterval(-day*2))
+//            $0.originalBR = 3
+//            $0.resultBR = 18
+//            $0.userSettingTime = 10
+//        }
+//        
+//        let value3 = BRObject().then {
+//            $0.id = UUID().uuidString
+//            $0.petId = "08CAD4B0-25B2-4387-8E61-DC7D9B3E7F31"
+//            $0.createDate = Date().addingTimeInterval(TimeInterval(-day*3))
+//            $0.originalBR = 20
+//            $0.resultBR = 20
+//            $0.userSettingTime = 60
+//        }
+//        
+//        let value4 = BRObject().then {
+//            $0.id = UUID().uuidString
+//            $0.petId = "08CAD4B0-25B2-4387-8E61-DC7D9B3E7F31"
+//            $0.createDate = Date().addingTimeInterval(TimeInterval(-day*4))
+//            $0.originalBR = 2
+//            $0.resultBR = 4
+//            $0.userSettingTime = 30
+//        }
+//        
+//        provider.dataBaseService.set([value1, value2, value3, value4])
     }
     
     private func configureNavigation() {

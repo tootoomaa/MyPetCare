@@ -30,7 +30,7 @@ class PetProfileImageCell: UICollectionViewCell {
             .withRenderingMode(.alwaysOriginal)
             .withTintColor(selectedBoarderColor)
         $0.image = image
-        $0.layer.cornerRadius = 10
+        $0.layer.cornerRadius = 9
         $0.clipsToBounds = true
         $0.isHidden = true
         $0.backgroundColor = .white
@@ -66,14 +66,14 @@ class PetProfileImageCell: UICollectionViewCell {
         
         selectMarkImage.snp.makeConstraints {
             $0.bottom.trailing.equalTo(contentView.safeAreaLayoutGuide)
-            $0.width.height.equalTo(17)
+            $0.width.height.equalTo(18)
         }        
     }
     
     override func prepareForReuse() {
         self.backgroundColor = .none
         self.cellIndex = nil
-        petProfileImageView.image = nil
+        self.petProfileImageView.image = nil
         self.isSelected = false
     }
     

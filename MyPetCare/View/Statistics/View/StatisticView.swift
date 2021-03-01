@@ -21,14 +21,14 @@ class StatisticView: UIView {
         height: (Constants.viewWidth-padding*2)/3*2+segmentHeight
     )
     
-    lazy var barChartView = StatisticChartView(
+    lazy var statisticChartView = StatisticChartView(
         frame: chartViewFrame,
         segmentHeight: segmentHeight
     )
     
     lazy var mainFrameTable = UITableView().then {
         $0.estimatedRowHeight = 300
-        $0.tableHeaderView = barChartView
+        $0.tableHeaderView = statisticChartView
     }
     
     let filterOptionTableView = UITableView().then {

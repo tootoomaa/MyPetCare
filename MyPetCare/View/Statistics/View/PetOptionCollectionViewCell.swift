@@ -27,7 +27,7 @@ class PetOptionCollectionViewCell: UICollectionViewCell {
             .withRenderingMode(.alwaysOriginal)
             .withTintColor(selectedBoarderColor)
         $0.image = image
-        $0.layer.cornerRadius = 10
+        $0.layer.cornerRadius = 9
         $0.clipsToBounds = true
         $0.backgroundColor = .white
         $0.isHidden = true
@@ -35,9 +35,8 @@ class PetOptionCollectionViewCell: UICollectionViewCell {
     
     override var isSelected: Bool {
         didSet {
-            print("Pet Option CEll is Changed", isSelected)
             self.selectMarkImage.isHidden = !isSelected
-            self.petProfileImageView.layer.borderWidth = isSelected ? 2 : 0
+            self.petProfileImageView.layer.borderWidth = isSelected ? 3 : 0
         }
     }
     
@@ -63,7 +62,7 @@ class PetOptionCollectionViewCell: UICollectionViewCell {
         
         selectMarkImage.snp.makeConstraints {
             $0.bottom.trailing.equalTo(contentView.safeAreaLayoutGuide)
-            $0.width.height.equalTo(17)
+            $0.width.height.equalTo(18)
         }
     }
     

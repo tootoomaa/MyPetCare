@@ -8,6 +8,10 @@
 import Foundation
 import ReactorKit
 
+typealias FilterOptions = (pet: PetObject,
+                           measureData: [MeasureServiceType],
+                           duration: Constants.duration)
+
 enum StatisticsFilterOptionSection: String, CaseIterable {
     case petList = "펫 리스트"
     case dataType = "선택 정보"
@@ -24,20 +28,18 @@ class StatisticsViewReactor: Reactor {
     }
     
     enum Mutation {
-        case setSelectedPet(PetObject)                      // 필터 펫 설정
         case setPetObjectList([PetObject])                  // 펫 리스트 저장
+        case setSelectedPet(PetObject)                      // [필터] 펫 설정
+        case setMeasureDataOption([MeasureServiceType])     // [필터] 데이터 선택
+        case setDuration(Constants.duration)                // [필터] 기간 저장
         case setChartData([(PetObject, [BrObject])])        // 차트 데이터 저장
-        case setDuration(Constants.duration)                // 기간 저장
-        
-        case setMeasureDataOption([MeasureServiceType])
     }
     
     struct State {
         var selectedPet: PetObject?
         var petList: [PetObject]
-        var selectedDuration: Constants.duration
+        var filterOption: FilterOptions
         var charData: [(PetObject, [BrObject])]?
-        var filterOption: (petList: PetObject?, measureData: [MeasureServiceType])
     }
     
     var initialState: State
@@ -48,9 +50,9 @@ class StatisticsViewReactor: Reactor {
         
         initialState = State(selectedPet: nil,
                              petList: [],
-                             selectedDuration: .weak,
-                             charData: nil,
-                             filterOption: (nil,MeasureServiceType.allCases))
+                             filterOption: (PetObject.empty, MeasureServiceType.allCases,
+                                            .weak),
+                             charData: nil)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -106,21 +108,21 @@ class StatisticsViewReactor: Reactor {
         
         switch mutation {
         
-        case .setSelectedPet(let petObj):
-            newState.selectedPet = petObj
-            newState.filterOption.petList = petObj
-        
         case .setPetObjectList(let petList):
             newState.petList = petList
+        
+        case .setSelectedPet(let petObj):
+            newState.selectedPet = petObj
+            newState.filterOption.pet = petObj
             
         case .setDuration(let duration):
-            newState.selectedDuration = duration
-            
-        case .setChartData(let charData):
-            newState.charData = charData
+            newState.filterOption.duration = duration
             
         case .setMeasureDataOption(let measureList):
             newState.filterOption.measureData = measureList
+            
+        case .setChartData(let charData):
+            newState.charData = charData
         }
         
         return newState

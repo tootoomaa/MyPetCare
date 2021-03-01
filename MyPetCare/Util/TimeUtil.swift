@@ -9,9 +9,15 @@ import Foundation
 
 class TimeUtil {
     
-    let format = DateFormatter()
+    let format = DateFormatter().then {
+        $0.locale = Locale(identifier: "ko") // 로케일 변경
+    }
+    
     let min = 60
     let sec = 60
+    let hour = 24
+    let sevenDay = 7
+    let month = 30
     
     enum PresentDateString: String{
         case hhmm = "HH:mm"
@@ -36,6 +42,32 @@ class TimeUtil {
         
     }
     
+    /// 요일 구하기
+    func getSevenDayStringByCurrentDay(type: Constants.duration) -> [String] {
+     
+        var tempTimeInterval: [Double] = []
+        
+        let currnetDate = Date().timeIntervalSince1970
+        format.dateFormat = "E"
+        
+        switch type {
+        case .weak:
+            for i in 0..<sevenDay {
+                let temp = currnetDate - TimeInterval(i*hour*min*sec)
+                tempTimeInterval.append(temp)
+            }
+            
+        case .month:
+            for i in 0..<month {
+                let temp = currnetDate - TimeInterval(i*hour*min*sec)
+                tempTimeInterval.append(temp)
+            }
+        }
+        
+        return tempTimeInterval.map{
+            format.string(from: Date(timeIntervalSince1970: $0))
+        }.reversed()
+    }
     
     class func now() -> TimeInterval {
         return Date().timeIntervalSince1970
