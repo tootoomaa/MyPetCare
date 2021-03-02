@@ -61,7 +61,7 @@ class PetProfileView: UIView {
     }
     
     var heightLabel = UILabel().then {
-        $0.text = "Height"
+        $0.text = "Species"
         $0.font = .dynamicSystemFont(size: 11, weight: .semibold)
         $0.textColor = .systemGray2
     }
@@ -241,10 +241,9 @@ class PetProfileView: UIView {
             $0.height.equalTo(20*Constants.widthRatio)
         }
         
-        petMaleImageView.image = UIImage(named: Male(rawValue: pet.male!)!.rawValue)
-        
+        petMaleImageView.image = Male(rawValue: pet.male!)?.getPetMaleImage
         ageValueLabel.text = "\(pet.age) yrs"
         weightValueLabel.text = Int(pet.weight) == 0 ? "-" : "\(pet.weight) kg"
-        heightValueLabel.text = Int(pet.height) == 0 ? "-" : "\(pet.height) kg"
+        heightValueLabel.text = pet.species
     }
 }

@@ -47,27 +47,6 @@ class PhysicsMeasureView: UIView {
         $0.addCornerRadius(20)
     }
     
-    let heightTitleLabel = UILabel().then {
-        $0.text = "키"
-        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 40)
-    }
-    
-    let heightTextField = UITextField().then {
-        $0.placeholder = "입력"
-        $0.keyboardType = .numberPad
-        $0.returnKeyType = .next
-        $0.autocorrectionType = .no
-        $0.autocapitalizationType = .none
-        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 40)
-        $0.textAlignment = .right
-        $0.adjustsFontSizeToFitWidth = true
-    }
-    
-    let heightValueLabel = UILabel().then {
-        $0.text = "cm"
-        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 30)
-    }
-    
     let weightTitleLabel = UILabel().then {
         $0.text = "체중"
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 40)
@@ -106,8 +85,8 @@ class PhysicsMeasureView: UIView {
         
         [hrMeasureView,
          petMaleImageView, petName, petAge, paddingLabel, petImageView,
-         heightTitleLabel, heightTextField, heightValueLabel,
-         weightTitleLabel, weightTextField, weightValueLabel].forEach { addSubview($0)
+         weightTitleLabel, weightTextField, weightValueLabel].forEach {
+            addSubview($0)
          }
         
         hrMeasureView.snp.makeConstraints {
@@ -144,37 +123,20 @@ class PhysicsMeasureView: UIView {
             $0.centerY.equalTo(paddingLabel)
         }
         
-        heightTitleLabel.snp.makeConstraints {
+        weightTitleLabel.snp.makeConstraints {
             $0.top.equalTo(petImageView.snp.bottom).offset(20)
             $0.centerX.equalTo(petImageView)
         }
         
-        heightValueLabel.snp.makeConstraints {
-            $0.centerY.equalTo(heightTitleLabel.snp.centerY)
-            $0.trailing.equalTo(safeGuide).inset(30)
-            $0.width.equalTo(40)
-        }
-        
-        heightTextField.snp.makeConstraints {
-            $0.centerY.equalTo(heightTitleLabel.snp.centerY)
-            $0.leading.equalTo(heightTitleLabel.snp.trailing).offset(20)
-            $0.trailing.equalTo(heightValueLabel.snp.leading).offset(-10)
-        }
-        
-        weightTitleLabel.snp.makeConstraints {
-            $0.top.equalTo(heightTitleLabel.snp.bottom).offset(20)
-            $0.centerX.equalTo(petImageView)
-        }
-        
         weightValueLabel.snp.makeConstraints {
-            $0.centerY.equalTo(weightTitleLabel.snp.centerY)
+            $0.centerY.equalTo(weightTitleLabel)
             $0.trailing.equalTo(safeGuide).inset(30)
             $0.width.equalTo(40)
         }
         
         weightTextField.snp.makeConstraints {
-            $0.leading.equalTo(heightTextField)
             $0.centerY.equalTo(weightTitleLabel.snp.centerY)
+            $0.leading.equalTo(weightTitleLabel.snp.trailing).offset(20)
             $0.trailing.equalTo(weightValueLabel.snp.leading).offset(-10)
         }
     }

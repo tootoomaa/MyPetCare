@@ -27,7 +27,7 @@ class MeasureViewReactor: Reactor {
         case resetState
         case saveBRResult
         // PhysicsMeasureViewContoller
-        case savePhysicsData(Double, Double)
+        case savePhysicsData(Double)
         // MeasureDetailViewController
         case loadBrCountData
         case loadPhysicsData
@@ -138,21 +138,20 @@ class MeasureViewReactor: Reactor {
             provider.dataBaseService.write {
                 lastData.first!.resultBR = resultBRCount
             }
+            GlobalState.MeasureDataUpdate.onNext(Void())                    // 데이터 갱신 업데이트
             return .just(.saveCompleteAndDismiss)
             
-        case .savePhysicsData(let height, let weight): // 키 몸무게 저장 로직
+        case .savePhysicsData(let weight): // 키 몸무게 저장 로직
             
             // DB 저장
             let petObj = currentState.selectedPet
             provider.dataBaseService.write {
-                petObj.height = height
                 petObj.weight = weight
             }
             
             // 최근 데이터 저장
             let lastData = provider.dataBaseService.loadLastData(petObj.id!).toArray().first
             provider.dataBaseService.write {
-                lastData?.height = height
                 lastData?.weight = weight
             }
             
@@ -160,11 +159,10 @@ class MeasureViewReactor: Reactor {
                 $0.id = UUID().uuidString
                 $0.petId = currentState.selectedPet.id
                 $0.createDate = Date()
-                $0.height = height
                 $0.weight = weight
             }
             provider.dataBaseService.add(newPhysicObj)
-            
+            GlobalState.MeasureDataUpdate.onNext(Void())                    // 데이터 갱신 업데이트
             return .empty()
             
         case .loadBrCountData:
@@ -178,7 +176,7 @@ class MeasureViewReactor: Reactor {
         case .removeMeasureData(let index, let type):
             
             switch type {
-            case .breathRate:
+            case .breathRateSV:
                 var list = currentState.brCountHistory
                 let deleteObj = list.remove(at: index)
                 provider.dataBaseService.delete(deleteObj)
@@ -190,9 +188,11 @@ class MeasureViewReactor: Reactor {
                     }
                     GlobalState.lastDateUpdate.onNext(Void())
                 }
+                
+                GlobalState.MeasureDataUpdate.onNext(Void())                    // 데이터 갱신 업데이트
                 return .just(.setBrCountLiat(list))
                 
-            case .physics:
+            case .physicsSV:
                 var list = currentState.physicsHistory
                 let deleteObj = list.remove(at: index)
                 
@@ -200,7 +200,6 @@ class MeasureViewReactor: Reactor {
                 if index == 0 {
                     let obj = provider.dataBaseService.loadLastData(petId).first
                     provider.dataBaseService.write {
-                        obj?.height = list.first?.height ?? 0
                         obj?.weight = list.first?.weight ?? 0
                     }
                     GlobalState.lastDateUpdate.onNext(Void())
@@ -208,7 +207,7 @@ class MeasureViewReactor: Reactor {
                 
                 return .just(.setPhysicsList(list))
                 
-            case .measureServices:
+            case .measureSV:
                 return .empty()
             }
             

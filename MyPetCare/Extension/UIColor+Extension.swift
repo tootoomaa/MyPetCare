@@ -26,6 +26,10 @@ extension UIColor {
         return UIColor(rgb: 0xff7b54)
     }
     
+    static var lightOrange: UIColor {
+        return UIColor(rgb: 0xffd384)
+    }
+    
     static var deepGreen: UIColor {
         return UIColor(rgb: 0x839b97)
     }
@@ -60,6 +64,10 @@ extension UIColor {
     
     static var cancelButtonColor: UIColor {
         return UIColor(rgb: 0xffdcdc)
+    }
+    
+    static var durationSelectColor: UIColor {
+        return UIColor(rgb: 0xe4fbff)
     }
 }
 

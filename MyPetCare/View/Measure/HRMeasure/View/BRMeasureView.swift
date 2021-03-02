@@ -81,10 +81,9 @@ class BRMeasureView: UIView {
     }
     
     let secondSegmentController = UISegmentedControl(items: ["10초", "20초", "30초", "60초"]).then {
-        $0.removeBorder(nomal: .white, selected: .lightGreen)
+        $0.removeBorder(nomal: .white, selected: .lightGreen, centerBoarderWidth: 1)
         $0.selectedSegmentIndex = 0
-        $0.layer.borderWidth = 1
-        $0.layer.backgroundColor = UIColor.systemGray4.cgColor
+        $0.addBorder(.black, 1)
     }
     
     var countDownView = UIView().then {

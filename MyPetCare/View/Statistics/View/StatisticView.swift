@@ -21,16 +21,24 @@ class StatisticView: UIView {
         height: (Constants.viewWidth-padding*2)/3*2+segmentHeight
     )
     
-    lazy var barChartView = StatisticChartView(
+    lazy var statisticChartView = StatisticChartView(
         frame: chartViewFrame,
         segmentHeight: segmentHeight
     )
     
     lazy var mainFrameTable = UITableView().then {
-        
         $0.estimatedRowHeight = 300
-        $0.tableHeaderView = barChartView
-        
+        $0.tableHeaderView = statisticChartView
+    }
+    
+    let filterOptionTableView = UITableView().then {
+        $0.alpha = 0
+        $0.backgroundColor = UIColor.black.withAlphaComponent(0.2)
+        $0.estimatedRowHeight = UITableView.automaticDimension
+        $0.separatorStyle = .none
+        $0.isScrollEnabled = false
+        $0.register(UITableViewCell.self,
+                    forCellReuseIdentifier: "Cell")
     }
     
     // MARK: - Life Cycle
@@ -43,10 +51,11 @@ class StatisticView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    // MARK: - Layout
     private func configureLayout() {
         
-        [mainFrameTable].forEach {
+        [mainFrameTable, filterOptionTableView].forEach {
             addSubview($0)
         }
         
@@ -55,5 +64,9 @@ class StatisticView: UIView {
             $0.trailing.bottom.equalTo(safeAreaLayoutGuide).offset(-padding)
         }
         
+        filterOptionTableView.snp.makeConstraints {
+            $0.top.leading.trailing.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
+        }
     }
 }

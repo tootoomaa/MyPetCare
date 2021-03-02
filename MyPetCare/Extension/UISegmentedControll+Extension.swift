@@ -10,15 +10,16 @@ import UIKit
 
 extension UISegmentedControl {
     
-    func removeBorder(nomal: UIColor, selected: UIColor) {
+    func removeBorder(nomal: UIColor, selected: UIColor, centerBoarderWidth: CGFloat) {
         
         let nomalBackgroundImg = UIImage.getColoredRectImageWith(color: nomal.cgColor, andSize: self.bounds.size)
         let selectedBackGroundImg = UIImage.getColoredRectImageWith(color: selected.cgColor, andSize: self.bounds.size)
+        
         self.setBackgroundImage(nomalBackgroundImg, for: .normal, barMetrics: .default)
         self.setBackgroundImage(selectedBackGroundImg, for: .selected, barMetrics: .default)
 //        self.setBackgroundImage(backgroundImage, for: .highlighted, barMetrics: .default)
 
-        let deviderImage = UIImage.getColoredRectImageWith(color: UIColor.black.cgColor, andSize: CGSize(width: 1.0, height: self.bounds.size.height))
+        let deviderImage = UIImage.getColoredRectImageWith(color: UIColor.black.cgColor, andSize: CGSize(width: centerBoarderWidth, height: self.bounds.size.height))
         
         self.setDividerImage(deviderImage, forLeftSegmentState: .selected, rightSegmentState: .normal, barMetrics: .default)
         

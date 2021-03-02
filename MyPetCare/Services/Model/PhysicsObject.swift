@@ -13,7 +13,6 @@ class PhysicsObject: Object {
     @objc dynamic var id: String?
     @objc dynamic var petId: String?
     @objc dynamic var createDate: Date?
-    @objc dynamic var height: Double = 0.0
     @objc dynamic var weight: Double = 0.0
     
     override static func primaryKey() -> String? {

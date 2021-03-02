@@ -141,7 +141,7 @@ class MeasureDetailViewController: UIViewController, View {
     // MARK: - Reactor Binding
     func bind(reactor: MeasureViewReactor) {
         
-        if mainFrameMenuType == .breathRate {
+        if mainFrameMenuType == .breathRateSV {
             self.rx.viewDidLoad
                 .map{Reactor.Action.loadBrCountData}
                 .bind(to: reactor.action)
@@ -162,7 +162,7 @@ class MeasureDetailViewController: UIViewController, View {
                     
                 }.disposed(by: disposeBag)
             
-        } else if mainFrameMenuType == .physics {
+        } else if mainFrameMenuType == .physicsSV {
             
             self.rx.viewDidLoad
                 .map{Reactor.Action.loadPhysicsData}

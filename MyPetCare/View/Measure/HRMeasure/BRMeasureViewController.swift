@@ -110,7 +110,7 @@ class BRMeasureViewController: UIViewController, View {
         /////////////////////////////////////////////////////////
         // ready View State
         reactor.state.map{$0.viewState}
-            .observeOn(MainScheduler.asyncInstance)
+            .observe(on: MainScheduler.asyncInstance)
             .compactMap{$0}
             .distinctUntilChanged()
             .filter{$0 == .ready}
@@ -262,7 +262,7 @@ class BRMeasureViewController: UIViewController, View {
         
         // 최종 측정 내용 취소 버튼
         mainView.resultView.cancelButton.rx.tap
-            .observeOn(MainScheduler.asyncInstance)
+            .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: {
                 let petName = reactor.currentState.selectedPet.name
                 let message = "\(petName ?? "펫")의 측정된 호흡수가 저장되지 않습니다. 취소 하시겠습니까?"

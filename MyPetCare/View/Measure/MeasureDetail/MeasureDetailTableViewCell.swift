@@ -118,7 +118,7 @@ class MeasureDetailTableViewCell: UITableViewCell {
         
         dateLabel.text = TimeUtil().getString(data.createDate!, .yymmdd)
         detailDateLabel.text = TimeUtil().getString(data.createDate!, .hhmm)
-        mainValueLabel.text = "\(data.weight)kg, \(data.height)cm"
+        mainValueLabel.text = "\(data.weight)kg"
         
         configurePhysicsObject()
     }

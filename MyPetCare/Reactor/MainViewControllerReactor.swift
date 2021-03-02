@@ -12,13 +12,13 @@ import RxCocoa
 
 enum MeasureServiceType: String, CaseIterable {
     case breathRate = "호흡수\n측정"
-    case phycis = "체중, 키\n측정"
+    case weight = "체중\n측정"
 }
 
 enum MainFrameMenuType: String, CaseIterable {
-    case measureServices
-    case breathRate = "호흡수"
-    case physics = "체중/키"
+    case measureSV
+    case breathRateSV = "호흡수"
+    case physicsSV = "체중"
 }
 
 class MainViewControllerReactor: Reactor {
@@ -67,9 +67,17 @@ class MainViewControllerReactor: Reactor {
         switch action {
         
         case .loadInitialData:
-            var list = provider.dataBaseService.loadPetList()
-                          .toArray()
-                          .sorted(by: { $0.createDate! < $1.createDate!})
+            var list = provider.dataBaseService.loadPetList().toArray()
+            ///Data Change ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            provider.dataBaseService.write {
+                list.forEach {
+                    if $0.male == "boy" || $0.male == "gril" {
+                        let maleString = $0.male == "boy" ? "아들" : "딸"
+                        $0.male = maleString
+                    }
+                }
+            }
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             list.append(emptyPet)
             self.plusButtonIndex = list.count - 1
             

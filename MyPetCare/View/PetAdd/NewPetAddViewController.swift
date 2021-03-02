@@ -20,10 +20,24 @@ class NewPetAddViewController: UIViewController, View {
         $0.modalPresentationStyle = .overFullScreen
     }
     
-    let addNaviButton = UIBarButtonItem(barButtonSystemItem: .add, target: nil, action: nil)
+    
+    let addNaviButton: UIBarButtonItem
     let closeNanviButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: nil, action: nil)
     
     // MARK: - Life Cycle
+    
+    init(isEditMode: Bool) {
+        self.addNaviButton = isEditMode == true
+            ? UIBarButtonItem(barButtonSystemItem: .save, target: nil, action: nil)
+            : UIBarButtonItem(barButtonSystemItem: .add, target: nil, action: nil)
+        super.init(nibName: nil, bundle: nil)
+        self.navigationItem.rightBarButtonItem = addNaviButton
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func loadView() {
         view = mainView
     }
@@ -48,12 +62,9 @@ class NewPetAddViewController: UIViewController, View {
     
     private func configureNavigationBar() {
         self.navigationController?.configureNavigationBarAppearance(.extraLightPink)
-        self.navigationItem.title = "펫 등록"
-        
         self.navigationItem.leftBarButtonItem = closeNanviButton
-        self.navigationItem.rightBarButtonItem = addNaviButton
         self.navigationController?.navigationBar.backgroundColor = .extraGray
-            
+        
         closeNanviButton.rx.tap
             .subscribe(onNext: { [unowned self] in
                 self.dismiss(animated: true, completion: nil)
@@ -99,17 +110,12 @@ class NewPetAddViewController: UIViewController, View {
 
     // MARK: - Reactor Binder
     func bind(reactor: PetAddViewReactor) {
-        
-        Observable.just(["종","품종","BSC"])
-            .bind(to: mainView.tableView.rx
-                    .items(cellIdentifier: HealthDataCell.identifier,
-                           cellType: HealthDataCell.self)) { row, data, cell in
-                
-                cell.titleLabel.text = data
-                
-            }.disposed(by: disposeBag)
-        
         // state
+        reactor.state.map{$0.isEditMode}
+            .map{$0 == true ? "펫 수정" : "펫 등록"}
+            .bind(to: self.rx.title)
+            .disposed(by: disposeBag)
+        
         reactor.state.map{$0.petName}
             .distinctUntilChanged()
             .compactMap{$0}
@@ -117,8 +123,15 @@ class NewPetAddViewController: UIViewController, View {
             .disposed(by: disposeBag)
         
         reactor.state.map{$0.male}
-            .compactMap{ $0 == Male.boy.rawValue ? 0 : 1}
+            .compactMap{Male(rawValue: $0)}
+            .compactMap{Male.allCases.firstIndex(of: $0)}
             .bind(to: mainView.maleSegmentController.rx.selectedSegmentIndex)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map{$0.species}
+            .compactMap{SpeciesType(rawValue: $0)}
+            .compactMap{SpeciesType.allCases.firstIndex(of: $0)}
+            .bind(to: mainView.sepicesSegmentController.rx.selectedSegmentIndex)
             .disposed(by: disposeBag)
         
         reactor.state.map{$0.birthDay}
@@ -130,16 +143,17 @@ class NewPetAddViewController: UIViewController, View {
         reactor.state.map{$0.petImageData}
             .distinctUntilChanged()
             .compactMap{$0}
-            .subscribe(onNext: { [unowned self] in
-                let image = UIImage(data: $0) ?? UIImage(systemName: "photo")
-                mainView.petImageView.layer.cornerRadius = (mainView.viewWidthMinusPadding/2*0.8)/2
-                mainView.petImageView.clipsToBounds = true
-                mainView.petImageView.image = image
+            .withUnretained(self)
+            .subscribe(onNext: { owner, data in
+                let image = UIImage(data: data) ?? UIImage(systemName: "photo")
+                owner.mainView.petImageView.layer.cornerRadius = (owner.mainView.viewWidthMinusPadding/2*0.8)/2
+                owner.mainView.petImageView.clipsToBounds = true
+                owner.mainView.petImageView.image = image
             })
             .disposed(by: disposeBag)
         
         reactor.state.map{$0.isComplete}
-            .observeOn(MainScheduler.asyncInstance)
+            .observe(on: MainScheduler.asyncInstance)
             .filter{$0 == true}
             .subscribe(onNext: { _ in
                 
@@ -166,8 +180,15 @@ class NewPetAddViewController: UIViewController, View {
         
         mainView.maleSegmentController.rx.controlEvent(.valueChanged)
             .map{self.mainView.maleSegmentController.selectedSegmentIndex}
-            .map{$0 == 0 ? Male.boy.rawValue : Male.girl.rawValue}
+            .compactMap{Male.allCases[$0].rawValue}
             .map{Reactor.Action.inputMale($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        mainView.sepicesSegmentController.rx.controlEvent(.valueChanged)
+            .map{self.mainView.sepicesSegmentController.selectedSegmentIndex}
+            .compactMap{SpeciesType.allCases[$0].rawValue}
+            .map{Reactor.Action.inputSpecies($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
@@ -224,65 +245,7 @@ extension NewPetAddViewController: UIImagePickerControllerDelegate & UINavigatio
 
 extension Reactive where Base: NewPetAddViewController {
     var tapPetAddButton: ControlEvent<Void> {
-        let source = base.addNaviButton.rx.tap
+        let source = base.addNaviButton.rx.tap.debug()
         return ControlEvent(events: source)
     }
 }
-
-// MARK: - HealthDataCell
-class HealthDataCell: UITableViewCell {
-    
-    static let identifier = "HealthDataCell"
-    
-    let padding: CGFloat = 8
-    
-    let titleLabel = UILabel().then {
-        $0.font = .systemFont(ofSize: 20, weight: .bold)
-        $0.textAlignment = .center
-    }
-    
-    let textField = UITextField().then {
-        $0.placeholder = "입력"
-        $0.font = .systemFont(ofSize: 15, weight: .regular)
-        $0.keyboardType = .default
-        $0.autocorrectionType = .no
-        $0.autocapitalizationType = .none
-        $0.textAlignment = .center
-        $0.addButtonBorder(.systemGray, 1)
-    }
-    
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        contentView.backgroundColor = .extraLightPink
-
-        configureLayout()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func configureLayout() {
-        let safeGuide = contentView.safeAreaLayoutGuide
-        
-        [titleLabel, textField].forEach {
-            contentView.addSubview($0)
-        }
-        
-        titleLabel.snp.makeConstraints {
-            $0.leading.equalTo(safeGuide).offset(padding)
-            $0.centerY.equalTo(safeGuide)
-            $0.trailing.equalTo(textField.snp.leading).offset(padding)
-        }
-        
-        textField.snp.makeConstraints {
-            $0.top.equalTo(safeGuide).offset(padding)
-            $0.bottom.trailing.equalTo(safeGuide).offset(-padding)
-            $0.centerY.equalTo(safeGuide)
-            $0.leading.equalTo(titleLabel.snp.trailing)
-            $0.width.equalTo(titleLabel).multipliedBy(1.5)
-        }
-    }
-}
-
