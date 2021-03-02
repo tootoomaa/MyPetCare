@@ -19,6 +19,8 @@ class StatisticChartView: UIView {
     
     lazy var durationSegmentController = UISegmentedControl(items: durationString).then {
         $0.selectedSegmentIndex = 0
+        $0.removeBorder(nomal: .white, selected: .durationSelectColor, centerBoarderWidth: 0.2)
+        $0.addBorder(.black, 0.2)
     }
     
     let combinedChartView = CombinedChartView()
@@ -30,11 +32,6 @@ class StatisticChartView: UIView {
         configureLayout(frame, segmentHeight)
         
         configureBarchart()
-        
-//        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-//        let unitsSold = [20.0, 4.0, 6.0, 3.0, 12.0, 16.0, 4.0, 18.0, 2.0, 4.0, 5.0, 4.0]
-//
-//        setChart(dataPoints: months, values: unitsSold)
     }
     
     required init?(coder: NSCoder) {
@@ -104,13 +101,35 @@ class StatisticChartView: UIView {
         }
     }
     
-    func setChart(filterOption: FilterOptions) {
+    func setChart(filterOption: FilterOptions, brData:[StatisticsBrData], phyData:[StatisticPhyData]) {
+        
+        var resultPhyList: [Double] = []                                                   // BR 이력 저장
+        var resultBrList: [Int] = []                                                    // BR 이력 저장
+        let indexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)    // 당일을 기준으로 7일간 월/일 추출
+        
+        indexlist.forEach { index in
+            /// 호흡수 데이터 추출 --------------------------------------- --------------------------------------- ---------------------------------------
+            let brCount = brData                              // 호흡수 측정 갯수
+                .filter{$0.dayIndex == index}
+                .count
+            let brSum = brData                              // BR 총합
+                .filter{$0.dayIndex == index}
+                .map{$0.resultBR}
+                .reduce(0, +)
+            resultBrList.append(brCount == 0 ? 0 : brSum/brCount)   // 일 평균 값 추출
+            /// Physics 데이터 추출 --------------------------------------- --------------------------------------- ---------------------------------------
+            let phyCount = phyData
+                .filter{$0.dayIndex == index}
+                .count
+            let phySum = phyData
+                .filter{$0.dayIndex == index}
+                .map{$0.weight}
+                .reduce(0.0, +)
+            resultPhyList.append(phyCount == 0 ? 0 : phySum/Double(phyCount))
+        }
         
         // 요일 데이터 생성
-        let dayValue: [String] = TimeUtil().getSevenDayStringByCurrentDay(type: filterOption.duration)
-        print(dayValue)
-        
-        let values = [10.0, 23.0, 18.0, 32.0, 38.0, 22.0, 17.0]
+        let dayValue: [String] = TimeUtil().getDayStringByCurrentDay(type: filterOption.duration)
                 
         // 데이터 생성
         let data: CombinedChartData = CombinedChartData()
@@ -121,7 +140,7 @@ class StatisticChartView: UIView {
             case .breathRate:
                 var tempDataEntries: [BarChartDataEntry] = []
                 for i in 0..<dayValue.count {
-                    let dataEntry = BarChartDataEntry(x: Double(i), y: values[i])
+                    let dataEntry = BarChartDataEntry(x: Double(i), y: Double(resultBrList[i]))
                     tempDataEntries.append(dataEntry)
                 }
                 
@@ -131,7 +150,6 @@ class StatisticChartView: UIView {
                         $0.setColor(brColor, alpha: 1)
                         $0.highlightEnabled = false
                     }
-                
                 data.barData = BarChartData(dataSet: newDataSet).then {
                     $0.barWidth = 0.5
                 }
@@ -139,7 +157,7 @@ class StatisticChartView: UIView {
             case .weight:
                 var tempDataEntries: [ChartDataEntry] = []
                 for i in 0..<dayValue.count {
-                    let dataEntry = ChartDataEntry(x: Double(i), y: values[i])
+                    let dataEntry = ChartDataEntry(x: Double(i), y: resultPhyList[i])
                     tempDataEntries.append(dataEntry)
                 }
                 
@@ -167,6 +185,6 @@ class StatisticChartView: UIView {
         // 리미트라인
 //        let ll = ChartLimitLine(limit: 10.0, label: "타겟")
 //        combineChartView.leftAxis.addLimitLine(ll)
-        combinedChartView.animate(xAxisDuration: 2.0, yAxisDuration: 2.0)
+        combinedChartView.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)
     }
 }

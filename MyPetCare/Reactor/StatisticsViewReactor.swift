@@ -32,14 +32,15 @@ class StatisticsViewReactor: Reactor {
         case setSelectedPet(PetObject)                      // [필터] 펫 설정
         case setMeasureDataOption([MeasureServiceType])     // [필터] 데이터 선택
         case setDuration(Constants.duration)                // [필터] 기간 저장
-        case setChartData([(PetObject, [BrObject])])        // 차트 데이터 저장
+        
+        case reloadChartData(Bool)                             // When chartReload Measure Data change
     }
     
     struct State {
         var selectedPet: PetObject?
         var petList: [PetObject]
         var filterOption: FilterOptions
-        var charData: [(PetObject, [BrObject])]?
+        var reloadChartTrigger: Bool
     }
     
     var initialState: State
@@ -52,7 +53,7 @@ class StatisticsViewReactor: Reactor {
                              petList: [],
                              filterOption: (PetObject.empty, MeasureServiceType.allCases,
                                             .weak),
-                             charData: nil)
+                             reloadChartTrigger: false)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -62,18 +63,8 @@ class StatisticsViewReactor: Reactor {
             let list = provider.dataBaseService.loadPetList().toArray()
                         .sorted(by: { $0.createDate! < $1.createDate!})
             
-            let brData = list
-                .compactMap{$0}
-                .map{ pet -> (PetObject, [BrObject]) in
-                    let brList = provider.dataBaseService.loadPetBRLog(pet.id!).toArray()
-                    let changeData = brList.map{BrObject(brObj: $0)}
-                    
-                    return (pet, changeData)
-                }
-            
             return Observable.merge([.just(.setSelectedPet(list.first ?? PetObject())),
-                                     .just(.setPetObjectList(list)),
-                                     .just(.setChartData(brData))])
+                                     .just(.setPetObjectList(list))])
             
         case .inputDuration(let duration):
             return .just(.setDuration(duration))
@@ -120,12 +111,21 @@ class StatisticsViewReactor: Reactor {
             
         case .setMeasureDataOption(let measureList):
             newState.filterOption.measureData = measureList
-            
-        case .setChartData(let charData):
-            newState.charData = charData
+
+        case .reloadChartData(let reload):
+            newState.reloadChartTrigger = reload
         }
         
         return newState
     }
-    
+
+    // MARK: - Transform
+    func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
+        return Observable.merge([mutation,
+                                 GlobalState.MeasureDataUpdate
+                                    .map{Mutation.reloadChartData(!self.currentState.reloadChartTrigger)}
+        ])
+    }
 }
+
+

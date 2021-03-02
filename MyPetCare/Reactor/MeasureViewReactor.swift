@@ -138,6 +138,7 @@ class MeasureViewReactor: Reactor {
             provider.dataBaseService.write {
                 lastData.first!.resultBR = resultBRCount
             }
+            GlobalState.MeasureDataUpdate.onNext(Void())                    // 데이터 갱신 업데이트
             return .just(.saveCompleteAndDismiss)
             
         case .savePhysicsData(let weight): // 키 몸무게 저장 로직
@@ -161,7 +162,7 @@ class MeasureViewReactor: Reactor {
                 $0.weight = weight
             }
             provider.dataBaseService.add(newPhysicObj)
-            
+            GlobalState.MeasureDataUpdate.onNext(Void())                    // 데이터 갱신 업데이트
             return .empty()
             
         case .loadBrCountData:
@@ -187,6 +188,8 @@ class MeasureViewReactor: Reactor {
                     }
                     GlobalState.lastDateUpdate.onNext(Void())
                 }
+                
+                GlobalState.MeasureDataUpdate.onNext(Void())                    // 데이터 갱신 업데이트
                 return .just(.setBrCountLiat(list))
                 
             case .physicsSV:

@@ -39,19 +39,19 @@ class NewPetAddView: UIView {
     let maleSegmentController = UISegmentedControl(
         items: Male.allCases.map{$0.rawValue}
     ).then {
-        $0.removeBorder(nomal: .white, selected: .lightGreen, centerBoarderWidth: 0.5)
+        $0.removeBorder(nomal: .white, selected: .lightGreen, centerBoarderWidth: 0.2)
         $0.selectedSegmentIndex = 0
         $0.backgroundColor = .none
-        $0.addBorder(.black, 0.5)
+        $0.addBorder(.black, 0.2)
     }
     
     let sepicesSegmentController = UISegmentedControl(
         items: SpeciesType.allCases.map{$0.rawValue}
     ).then {
-        $0.removeBorder(nomal: .white, selected: .lightOrange, centerBoarderWidth: 0.5)
+        $0.removeBorder(nomal: .white, selected: .lightOrange, centerBoarderWidth: 0.2)
         $0.selectedSegmentIndex = 0
         $0.backgroundColor = .none
-        $0.addBorder(.black, 0.5)
+        $0.addBorder(.black, 0.2)
     }
     
     let datePicker = UIDatePicker().then {

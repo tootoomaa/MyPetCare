@@ -134,14 +134,6 @@ class StatisticsViewController: UIViewController, View {
             .map{Reactor.Action.loadInitialData}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        reactor.state.map{$0.charData}
-            .compactMap{$0}
-            .withUnretained(self)
-            .subscribe(onNext: { owner, data in
-//                let newData = data.filter{ $0.0.id == "B296C812-36AC-4869-B20F-B53C9F7C6093" }
-//                owner.statisticView.barChartView.setChart(dataPoints: [1,2,3,4,5], values: newData)
-            }).disposed(by: disposeBag)
 
         reactor.state.map{$0.selectedPet}
             .distinctUntilChanged()
@@ -156,11 +148,45 @@ class StatisticsViewController: UIViewController, View {
             .distinctUntilChanged { (filter1, filter2) -> Bool in
                 guard filter1.pet == filter2.pet else { return false }
                 guard filter1.measureData == filter2.measureData else { return false }
+                guard filter1.duration == filter2.duration else { return false }
                 return true
             }.subscribe(onNext: { [unowned self] filterOption in
                 
-                statisticView.statisticChartView.setChart(filterOption: filterOption)
+                guard let currentPetId = reactor.currentState.selectedPet?.id else { return }
                 
+                let brData = reactor.provider.dataBaseService
+                                    .loadPetBRLog(currentPetId)
+                                    .toArray()
+                                    .map{StatisticsBrData(brObj: $0)}
+                
+                let phyData = reactor.provider.dataBaseService
+                                     .loadPhysicsDataHistory(currentPetId)
+                                     .map{StatisticPhyData(phyObj: $0)}
+                
+                statisticView.statisticChartView.setChart(filterOption: filterOption,
+                                                          brData: brData,
+                                                          phyData: phyData)
+            }).disposed(by: disposeBag)
+        
+        reactor.state.map{$0.reloadChartTrigger}
+            .distinctUntilChanged()
+            .subscribe(onNext: { [unowned self] _ in
+                
+                guard let currentPetId = reactor.currentState.selectedPet?.id else { return }
+                let filterOption = reactor.currentState.filterOption
+                
+                let brData = reactor.provider.dataBaseService
+                                    .loadPetBRLog(currentPetId)
+                                    .toArray()
+                                    .map{StatisticsBrData(brObj: $0)}
+                
+                let phyData = reactor.provider.dataBaseService
+                                     .loadPhysicsDataHistory(currentPetId)
+                                     .map{StatisticPhyData(phyObj: $0)}
+                
+                statisticView.statisticChartView.setChart(filterOption: filterOption,
+                                                          brData: brData,
+                                                          phyData: phyData)
             }).disposed(by: disposeBag)
         
         // 기간 선택 segment 설정
@@ -235,7 +261,11 @@ class StatisticsViewController: UIViewController, View {
                                 $0.setTitleColor(.black, for: .normal)
                                 $0.setTitleColor(.white, for: .selected)
                                 $0.setBackgroundColor(color: .white, forState: .normal)
-                                $0.setBackgroundColor(color: .cViolet, forState: .selected)
+                                
+//                                case breathRate = "호흡수\n측정"
+//                                case weight = "체중\n측정"
+                                $0.setBackgroundColor(color: type == .breathRate ? .cViolet : .deepGreen,
+                                                      forState: .selected)
                                 $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
                                 $0.isSelected = true
                                 $0.addCornerRadius(20)

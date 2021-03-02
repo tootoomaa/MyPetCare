@@ -9,57 +9,87 @@ import Foundation
 
 class TimeUtil {
     
-    let format = DateFormatter().then {
-        $0.locale = Locale(identifier: "ko") // 로케일 변경
+    lazy var format = DateFormatter().then {
+        $0.locale = Locale(identifier: "ko_kr")
+        $0.timeZone = TimeZone(abbreviation: "KST")
     }
     
     let min = 60
     let sec = 60
     let hour = 24
-    let sevenDay = 7
-    let month = 30
+    let sevenDayCount = 7
+    let monthCount = 30
+    lazy var oneDayBySec = hour*min*sec
     
     enum PresentDateString: String{
         case hhmm = "HH:mm"
         case callHistoryCellStyle = "yyyy/MM/dd\nHH:mm:dd"
         case yymmdd = "yy.MM.dd"
+        case statisticyyMMdd = "yyyyMMdd"
+        
+        case yyyy = "yyyy"
+        case MM = "MM"
+        case dd = "dd"
     }
     
-    func getTimeString(_ type: PresentDateString, gmt: Int) -> String {
-        
-        let date = Date().timeIntervalSince1970 + TimeInterval(gmt/100*min*sec)
-        format.timeZone = TimeZone(secondsFromGMT:0)
-        format.dateFormat = type.rawValue
-        return format.string(from: Date(timeIntervalSince1970: date))
+    func getMonthAndDayString(date: Date) -> String {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.month, .day], from: date)
+        return "\(components.month ?? 0)\(components.day ?? 0)"
     }
     
     func getString(_ dateValue: Date, _ type: PresentDateString) -> String {
-        
-//        let date = Date().timeIntervalSince1970 + TimeInterval(gmt/100*min*sec)
-//        format.timeZone = TimeZone(secondsFromGMT:0)
         format.dateFormat = type.rawValue
         return format.string(from: dateValue)
-        
     }
     
+    /// 해당일로부터 weak, month 월+일 구하기
+    func getMonthAndDayString(type: Constants.duration) -> [String] {
+        
+        var tempTimeInterval: [String] = []
+        let currentDate = Date().timeIntervalSince1970
+        let calendar = Calendar.current
+        
+        
+        switch type {
+        case .weak:
+            for i in 0..<sevenDayCount {
+                let temp = currentDate - TimeInterval(i*oneDayBySec)
+                let newDate = Date(timeIntervalSince1970: temp)
+                let components = calendar.dateComponents([.month, .day], from: newDate)
+                tempTimeInterval.append("\(components.month ?? 0)\(components.day ?? 0)")
+            }
+        case .month:
+            for i in 0..<monthCount {
+                let temp = currentDate - TimeInterval(i*oneDayBySec)
+                let newDate = Date(timeIntervalSince1970: temp)
+                let components = calendar.dateComponents([.month, .day], from: newDate)
+                tempTimeInterval.append("\(components.month ?? 0)\(components.day ?? 0)")
+            }
+        }
+        
+        return tempTimeInterval.reversed()
+    }
+    
+    
     /// 요일 구하기
-    func getSevenDayStringByCurrentDay(type: Constants.duration) -> [String] {
+    func getDayStringByCurrentDay(type: Constants.duration) -> [String] {
      
         var tempTimeInterval: [Double] = []
         
-        let currnetDate = Date().timeIntervalSince1970
+        let currentDate = Date().timeIntervalSince1970
         format.dateFormat = "E"
         
         switch type {
         case .weak:
-            for i in 0..<sevenDay {
-                let temp = currnetDate - TimeInterval(i*hour*min*sec)
+            for i in 0..<sevenDayCount {
+                let temp = currentDate - TimeInterval(i*oneDayBySec)
                 tempTimeInterval.append(temp)
             }
             
         case .month:
-            for i in 0..<month {
-                let temp = currnetDate - TimeInterval(i*hour*min*sec)
+            for i in 0..<monthCount {
+                let temp = currentDate - TimeInterval(i*oneDayBySec)
                 tempTimeInterval.append(temp)
             }
         }
