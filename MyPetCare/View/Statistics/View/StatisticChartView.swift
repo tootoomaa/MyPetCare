@@ -12,14 +12,14 @@ import Charts
 class StatisticChartView: UIView {
     
     let brColor: UIColor = .cViolet
-    let wtColor: UIColor = .deepGreen
+    let wtColor: UIColor = .darkGreen
     
     // MARK: - Properties
     let durationString = ["주간","월간"]
     
     lazy var durationSegmentController = UISegmentedControl(items: durationString).then {
         $0.selectedSegmentIndex = 0
-        $0.removeBorder(nomal: .white, selected: .durationSelectColor, centerBoarderWidth: 0.2)
+        $0.removeBorder(nomal: .white, selected: UIColor(rgb: 0xdddddd), centerBoarderWidth: 0.2)
         $0.addBorder(.black, 0.2)
     }
     
@@ -101,32 +101,17 @@ class StatisticChartView: UIView {
         }
     }
     
-    func setChart(filterOption: FilterOptions, brData:[StatisticsBrData], phyData:[StatisticPhyData]) {
+    func setChart(filterOption: FilterOptions, resultBrList:[Int], resultPhyList:[Double]) {
         
-        var resultPhyList: [Double] = []                                                   // BR 이력 저장
-        var resultBrList: [Int] = []                                                    // BR 이력 저장
-        let indexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)    // 당일을 기준으로 7일간 월/일 추출
+        // 최대값 설정
+        let tempBrList = resultBrList
+        let tempPhyList = resultPhyList
         
-        indexlist.forEach { index in
-            /// 호흡수 데이터 추출 --------------------------------------- --------------------------------------- ---------------------------------------
-            let brCount = brData                              // 호흡수 측정 갯수
-                .filter{$0.dayIndex == index}
-                .count
-            let brSum = brData                              // BR 총합
-                .filter{$0.dayIndex == index}
-                .map{$0.resultBR}
-                .reduce(0, +)
-            resultBrList.append(brCount == 0 ? 0 : brSum/brCount)   // 일 평균 값 추출
-            /// Physics 데이터 추출 --------------------------------------- --------------------------------------- ---------------------------------------
-            let phyCount = phyData
-                .filter{$0.dayIndex == index}
-                .count
-            let phySum = phyData
-                .filter{$0.dayIndex == index}
-                .map{$0.weight}
-                .reduce(0.0, +)
-            resultPhyList.append(phyCount == 0 ? 0 : phySum/Double(phyCount))
-        }
+        let heighestLeftValue = Double(tempBrList.sorted().last ?? 50)
+        let heighestRightValue = Double(tempPhyList.sorted().last ?? 30)
+        let finalValue = heighestLeftValue > heighestRightValue ? heighestLeftValue : heighestRightValue
+        combinedChartView.leftAxis.axisMaximum = finalValue + 5     // top padding
+        combinedChartView.rightAxis.axisMaximum = finalValue + 5    // top padding
         
         // 요일 데이터 생성
         let dayValue: [String] = TimeUtil().getDayStringByCurrentDay(type: filterOption.duration)
@@ -149,6 +134,7 @@ class StatisticChartView: UIView {
                     .then {
                         $0.setColor(brColor, alpha: 1)
                         $0.highlightEnabled = false
+                        $0.valueTextColor = .orange
                     }
                 data.barData = BarChartData(dataSet: newDataSet).then {
                     $0.barWidth = 0.5
@@ -169,6 +155,7 @@ class StatisticChartView: UIView {
                         $0.circleRadius = 2.0
                         $0.circleHoleRadius = 2.0
                         $0.mode = .cubicBezier
+                        $0.valueTextColor = wtColor
                     }
                 data.lineData = LineChartData(dataSet: newDataSet)
             }

@@ -9,13 +9,6 @@ import Foundation
 
 struct StatisticPhyData {
     
-    /*
-     /    @objc dynamic var id: String?
-     @objc dynamic var petId: String?
-     @objc dynamic var createDate: Date?
-     @objc dynamic var weight: Double = 0.0
-     */
-    
     var id: String!
     var petId: String!
     var createDate: Date!

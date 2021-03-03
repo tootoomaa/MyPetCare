@@ -15,6 +15,9 @@ struct StatisticsBrData {
     var dayIndex: String!
     var resultBR: Int!
     
+    var originalBR: Int!
+    var userSettingTime: Int!
+
     init(brObj: BRObject) {
         
         if let id = brObj.id {
@@ -31,6 +34,7 @@ struct StatisticsBrData {
         }
         
         self.resultBR = brObj.resultBR
-        
+        self.originalBR = brObj.originalBR
+        self.userSettingTime = brObj.userSettingTime
     }
 }

@@ -122,7 +122,7 @@ class StatisticsViewReactor: Reactor {
     // MARK: - Transform
     func transform(mutation: Observable<Mutation>) -> Observable<Mutation> {
         return Observable.merge([mutation,
-                                 GlobalState.MeasureDataUpdate
+                                 GlobalState.MeasureDataUpdateAndChartReload
                                     .map{Mutation.reloadChartData(!self.currentState.reloadChartTrigger)}
         ])
     }

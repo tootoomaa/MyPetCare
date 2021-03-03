@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import ReactorKit
+import RxGesture
 
 class StatisticsViewController: UIViewController, View {
     
@@ -145,6 +146,7 @@ class StatisticsViewController: UIViewController, View {
             }).disposed(by: disposeBag)
         
         reactor.state.map{$0.filterOption}
+            .observe(on: MainScheduler.asyncInstance)
             .distinctUntilChanged { (filter1, filter2) -> Bool in
                 guard filter1.pet == filter2.pet else { return false }
                 guard filter1.measureData == filter2.measureData else { return false }
@@ -152,41 +154,18 @@ class StatisticsViewController: UIViewController, View {
                 return true
             }.subscribe(onNext: { [unowned self] filterOption in
                 
-                guard let currentPetId = reactor.currentState.selectedPet?.id else { return }
+                configureChart(filterOption, reactor)
                 
-                let brData = reactor.provider.dataBaseService
-                                    .loadPetBRLog(currentPetId)
-                                    .toArray()
-                                    .map{StatisticsBrData(brObj: $0)}
-                
-                let phyData = reactor.provider.dataBaseService
-                                     .loadPhysicsDataHistory(currentPetId)
-                                     .map{StatisticPhyData(phyObj: $0)}
-                
-                statisticView.statisticChartView.setChart(filterOption: filterOption,
-                                                          brData: brData,
-                                                          phyData: phyData)
             }).disposed(by: disposeBag)
         
+        // 데이터 변경에 따른 차트 재설정
         reactor.state.map{$0.reloadChartTrigger}
+            .observe(on: MainScheduler.asyncInstance)
             .distinctUntilChanged()
             .subscribe(onNext: { [unowned self] _ in
                 
-                guard let currentPetId = reactor.currentState.selectedPet?.id else { return }
-                let filterOption = reactor.currentState.filterOption
+                configureChart(reactor.currentState.filterOption, reactor)
                 
-                let brData = reactor.provider.dataBaseService
-                                    .loadPetBRLog(currentPetId)
-                                    .toArray()
-                                    .map{StatisticsBrData(brObj: $0)}
-                
-                let phyData = reactor.provider.dataBaseService
-                                     .loadPhysicsDataHistory(currentPetId)
-                                     .map{StatisticPhyData(phyObj: $0)}
-                
-                statisticView.statisticChartView.setChart(filterOption: filterOption,
-                                                          brData: brData,
-                                                          phyData: phyData)
             }).disposed(by: disposeBag)
         
         // 기간 선택 segment 설정
@@ -264,7 +243,7 @@ class StatisticsViewController: UIViewController, View {
                                 
 //                                case breathRate = "호흡수\n측정"
 //                                case weight = "체중\n측정"
-                                $0.setBackgroundColor(color: type == .breathRate ? .cViolet : .deepGreen,
+                                $0.setBackgroundColor(color: type == .breathRate ? .cViolet : .darkGreen,
                                                       forState: .selected)
                                 $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
                                 $0.isSelected = true
@@ -301,4 +280,52 @@ class StatisticsViewController: UIViewController, View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
+    
+    // MARK: - Chart handler
+    private func configureChart(_ filterOption: FilterOptions,
+                                _ reactor: StatisticsViewReactor) {
+        
+        guard let currentPetId = reactor.currentState.selectedPet?.id else { return }
+        
+        let brData = reactor.provider.dataBaseService
+                            .loadPetBRLog(currentPetId)
+                            .toArray()
+                            .map{StatisticsBrData(brObj: $0)}
+        
+        let phyData = reactor.provider.dataBaseService
+                             .loadPhysicsDataHistory(currentPetId)
+                             .map{StatisticPhyData(phyObj: $0)}
+        
+        var resultBrList: [Int] = []               // BR 이력 저장
+        var resultPhyList: [Double] = []           // BR 이력 저장
+        // 당일을 기준으로 7일간 월/일 추출
+        let indexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)
+        
+        // 데이터 생성 부분
+        indexlist.forEach { index in
+            /// 호흡수 데이터 추출 --------------------------------------- -------------------------------------
+            let brCount = brData                                    // 호흡수 측정 갯수
+                .filter{$0.dayIndex == index}
+                .count
+            let brSum = brData                                      // BR 총합
+                .filter{$0.dayIndex == index}
+                .map{$0.resultBR}
+                .reduce(0, +)
+            resultBrList.append(brCount == 0 ? 0 : brSum/brCount)   // 일 평균 값 추출
+            /// Physics 데이터 추출 --------------------------------------- ------------------------------------
+            let phyCount = phyData
+                .filter{$0.dayIndex == index}
+                .count
+            let phySum = phyData
+                .filter{$0.dayIndex == index}
+                .map{$0.weight}
+                .reduce(0.0, +)
+            resultPhyList.append(phyCount == 0 ? 0 : phySum/Double(phyCount))
+        }
+        
+        statisticView.statisticChartView.setChart(filterOption: filterOption,
+                                                  resultBrList: resultBrList,
+                                                  resultPhyList: resultPhyList)
+    }
 }
+
