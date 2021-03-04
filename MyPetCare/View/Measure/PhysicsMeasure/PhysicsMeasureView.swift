@@ -13,6 +13,8 @@ class PhysicsMeasureView: UIView {
     let padding: CGFloat = 8
     
     // MARK: - Properties
+    var measureType: MeasureServiceType
+    
     var petImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 20
@@ -47,8 +49,8 @@ class PhysicsMeasureView: UIView {
         $0.addCornerRadius(20)
     }
     
-    let weightTitleLabel = UILabel().then {
-        $0.text = "체중"
+    lazy var weightTitleLabel = UILabel().then {
+        $0.text = measureType == .weight ? "체중" : "호흡수"
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 40)
     }
     
@@ -62,14 +64,15 @@ class PhysicsMeasureView: UIView {
         $0.adjustsFontSizeToFitWidth = true
     }
     
-    let weightValueLabel = UILabel().then {
-        $0.text = "kg"
+    lazy var weightValueLabel = UILabel().then {
+        $0.text = measureType == .weight ? "kg" : "회"
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 30)
     }
     
     // MARK: - Init
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(type: MeasureServiceType) {
+        self.measureType = type
+        super.init(frame: .zero)
         
         backgroundColor = .hrMeasureBottomViewColor
         

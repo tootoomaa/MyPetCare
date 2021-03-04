@@ -158,6 +158,9 @@ class StatisticChartView: UIView {
                         $0.valueTextColor = wtColor
                     }
                 data.lineData = LineChartData(dataSet: newDataSet)
+                
+            case .breathRateInput:
+                break
             }
         }
         

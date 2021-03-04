@@ -14,11 +14,22 @@ class PhysicsMeasureViewController: UIViewController, View {
     // MARK: - Properties
     var disposeBag: DisposeBag = DisposeBag()
     
-    let mainView = PhysicsMeasureView()
+    var measureType: MeasureServiceType
+    
+    lazy var mainView = PhysicsMeasureView(type: self.measureType)
     
     let closeNanviButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: nil, action: nil)
     
     // MARK: - Life Cycle
+    init(type: MeasureServiceType) {
+        self.measureType = type
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func loadView() {
         view = mainView
     }
@@ -36,7 +47,10 @@ class PhysicsMeasureViewController: UIViewController, View {
     private func configureNavigation() {
         
         navigationController?.configureNavigationBarAppearance(.hrMeasureBottomViewColor)
-        navigationItem.title = "체중/키 측정"
+        navigationItem.title = measureType
+                                    .rawValue
+                                    .components(separatedBy: .newlines)
+                                    .joined(separator: " ")
         
         closeNanviButton.rx.tap
             .subscribe(onNext: { [unowned self] in
@@ -103,7 +117,8 @@ class PhysicsMeasureViewController: UIViewController, View {
                 
                 mainView.petImageView.image = UIImage(data: $0.image!)
                 mainView.petName.text = $0.name
-                mainView.petMaleImageView.image = UIImage(named: $0.male ?? "boy" )
+                let image = Male(rawValue: $0.male!)?.getPetMaleImage
+                mainView.petMaleImageView.image = image
                 mainView.petAge.text = "\($0.age) yrs"
                 
             }).disposed(by: disposeBag)
@@ -132,13 +147,17 @@ class PhysicsMeasureViewController: UIViewController, View {
         }
         
         // 소수점 2자리 까지 변경
-        let weightTwoDown = round(weight*10)/10
+        let measureData = round(weight*10)/10
         
         let alertC = UIAlertController(title: "저장", message: "변경 사항을 저장하시겠습니까?", preferredStyle: .actionSheet)
         
         let saveAction = UIAlertAction(title: "변경 사항저장", style: .default) { [unowned self]  _ in
             
-            reactor.action.onNext(.savePhysicsData(weightTwoDown))
+            if measureType == .weight {
+                reactor.action.onNext(.savePhysicsData(measureData))
+            } else {
+                reactor.action.onNext(.saveBRCount(measureData))
+            }
             GlobalState.lastDateUpdate.onNext(Void())
             self.dismiss(animated: true, completion: nil)
         }

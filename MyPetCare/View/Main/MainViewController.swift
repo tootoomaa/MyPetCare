@@ -60,6 +60,7 @@ class MainViewController: UIViewController, View {
         _ = serviceCollectionView.then {
             $0.delegate = servicelayout
             $0.backgroundColor = .none
+            $0.showsHorizontalScrollIndicator = false
             $0.register(MeasureServiceCell.self,
                          forCellWithReuseIdentifier: MeasureServiceCell.identifier)
         }
@@ -358,8 +359,8 @@ class MainViewController: UIViewController, View {
                     naviC.modalPresentationStyle = .overFullScreen
                     self.present(naviC, animated: true, completion: nil)
                     
-                case .weight:
-                    let physicsMeasureVC = PhysicsMeasureViewController()
+                case .breathRateInput, .weight:
+                    let physicsMeasureVC = PhysicsMeasureViewController(type: serviceType)
                     physicsMeasureVC.reactor = MeasureViewReactor(
                                                     selectedPat: self.selectedPet,
                                                     provider: reactor.provider)

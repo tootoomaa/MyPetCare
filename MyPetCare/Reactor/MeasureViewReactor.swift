@@ -27,7 +27,8 @@ class MeasureViewReactor: Reactor {
         case resetState
         case saveBRResult
         // PhysicsMeasureViewContoller
-        case savePhysicsData(Double)
+        case savePhysicsData(Double)                // 몸무게 저장
+        case saveBRCount(Double)                    // 측정값 
         // MeasureDetailViewController
         case loadBrCountData
         case loadPhysicsData

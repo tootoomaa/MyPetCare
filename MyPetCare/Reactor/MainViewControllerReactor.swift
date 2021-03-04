@@ -12,6 +12,7 @@ import RxCocoa
 
 enum MeasureServiceType: String, CaseIterable {
     case breathRate = "호흡수\n측정"
+    case breathRateInput = "호흡수\n수동 입력"
     case weight = "체중\n측정"
 }
 
