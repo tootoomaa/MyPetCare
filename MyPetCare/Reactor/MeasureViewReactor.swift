@@ -25,10 +25,11 @@ class MeasureViewReactor: Reactor {
         case countNumberSet(Int)
         case plusBRCount
         case resetState
+        case setPetState(Bool)
         case saveBRResult
         // PhysicsMeasureViewContoller
         case savePhysicsData(Double)                // 몸무게 저장
-        case saveBRCount(Double)                    // 측정값 
+        case saveBRCount(Double)                    // 측정값
         // MeasureDetailViewController
         case loadBrCountData
         case loadPhysicsData
@@ -42,6 +43,7 @@ class MeasureViewReactor: Reactor {
         case setCountDownLabelText(String?)         // 카운트 다운 텍스트
         case setCountDownNumber(Int)                // 카운트 다운 숫자
         case plusBRCount                            // 호흡수 측정값
+        case setPetState(Bool)                      // 펫 상태값, 기본 <-> 수면
         case resetBRCount                           // 호흡수 측정값 초기화
         case saveCompleteAndDismiss                 // 저장 완료 및 dismiss
         // MeasureDetailVC
@@ -57,6 +59,7 @@ class MeasureViewReactor: Reactor {
         var countDownLabelText: String?             // Count Down Label
         var countTimeNumber: Int                    // Count Down Time
         var brCount: Int                            // 호흡수 측정값
+        var petState: Bool
         var saveCompleteAndDismiss: Bool?           // 저장 완료 및 dismiss
         // MeasureDetailVC
         var brCountHistory: [BRObject]
@@ -83,6 +86,16 @@ class MeasureViewReactor: Reactor {
         return (currentState.brCount, currentState.selectedMeatureTime)
     }
     
+    var petState: Bool {
+        return currentState.petState
+    }
+    
+    var currentPetState: String {
+        return currentState.petState
+                    ? PetState.sleep.rawValue
+                    : PetState.nomal.rawValue
+    }
+    
     init(selectedPat: PetObject, provider: ServiceProviderType) {
         self.provider = provider
         self.selectedPet = selectedPat
@@ -92,6 +105,7 @@ class MeasureViewReactor: Reactor {
                              countDownLabelText: nil,
                              countTimeNumber: 0,
                              brCount: 0,
+                             petState: false,
                              saveCompleteAndDismiss: nil,
                              brCountHistory: [],
                              physicsHistory: [])
@@ -129,18 +143,26 @@ class MeasureViewReactor: Reactor {
                 $0.originalBR = currentState.brCount
                 $0.resultBR = resultBRCount
                 $0.userSettingTime = currentState.selectedMeatureTime
+                $0.petState = currentPetState
             }
+            
             provider.dataBaseService.add(bpObject)
             
             // Last Data Save
             let lastData = provider.dataBaseService
                             .loadLastData(currentState.selectedPet.id!)
                             .toArray()
+            
             provider.dataBaseService.write {
                 lastData.first!.resultBR = resultBRCount
+                lastData.first!.petState = currentPetState
             }
+            
             GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())                    // 데이터 갱신 업데이트
             return .just(.saveCompleteAndDismiss)
+            
+        case .setPetState(let state):
+            return .just(.setPetState(state))
             
         case .savePhysicsData(let weight): // 키 몸무게 저장 로직
             
@@ -164,6 +186,34 @@ class MeasureViewReactor: Reactor {
             }
             provider.dataBaseService.add(newPhysicObj)
             GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())                    // 데이터 갱신 업데이트
+            return .empty()
+            
+        // 펫 수동 측정 데이터 저장 로직 1분 기준
+        case .saveBRCount(let brCount):
+            
+            // Save Measured Breath Rate
+            let bpObject = BRObject().then {
+                $0.id = UUID().uuidString
+                $0.petId = currentState.selectedPet.id
+                $0.createDate = Date()
+                $0.originalBR = Int(brCount/60)
+                $0.resultBR = Int(brCount)
+                $0.userSettingTime = 60
+                $0.petState = currentPetState
+            }
+            provider.dataBaseService.add(bpObject)
+
+            // Last Data Save
+            let lastData = provider.dataBaseService
+                            .loadLastData(currentState.selectedPet.id!)
+                            .toArray()
+            
+            provider.dataBaseService.write {
+                lastData.first!.resultBR = Int(brCount)
+                lastData.first!.petState = currentPetState
+            }
+            
+            GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
             return .empty()
             
         case .loadBrCountData:
@@ -236,6 +286,9 @@ class MeasureViewReactor: Reactor {
             
         case .resetBRCount:
             newState.brCount = 0
+            
+        case .setPetState(let state):
+            newState.petState = state
             
         case .saveCompleteAndDismiss:
             newState.saveCompleteAndDismiss = true

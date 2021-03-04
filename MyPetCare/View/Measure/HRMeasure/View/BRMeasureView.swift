@@ -80,6 +80,13 @@ class BRMeasureView: UIView {
         $0.text = "시간 설정"
     }
     
+    let petStateButton = UISwitch()
+    
+    let petStateLabel = UILabel().then {
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 15)
+        $0.textAlignment = .right
+    }
+    
     let secondSegmentController = UISegmentedControl(items: ["10초", "20초", "30초", "60초"]).then {
         $0.removeBorder(nomal: .white, selected: .lightGreen, centerBoarderWidth: 1)
         $0.selectedSegmentIndex = 0
@@ -150,6 +157,7 @@ class BRMeasureView: UIView {
         [hrMeasureView, howToMeasureButton,
          petMaleImageView, petName, petAge, paddingLabel, petImageView,
          timeSettingView,               // For time Selecte View -> Change
+         timeSettingLabel, petStateLabel, petStateButton, secondSegmentController,
          countDownView,                 // For Count Down View ---> Change
          cancelButton, startButton, measureButton,      // Button
          resultView,                                    // 측정 결과
@@ -204,17 +212,23 @@ class BRMeasureView: UIView {
             $0.height.equalTo(80)
         }
         
-//        [].forEach {
-//            timeSettingView.addSubview($0)
-//        }
-        addSubview(timeSettingLabel)
         timeSettingLabel.snp.makeConstraints {
             $0.top.equalTo(petImageView.snp.bottom).offset(padding*2)
             $0.leading.equalTo(safeGuide).offset(padding*2)
             $0.trailing.equalTo(safeGuide).offset(-padding*2)
         }
         
-        addSubview(secondSegmentController)
+        petStateButton.snp.makeConstraints {
+            $0.trailing.equalTo(safeGuide).offset(-padding*2)
+            $0.centerY.equalTo(timeSettingLabel)
+            $0.height.equalTo(timeSettingLabel)
+        }
+        
+        petStateLabel.snp.makeConstraints {
+            $0.trailing.equalTo(petStateButton.snp.leading).offset(-padding-3)
+            $0.centerY.equalTo(timeSettingLabel)
+        }
+        
         secondSegmentController.snp.makeConstraints {
             $0.top.equalTo(timeSettingLabel.snp.bottom).offset(padding)
             $0.leading.equalTo(safeGuide).offset(padding*2)
@@ -327,9 +341,10 @@ class BRMeasureView: UIView {
         }
     }
     
-    func finishViewSetupWithAnimation(_ brCount: Int, _ measureValueByData: (Int,Int)) {
+    func finishViewSetupWithAnimation(_ brCount: Int, _ measureValueByData: (Int,Int), _ petState: Bool) {
         resultView.brNumber = brCount
         resultView.measureValueByData = measureValueByData
+        resultView.petState = petState
         UIView.animate(withDuration: 0.5) {
             self.resultView.alpha = 1
         }

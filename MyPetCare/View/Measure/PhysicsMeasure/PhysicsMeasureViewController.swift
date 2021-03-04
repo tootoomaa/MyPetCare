@@ -103,7 +103,7 @@ class PhysicsMeasureViewController: UIViewController, View {
                 self.saveAlertController()
             }).disposed(by: disposeBag)
         
-        keyboardToolbar.items = [dot, flexBarButton, done]
+        keyboardToolbar.items = measureType == .weight ? [dot, flexBarButton, done] : [flexBarButton, done]
         textField.inputAccessoryView = keyboardToolbar
     }
     
@@ -123,12 +123,24 @@ class PhysicsMeasureViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
+        reactor.state.map{$0.petState}
+            .distinctUntilChanged()
+            .map{$0 == true ? "수면 on" : "수면 off" }
+            .bind(to: mainView.petStateLabel.rx.text)
+            .disposed(by: disposeBag)
+        
         // weightTextFeild Return 입력 종료 시 edit 종료 및 데이터 저장여부 검증
         mainView.weightTextField.rx.controlEvent(.editingDidEndOnExit)
             .observe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [unowned self] in
                 saveAlertController()
             }).disposed(by: disposeBag)
+        
+        // 사용자 펫 수면 여부 체크 스위치
+        mainView.petStateButton.rx.isOn
+            .map{Reactor.Action.setPetState($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     private func saveAlertController() {

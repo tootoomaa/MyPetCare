@@ -32,10 +32,23 @@ class BPMeasureResultView: UIView {
         }
     }
     
+    var petState: Bool = false {
+        didSet {
+            guard petState else { return }
+            self.petStateLabel.text = "휴식상태"
+        }
+    }
+    
     // MARK: - Properties
     let measureInfoLabel = UILabel().then {
         $0.text = "평균 심박수"
         $0.font = UIFont.dynamicFont(name: "Cafe24Syongsyong", size: 25)
+        $0.textAlignment = .center
+    }
+    
+    let petStateLabel = UILabel().then {
+        $0.font = UIFont.dynamicFont(name: "Cafe24Syongsyong", size: 15)
+        $0.textColor = .systemGray2
         $0.textAlignment = .center
     }
     
@@ -106,7 +119,7 @@ class BPMeasureResultView: UIView {
     
     private func configureLayout() {
         
-        [measureInfoLabel, measureInfoValueLabel,
+        [measureInfoLabel, petStateLabel, measureInfoValueLabel,
          detailMeasureInfoValueLabel,
          guideInfoLabel,
          cancelButton, saveButton].forEach {
@@ -116,6 +129,11 @@ class BPMeasureResultView: UIView {
         measureInfoLabel.snp.makeConstraints {
             $0.top.equalToSuperview().offset(padding*4)
             $0.leading.equalToSuperview().offset(padding*2)
+        }
+        
+        petStateLabel.snp.makeConstraints {
+            $0.top.equalTo(measureInfoLabel.snp.bottom)
+            $0.centerX.equalTo(measureInfoLabel)
         }
         
         measureInfoValueLabel.snp.makeConstraints {

@@ -13,6 +13,7 @@ class LastMeasureObject: Object {
     @objc dynamic var petId: String?
     @objc dynamic var resultBR: Int = 0
     @objc dynamic var weight: Double = 0.0
+    @objc dynamic var petState: PetState.RawValue = "기본"
     
     override static func primaryKey() -> String? {
         return "petId"
