@@ -35,7 +35,7 @@ class BPMeasureResultView: UIView {
     var petState: Bool = false {
         didSet {
             guard petState else { return }
-            self.petStateLabel.text = "휴식상태"
+            self.petStateLabel.text = "수면 상태"
         }
     }
     

@@ -34,6 +34,15 @@ class MeasureDetailTableViewCell: UITableViewCell {
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
     }
     
+    let petStateLabel = UILabel().then {
+        $0.backgroundColor = .systemGray2
+        $0.text = "수면"
+        $0.textColor = .white
+        $0.addCornerRadius(4)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
+        $0.isHidden = true
+    }
+    
     let bottomView = UIView().then {
         $0.backgroundColor = .systemGray2
     }
@@ -45,26 +54,11 @@ class MeasureDetailTableViewCell: UITableViewCell {
         
         selectionStyle = .none
         backgroundColor = .white
-        
-//        configureContentView()
-        
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-//    private func configureContentView() {
-//        _ = contentView.then {
-//            $0.backgroundColor = .systemGray6
-//            $0.addCornerRadius(20)
-//            $0.addBorder(.systemGray4, 0.5)
-//            $0.snp.makeConstraints {
-//                $0.top.leading.trailing.equalToSuperview()
-//                $0.height.equalTo(120)
-//            }
-//        }
-//    }
     
     // MARK: - Configure BRObject UI
     func configureLaytoutWithBRObject(data: BRObject) {
@@ -78,12 +72,15 @@ class MeasureDetailTableViewCell: UITableViewCell {
         mainValueLabel.text = "\(data.resultBR)회/분"
         valueLabel.text = "\(data.originalBR)회/\(data.userSettingTime)초"
         
+        if data.petState == PetState.sleep.rawValue {
+            petStateLabel.isHidden = false              // 수면 상태일 때 보여줌
+        }
     }
     
     private func configureBROBbjectLayout() {
         [dateLabel, detailDateLabel,
          mainValueLabel, valueLabel,
-         bottomView].forEach {
+         petStateLabel, bottomView].forEach {
             contentView.addSubview($0)
         }
         
@@ -105,6 +102,11 @@ class MeasureDetailTableViewCell: UITableViewCell {
         valueLabel.snp.makeConstraints {
             $0.top.equalTo(mainValueLabel.snp.bottom)
             $0.centerX.equalTo(mainValueLabel)
+        }
+        
+        petStateLabel.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.trailing.equalToSuperview().offset(-120)
         }
         
         bottomView.snp.makeConstraints {
@@ -149,5 +151,12 @@ class MeasureDetailTableViewCell: UITableViewCell {
             $0.leading.trailing.bottom.equalToSuperview()
             $0.height.equalTo(1)
         }
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        self.petStateLabel.isHidden = true
+        
     }
 }

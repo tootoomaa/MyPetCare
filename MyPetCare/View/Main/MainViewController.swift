@@ -212,6 +212,7 @@ class MainViewController: UIViewController, View {
                     $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
                     let resultBR = lastData == nil ? " - 회/분" : "\(lastData?.resultBR ?? 0)회/분"
                     $0.valeuLabel.text = "\(resultBR)"
+                    $0.petStateLabel.isHidden = (lastData?.petState == PetState.nomal.rawValue)
                     $0.showMoreButton.rx.tap
                         .subscribe(on: MainScheduler.asyncInstance)
                         .subscribe(onNext: {
