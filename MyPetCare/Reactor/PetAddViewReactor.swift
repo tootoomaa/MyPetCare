@@ -105,6 +105,7 @@ class PetAddViewReactor: Reactor {
                 }
                 provider.dataBaseService.add(lastMeasureObj)
                 GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
+                
             } else {
                 // 기존 펫 수정 - uuid, createTime 수정하면 안됨
                 provider.dataBaseService.write {
@@ -115,6 +116,7 @@ class PetAddViewReactor: Reactor {
                     beforePetObj.age = calendar.component(.year, from: Date()) - calendar.component(.year, from: currentState.birthDay)
                     beforePetObj.image = currentState.petImageData
                 }
+                GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
             }
             return .just(.isComplete(true))
         }

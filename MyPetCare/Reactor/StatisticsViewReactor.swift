@@ -28,6 +28,7 @@ class StatisticsViewReactor: Reactor {
     }
     
     enum Mutation {
+        case resetState
         case setSelectPetIndex(Int)                         // 펫 선택 인덱스
         case setPetObjectList([PetObject])                  // 펫 리스트 저장
         case setSelectedPet(PetObject)                      // [필터] 펫 설정
@@ -95,7 +96,7 @@ class StatisticsViewReactor: Reactor {
                         .sorted(by: { $0.createDate! < $1.createDate!})
             
             guard !petList.isEmpty else {
-                return .just(.setSelectedPet(PetObject()))
+                return .just(.resetState)
             }
             
             petList.compactMap{$0.id}
@@ -173,6 +174,9 @@ class StatisticsViewReactor: Reactor {
         var newState = state
         
         switch mutation {
+        case .resetState:
+            newState = initialState
+        
         case .setSelectPetIndex(let index):
             newState.selectIndex = index
         

@@ -138,8 +138,14 @@ class StatisticsViewController: UIViewController, View {
 
         reactor.state.map{$0.selectedPet}
             .distinctUntilChanged()
+            .do(onNext: {
+                if $0 == nil {
+                    self.selectedPetName.text = ""
+                    self.selectedPetMaleImageView.image = UIImage()
+                    self.selectPetImageView.image = UIImage()
+                }
+            })
             .compactMap{$0}
-            .filter{$0.createDate != nil}
             .subscribe(onNext: {
                 self.selectedPetName.text = $0.name
                 self.selectPetImageView.image = UIImage(data: $0.image!)
