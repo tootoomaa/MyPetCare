@@ -13,6 +13,6 @@ class GlobalState {
     
     static let lastDateUpdate = PublishSubject<Void>()
     
-    static let MeasureDataUpdate = PublishSubject<Void>()
+    static let MeasureDataUpdateAndChartReload = PublishSubject<Void>()
     
 }

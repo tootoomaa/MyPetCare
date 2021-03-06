@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import ReactorKit
+import RxGesture
 
 class StatisticsViewController: UIViewController, View {
     
@@ -138,55 +139,52 @@ class StatisticsViewController: UIViewController, View {
         reactor.state.map{$0.selectedPet}
             .distinctUntilChanged()
             .compactMap{$0}
+            .filter{$0.createDate != nil}
             .subscribe(onNext: {
                 self.selectedPetName.text = $0.name
-                self.selectPetImageView.image = UIImage(data: $0.image ?? UIImage().pngData()!)
+                self.selectPetImageView.image = UIImage(data: $0.image!)
                 self.selectedPetMaleImageView.image = Male(rawValue: $0.male!)?.getPetMaleImage
             }).disposed(by: disposeBag)
         
+        
+        // 필터 옵션 변경에 따른 차트 재설정
         reactor.state.map{$0.filterOption}
+            .observe(on: MainScheduler.asyncInstance)
             .distinctUntilChanged { (filter1, filter2) -> Bool in
                 guard filter1.pet == filter2.pet else { return false }
                 guard filter1.measureData == filter2.measureData else { return false }
                 guard filter1.duration == filter2.duration else { return false }
-                return true
-            }.subscribe(onNext: { [unowned self] filterOption in
+                return true}
+            .map{ _ in Reactor.Action.reloadChart}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 데이터 변경에 따른 차트 재설정
+        reactor.state.map{$0.reloadChartTrigger}
+            .observe(on: MainScheduler.asyncInstance)
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
                 
-                guard let currentPetId = reactor.currentState.selectedPet?.id else { return }
+                owner.configureChart(reactor.currentState.filterOption,
+                                     reactor.currentState.normalBrChartData,
+                                     reactor.currentState.sleepBrChartData,
+                                     reactor.currentState.phyData)
                 
-                let brData = reactor.provider.dataBaseService
-                                    .loadPetBRLog(currentPetId)
-                                    .toArray()
-                                    .map{StatisticsBrData(brObj: $0)}
-                
-                let phyData = reactor.provider.dataBaseService
-                                     .loadPhysicsDataHistory(currentPetId)
-                                     .map{StatisticPhyData(phyObj: $0)}
-                
-                statisticView.statisticChartView.setChart(filterOption: filterOption,
-                                                          brData: brData,
-                                                          phyData: phyData)
             }).disposed(by: disposeBag)
         
-        reactor.state.map{$0.reloadChartTrigger}
+        // 데이터 변경에 따른 차트 재설정
+        reactor.state.map{$0.selectIndex}
+            .observe(on: MainScheduler.asyncInstance)
             .distinctUntilChanged()
-            .subscribe(onNext: { [unowned self] _ in
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
                 
-                guard let currentPetId = reactor.currentState.selectedPet?.id else { return }
-                let filterOption = reactor.currentState.filterOption
+                owner.configureChart(reactor.currentState.filterOption,
+                                     reactor.currentState.normalBrChartData,
+                                     reactor.currentState.sleepBrChartData,
+                                     reactor.currentState.phyData)
                 
-                let brData = reactor.provider.dataBaseService
-                                    .loadPetBRLog(currentPetId)
-                                    .toArray()
-                                    .map{StatisticsBrData(brObj: $0)}
-                
-                let phyData = reactor.provider.dataBaseService
-                                     .loadPhysicsDataHistory(currentPetId)
-                                     .map{StatisticPhyData(phyObj: $0)}
-                
-                statisticView.statisticChartView.setChart(filterOption: filterOption,
-                                                          brData: brData,
-                                                          phyData: phyData)
             }).disposed(by: disposeBag)
         
         // 기간 선택 segment 설정
@@ -202,13 +200,11 @@ class StatisticsViewController: UIViewController, View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        // 필터 버튼 선택
         charDataFilteringButton.rx.tap
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-                let beforeAlpa = owner.statisticView.filterOptionTableView.alpha
-                UIView.animate(withDuration: 0.5) {
-                    owner.statisticView.filterOptionTableView.alpha = beforeAlpa == 1 ? 0 : 1
-                }
+                owner.statisticView.filterOptionShowAnimation()
             }).disposed(by: disposeBag)
         
         // MARK: - Filter Option TableView
@@ -231,7 +227,7 @@ class StatisticsViewController: UIViewController, View {
                             
                             cell.configureCell(petObj: petData)
                             
-                            // 첫 셀은 무조건 선택 되도록
+                            // 펫 데이터가 있으면 첫 펫은 무조건 선택 되도록
                             if reactor.currentState.selectedPet == petData {
                                 cell.isSelected = true
                                 let initialIndexPath = IndexPath(item: 0, section: 0)
@@ -257,14 +253,11 @@ class StatisticsViewController: UIViewController, View {
                             
                             let button = UIButton().then {
                                 cell.contentView.addSubview($0)
-                                $0.setTitle(type.rawValue, for: .normal)
+                                $0.setTitle(type.getTitle(), for: .normal)
                                 $0.setTitleColor(.black, for: .normal)
                                 $0.setTitleColor(.white, for: .selected)
                                 $0.setBackgroundColor(color: .white, forState: .normal)
-                                
-//                                case breathRate = "호흡수\n측정"
-//                                case weight = "체중\n측정"
-                                $0.setBackgroundColor(color: type == .breathRate ? .cViolet : .deepGreen,
+                                $0.setBackgroundColor(color: type.getColor(),
                                                       forState: .selected)
                                 $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
                                 $0.isSelected = true
@@ -289,7 +282,7 @@ class StatisticsViewController: UIViewController, View {
                         $0.leading.equalToSuperview().offset(20)
                         $0.trailing.equalToSuperview().inset(20)
                         $0.bottom.equalToSuperview().offset(-10)
-                        $0.height.equalTo(40)
+                        $0.height.equalTo(50)
                     }
                 }
                 
@@ -300,5 +293,69 @@ class StatisticsViewController: UIViewController, View {
             .map{Reactor.Action.setSelectedPet($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        statisticView.dismiaView.rx.tapGesture()
+            .skip(1)                                            // 최초 1회 bind 시 실행 차단
+            .withUnretained(self)
+            .subscribe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { owner, _ in
+                owner.statisticView.filterOptionShowAnimation()
+            }).disposed(by: disposeBag)
+        
+    }
+    
+    // MARK: - Chart handler
+    private func configureChart(_ filterOption: FilterOptions,
+                                _ normalBrData: [StatisticsBrData],
+                                _ sleepBrData: [StatisticsBrData],
+                                _ phyData: [StatisticPhyData]) {
+        
+        var resultNormalBrList: [Int] = []               // 휴식 BR 이력 저장
+        var resultSleepBrList: [Int] = []                // 수면 Br 이력 저장
+        var resultPhyList: [Double] = []                 // Phy 이력 저장
+        
+        // 당일을 기준으로 [1달/7일]데이터 추출
+        let indexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)
+        
+        // 데이터 생성 부분
+        indexlist.forEach { index in
+            /// 일반 호흡수 데이터 추출 --------------------------------------- -------------------------------------
+            let normalBrCount = normalBrData                                    // 호흡수 측정 갯수
+                .filter{$0.dayIndex == index}
+                .count
+            let normalBrSum = normalBrData                                      // BR 총합
+                .filter{$0.dayIndex == index}
+                .map{$0.resultBR}
+                .reduce(0, +)
+            // 일 평균 값 추출, 0 나누기 방지
+            resultNormalBrList.append(normalBrCount == 0 ? 0 : normalBrSum/normalBrCount)
+            
+            /// 수면 호흡수 데이터 추출 --------------------------------------- -------------------------------------
+            let sleepBrCount = sleepBrData                                    // 호흡수 측정 갯수
+                .filter{$0.dayIndex == index}
+                .count
+            let sleepBrSum = sleepBrData                                      // BR 총합
+                .filter{$0.dayIndex == index}
+                .map{$0.resultBR}
+                .reduce(0, +)
+            // 일 평균 값 추출, 0 나누기 방지
+            resultSleepBrList.append(sleepBrCount == 0 ? 0 : sleepBrSum/sleepBrCount)
+            
+            /// Physics 데이터 추출 --------------------------------------- ------------------------------------
+            let phyCount = phyData
+                .filter{$0.dayIndex == index}
+                .count
+            let phySum = phyData
+                .filter{$0.dayIndex == index}
+                .map{$0.weight}
+                .reduce(0.0, +)
+            resultPhyList.append(phyCount == 0 ? 0 : phySum/Double(phyCount))
+        }
+        
+        statisticView.statisticChartView.setChart(filterOption: filterOption,
+                                                  resultNormalBrList: resultNormalBrList,
+                                                  resultSleepBrList: resultSleepBrList,
+                                                  resultPhyList: resultPhyList)
     }
 }
+

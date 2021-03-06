@@ -69,6 +69,10 @@ extension UIColor {
     static var durationSelectColor: UIColor {
         return UIColor(rgb: 0xe4fbff)
     }
+    
+    static var darkGreen: UIColor {
+        return UIColor(rgb: 0x025955)
+    }
 }
 
 extension UIColor {

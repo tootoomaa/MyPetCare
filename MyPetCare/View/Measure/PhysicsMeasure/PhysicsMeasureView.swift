@@ -13,6 +13,8 @@ class PhysicsMeasureView: UIView {
     let padding: CGFloat = 8
     
     // MARK: - Properties
+    var measureType: MeasureServiceType
+    
     var petImageView = UIImageView().then {
         $0.contentMode = .scaleAspectFill
         $0.layer.cornerRadius = 20
@@ -48,7 +50,6 @@ class PhysicsMeasureView: UIView {
     }
     
     let weightTitleLabel = UILabel().then {
-        $0.text = "체중"
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 40)
     }
     
@@ -63,13 +64,33 @@ class PhysicsMeasureView: UIView {
     }
     
     let weightValueLabel = UILabel().then {
-        $0.text = "kg"
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 30)
     }
     
+    let brInputCountInfoLabel = UILabel().then {
+        $0.text = "(1분 기준)"
+        $0.textColor = .systemGray2
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 16)
+    }
+    
+    let petStateButton = UISwitch()
+    
+    let petStateLabel = UILabel().then {
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 15)
+        $0.text = "수면 off"
+        $0.textAlignment = .right
+    }
+    
     // MARK: - Init
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(type: MeasureServiceType) {
+        self.measureType = type
+        super.init(frame: .zero)
+        
+        petStateButton .isHidden = measureType != .breathRateInput
+        petStateLabel.isHidden = measureType != .breathRateInput
+        brInputCountInfoLabel.isHidden = measureType != .breathRateInput
+        weightValueLabel.text = measureType == .weight ? "kg" : "회"
+        weightTitleLabel.text = measureType == .weight ? "체중" : "호흡수"
         
         backgroundColor = .hrMeasureBottomViewColor
         
@@ -85,6 +106,7 @@ class PhysicsMeasureView: UIView {
         
         [hrMeasureView,
          petMaleImageView, petName, petAge, paddingLabel, petImageView,
+         brInputCountInfoLabel, petStateButton, petStateLabel,
          weightTitleLabel, weightTextField, weightValueLabel].forEach {
             addSubview($0)
          }
@@ -134,10 +156,25 @@ class PhysicsMeasureView: UIView {
             $0.width.equalTo(40)
         }
         
+        brInputCountInfoLabel.snp.makeConstraints {
+            $0.top.equalTo(weightValueLabel.snp.bottom).offset(padding)
+            $0.centerX.equalTo(weightValueLabel.snp.leading)
+        }
+        
         weightTextField.snp.makeConstraints {
             $0.centerY.equalTo(weightTitleLabel.snp.centerY)
             $0.leading.equalTo(weightTitleLabel.snp.trailing).offset(20)
             $0.trailing.equalTo(weightValueLabel.snp.leading).offset(-10)
+        }
+        
+        petStateButton.snp.makeConstraints {
+            $0.top.equalTo(brInputCountInfoLabel.snp.bottom).offset(padding*2)
+            $0.trailing.equalTo(brInputCountInfoLabel)
+        }
+        
+        petStateLabel.snp.makeConstraints {
+            $0.trailing.equalTo(petStateButton.snp.leading).offset(-padding-3)
+            $0.centerY.equalTo(petStateButton)
         }
     }
 }

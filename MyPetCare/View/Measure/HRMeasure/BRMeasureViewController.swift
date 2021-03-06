@@ -79,7 +79,8 @@ class BRMeasureViewController: UIViewController, View {
                 case .measuring:    mainView.measureViewSetupWithAnimation()
                 case .finish:
                     mainView.finishViewSetupWithAnimation(reactor.resultBRCount,
-                                                          reactor.resultUserMeasureData)
+                                                          reactor.resultUserMeasureData,
+                                                          reactor.petState)
                 }
             }).disposed(by: disposeBag)
         
@@ -96,6 +97,12 @@ class BRMeasureViewController: UIViewController, View {
             .filter{$0 != 0}
             .map{"\(reactor.currentState.countTimeNumber) 초       |       \($0)회"}
             .bind(to: mainView.countDownLabel.rx.text)
+            .disposed(by: disposeBag)
+        
+        reactor.state.map{$0.petState}
+            .distinctUntilChanged()
+            .map{$0 == true ? "수면 on" : "수면 off" }
+            .bind(to: mainView.petStateLabel.rx.text)
             .disposed(by: disposeBag)
         
         reactor.state.map{$0.saveCompleteAndDismiss}
@@ -208,6 +215,12 @@ class BRMeasureViewController: UIViewController, View {
                 case 3: return 60;
                 default: return 60;}
             }.map{Reactor.Action.selectedTime($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 사용자 펫 수면 여부 체크 스위치
+        mainView.petStateButton.rx.isOn
+            .map{Reactor.Action.setPetState($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         

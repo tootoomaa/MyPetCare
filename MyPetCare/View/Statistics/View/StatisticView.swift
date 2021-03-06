@@ -32,13 +32,19 @@ class StatisticView: UIView {
     }
     
     let filterOptionTableView = UITableView().then {
-        $0.alpha = 0
-        $0.backgroundColor = UIColor.black.withAlphaComponent(0.2)
-        $0.estimatedRowHeight = UITableView.automaticDimension
+        $0.isHidden = true
+        $0.estimatedRowHeight = 50
         $0.separatorStyle = .none
         $0.isScrollEnabled = false
         $0.register(UITableViewCell.self,
                     forCellReuseIdentifier: "Cell")
+
+    }
+    
+    let dismiaView = UIView().then {
+        $0.backgroundColor = UIColor.black.withAlphaComponent(0.2)
+        $0.alpha = 0.5
+        $0.isHidden = true
     }
     
     // MARK: - Life Cycle
@@ -55,7 +61,7 @@ class StatisticView: UIView {
     // MARK: - Layout
     private func configureLayout() {
         
-        [mainFrameTable, filterOptionTableView].forEach {
+        [mainFrameTable, filterOptionTableView, dismiaView].forEach {
             addSubview($0)
         }
         
@@ -66,7 +72,19 @@ class StatisticView: UIView {
         
         filterOptionTableView.snp.makeConstraints {
             $0.top.leading.trailing.equalTo(safeAreaLayoutGuide)
-            $0.bottom.equalToSuperview()
+            $0.height.equalTo(140)
+        }
+        
+        dismiaView.snp.makeConstraints {
+            $0.top.equalTo(filterOptionTableView.snp.bottom)
+            $0.leading.trailing.bottom.equalToSuperview()
+        }
+    }
+    
+    func filterOptionShowAnimation() {
+        UIView.animate(withDuration: 0.4) {
+            self.filterOptionTableView.isHidden.toggle()
+            self.dismiaView.isHidden.toggle()
         }
     }
 }

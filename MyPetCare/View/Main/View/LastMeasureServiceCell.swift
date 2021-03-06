@@ -29,6 +29,15 @@ class LastMeasureServiceCell: UITableViewCell {
         $0.textAlignment = .center
     }
     
+    let petStateLabel = UILabel().then {
+        $0.backgroundColor = .systemGray2
+        $0.text = "수면"
+        $0.textColor = .white
+        $0.addCornerRadius(4)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 13)
+        $0.isHidden = true
+    }
+    
     let showMoreButton = UIButton().then {
         let normalImage = UIImage(systemName: "chevron.forward")?
                         .withRenderingMode(.alwaysOriginal)
@@ -80,7 +89,7 @@ class LastMeasureServiceCell: UITableViewCell {
             $0.bottom.equalToSuperview().offset(-10)
         }
         
-        [titleLabel, valeuLabel,
+        [titleLabel, valeuLabel, petStateLabel,
          showMoreButton].forEach {
             customBackgroundView.addSubview($0)
          }
@@ -90,10 +99,13 @@ class LastMeasureServiceCell: UITableViewCell {
             $0.leading.equalTo(safeGuide).offset(20)
         }
         
+        petStateLabel.snp.makeConstraints {
+            $0.leading.equalTo(titleLabel.snp.trailing).offset(8)
+            $0.centerY.equalTo(titleLabel)
+        }
+        
         valeuLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.centerY)
-            $0.bottom.equalTo(showMoreButton.snp.centerY)
-            $0.centerX.equalTo(customBackgroundView.snp.centerX)
+            $0.center.equalToSuperview()
         }
         
         showMoreButton.snp.makeConstraints {

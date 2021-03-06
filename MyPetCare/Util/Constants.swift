@@ -17,7 +17,7 @@ class Constants {
         static let maxDevice: CGFloat = 900        // max
     }
     
-    static let DB_VERSION: UInt64 = 5
+    static let DB_VERSION: UInt64 = 7
     
     // Measure View
     static let maxMeasureCount: Int = 60
@@ -34,6 +34,11 @@ class Constants {
     
     static let heightRatio = UIScreen.main.bounds.height / Constants.heigthbase
     static let widthRatio = UIScreen.main.bounds.width / Constants.widthbase
+    
+    static let emptyImage = UIImage(systemName: "questionmark.circle")?
+                                    .withRenderingMode(.alwaysOriginal)
+                                    .withTintColor(.black)
+                                    .pngData()!
     
     // Color
     static var mainColor = UIColor.lightGreen
