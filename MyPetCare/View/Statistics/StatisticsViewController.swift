@@ -139,32 +139,51 @@ class StatisticsViewController: UIViewController, View {
         reactor.state.map{$0.selectedPet}
             .distinctUntilChanged()
             .compactMap{$0}
+            .filter{$0.createDate != nil}
             .subscribe(onNext: {
                 self.selectedPetName.text = $0.name
-                self.selectPetImageView.image = UIImage(data: $0.image ?? UIImage().pngData()!)
+                self.selectPetImageView.image = UIImage(data: $0.image!)
                 self.selectedPetMaleImageView.image = Male(rawValue: $0.male!)?.getPetMaleImage
             }).disposed(by: disposeBag)
         
+        
+        // 필터 옵션 변경에 따른 차트 재설정
         reactor.state.map{$0.filterOption}
             .observe(on: MainScheduler.asyncInstance)
             .distinctUntilChanged { (filter1, filter2) -> Bool in
                 guard filter1.pet == filter2.pet else { return false }
                 guard filter1.measureData == filter2.measureData else { return false }
                 guard filter1.duration == filter2.duration else { return false }
-                return true
-            }.subscribe(onNext: { [unowned self] filterOption in
-                
-                configureChart(filterOption, reactor)
-                
-            }).disposed(by: disposeBag)
+                return true}
+            .map{ _ in Reactor.Action.reloadChart}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         // 데이터 변경에 따른 차트 재설정
         reactor.state.map{$0.reloadChartTrigger}
             .observe(on: MainScheduler.asyncInstance)
             .distinctUntilChanged()
-            .subscribe(onNext: { [unowned self] _ in
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
                 
-                configureChart(reactor.currentState.filterOption, reactor)
+                owner.configureChart(reactor.currentState.filterOption,
+                                     reactor.currentState.normalBrChartData,
+                                     reactor.currentState.sleepBrChartData,
+                                     reactor.currentState.phyData)
+                
+            }).disposed(by: disposeBag)
+        
+        // 데이터 변경에 따른 차트 재설정
+        reactor.state.map{$0.selectIndex}
+            .observe(on: MainScheduler.asyncInstance)
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                
+                owner.configureChart(reactor.currentState.filterOption,
+                                     reactor.currentState.normalBrChartData,
+                                     reactor.currentState.sleepBrChartData,
+                                     reactor.currentState.phyData)
                 
             }).disposed(by: disposeBag)
         
@@ -181,6 +200,7 @@ class StatisticsViewController: UIViewController, View {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
+        // 필터 버튼 선택
         charDataFilteringButton.rx.tap
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
@@ -286,35 +306,41 @@ class StatisticsViewController: UIViewController, View {
     
     // MARK: - Chart handler
     private func configureChart(_ filterOption: FilterOptions,
-                                _ reactor: StatisticsViewReactor) {
+                                _ normalBrData: [StatisticsBrData],
+                                _ sleepBrData: [StatisticsBrData],
+                                _ phyData: [StatisticPhyData]) {
         
-        guard let currentPetId = reactor.currentState.selectedPet?.id else { return }
+        var resultNormalBrList: [Int] = []               // 휴식 BR 이력 저장
+        var resultSleepBrList: [Int] = []                // 수면 Br 이력 저장
+        var resultPhyList: [Double] = []                 // Phy 이력 저장
         
-        let brData = reactor.provider.dataBaseService
-                            .loadPetBRLog(currentPetId)
-                            .toArray()
-                            .map{StatisticsBrData(brObj: $0)}
-        
-        let phyData = reactor.provider.dataBaseService
-                             .loadPhysicsDataHistory(currentPetId)
-                             .map{StatisticPhyData(phyObj: $0)}
-        
-        var resultBrList: [Int] = []               // BR 이력 저장
-        var resultPhyList: [Double] = []           // BR 이력 저장
-        // 당일을 기준으로 7일간 월/일 추출
+        // 당일을 기준으로 [1달/7일]데이터 추출
         let indexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)
         
         // 데이터 생성 부분
         indexlist.forEach { index in
-            /// 호흡수 데이터 추출 --------------------------------------- -------------------------------------
-            let brCount = brData                                    // 호흡수 측정 갯수
+            /// 일반 호흡수 데이터 추출 --------------------------------------- -------------------------------------
+            let normalBrCount = normalBrData                                    // 호흡수 측정 갯수
                 .filter{$0.dayIndex == index}
                 .count
-            let brSum = brData                                      // BR 총합
+            let normalBrSum = normalBrData                                      // BR 총합
                 .filter{$0.dayIndex == index}
                 .map{$0.resultBR}
                 .reduce(0, +)
-            resultBrList.append(brCount == 0 ? 0 : brSum/brCount)   // 일 평균 값 추출
+            // 일 평균 값 추출, 0 나누기 방지
+            resultNormalBrList.append(normalBrCount == 0 ? 0 : normalBrSum/normalBrCount)
+            
+            /// 수면 호흡수 데이터 추출 --------------------------------------- -------------------------------------
+            let sleepBrCount = sleepBrData                                    // 호흡수 측정 갯수
+                .filter{$0.dayIndex == index}
+                .count
+            let sleepBrSum = sleepBrData                                      // BR 총합
+                .filter{$0.dayIndex == index}
+                .map{$0.resultBR}
+                .reduce(0, +)
+            // 일 평균 값 추출, 0 나누기 방지
+            resultSleepBrList.append(sleepBrCount == 0 ? 0 : sleepBrSum/sleepBrCount)
+            
             /// Physics 데이터 추출 --------------------------------------- ------------------------------------
             let phyCount = phyData
                 .filter{$0.dayIndex == index}
@@ -327,7 +353,8 @@ class StatisticsViewController: UIViewController, View {
         }
         
         statisticView.statisticChartView.setChart(filterOption: filterOption,
-                                                  resultBrList: resultBrList,
+                                                  resultNormalBrList: resultNormalBrList,
+                                                  resultSleepBrList: resultSleepBrList,
                                                   resultPhyList: resultPhyList)
     }
 }

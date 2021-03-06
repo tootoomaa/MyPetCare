@@ -158,13 +158,13 @@ class MeasureViewReactor: Reactor {
                 lastData.first!.petState = currentPetState
             }
             
-            GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())                    // 데이터 갱신 업데이트
+            GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())     // 데이터 갱신 업데이트
             return .just(.saveCompleteAndDismiss)
             
         case .setPetState(let state):
             return .just(.setPetState(state))
             
-        case .savePhysicsData(let weight): // 키 몸무게 저장 로직
+        case .savePhysicsData(let weight): // 몸무게 저장 로직
             
             // DB 저장
             let petObj = currentState.selectedPet
@@ -173,7 +173,8 @@ class MeasureViewReactor: Reactor {
             }
             
             // 최근 데이터 저장
-            let lastData = provider.dataBaseService.loadLastData(petObj.id!).toArray().first
+            let lastData = provider.dataBaseService
+                                   .loadLastData(petObj.id!).toArray().first
             provider.dataBaseService.write {
                 lastData?.weight = weight
             }
@@ -237,10 +238,9 @@ class MeasureViewReactor: Reactor {
                     provider.dataBaseService.write {
                         obj?.resultBR = list.first?.resultBR ?? 0
                     }
-                    GlobalState.lastDateUpdate.onNext(Void())
+                    GlobalState.lastDateUpdate.onNext(Void())                      // 최근 측정 데이터 갱신
                 }
-                
-                GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())                    // 데이터 갱신 업데이트
+                GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())         // 데이터 갱신 업데이트
                 return .just(.setBrCountLiat(list))
                 
             case .physicsSV:
@@ -253,15 +253,14 @@ class MeasureViewReactor: Reactor {
                     provider.dataBaseService.write {
                         obj?.weight = list.first?.weight ?? 0
                     }
-                    GlobalState.lastDateUpdate.onNext(Void())
+                    GlobalState.lastDateUpdate.onNext(Void())                      // 최근 측정 데이터 갱신
                 }
-                
+                GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())         // 데이터 갱신 업데이트
                 return .just(.setPhysicsList(list))
                 
             case .measureSV:
                 return .empty()
             }
-            
         }
     }
     

@@ -104,7 +104,7 @@ class PetAddViewReactor: Reactor {
                     $0.petId = petObj.id
                 }
                 provider.dataBaseService.add(lastMeasureObj)
-                
+                GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
             } else {
                 // 기존 펫 수정 - uuid, createTime 수정하면 안됨
                 provider.dataBaseService.write {

@@ -17,6 +17,7 @@ struct StatisticsBrData {
     
     var originalBR: Int!
     var userSettingTime: Int!
+    var petState: PetState.RawValue!
 
     init(brObj: BRObject) {
         
@@ -36,5 +37,6 @@ struct StatisticsBrData {
         self.resultBR = brObj.resultBR
         self.originalBR = brObj.originalBR
         self.userSettingTime = brObj.userSettingTime
+        self.petState = brObj.petState
     }
 }

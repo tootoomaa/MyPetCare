@@ -101,17 +101,15 @@ class StatisticChartView: UIView {
         }
     }
     
-    func setChart(filterOption: FilterOptions, resultBrList:[Int], resultPhyList:[Double]) {
+    func setChart(filterOption: FilterOptions,
+                  resultNormalBrList:[Int],
+                  resultSleepBrList:[Int],
+                  resultPhyList:[Double]) {
         
         // 최대값 설정
-        let tempBrList = resultBrList
-        let tempPhyList = resultPhyList
-        
-        let heighestLeftValue = Double(tempBrList.sorted().last ?? 50)
-        let heighestRightValue = Double(tempPhyList.sorted().last ?? 30)
-        let finalValue = heighestLeftValue > heighestRightValue ? heighestLeftValue : heighestRightValue
-        combinedChartView.leftAxis.axisMaximum = finalValue + 5     // top padding
-        combinedChartView.rightAxis.axisMaximum = finalValue + 5    // top padding
+        let finalValue = getBiggestValueInArray(resultNormalBrList, resultSleepBrList, resultPhyList.map{Int($0)}) + 5
+        combinedChartView.leftAxis.axisMaximum = finalValue     // top padding
+        combinedChartView.rightAxis.axisMaximum = finalValue    // top padding
         
         // 요일 데이터 생성
         let dayValue: [String] = TimeUtil().getDayStringByCurrentDay(type: filterOption.duration)
@@ -125,7 +123,7 @@ class StatisticChartView: UIView {
             case .breathRate:
                 var tempDataEntries: [BarChartDataEntry] = []
                 for i in 0..<dayValue.count {
-                    let dataEntry = BarChartDataEntry(x: Double(i), y: Double(resultBrList[i]))
+                    let dataEntry = BarChartDataEntry(x: Double(i), y: Double(resultNormalBrList[i]))
                     tempDataEntries.append(dataEntry)
                 }
                 
@@ -139,6 +137,9 @@ class StatisticChartView: UIView {
                 data.barData = BarChartData(dataSet: newDataSet).then {
                     $0.barWidth = 0.5
                 }
+                
+            case .breathRateInput:
+                break
                 
             case .weight:
                 var tempDataEntries: [ChartDataEntry] = []
@@ -158,9 +159,6 @@ class StatisticChartView: UIView {
                         $0.valueTextColor = wtColor
                     }
                 data.lineData = LineChartData(dataSet: newDataSet)
-                
-            case .breathRateInput:
-                break
             }
         }
         
@@ -176,5 +174,17 @@ class StatisticChartView: UIView {
 //        let ll = ChartLimitLine(limit: 10.0, label: "타겟")
 //        combineChartView.leftAxis.addLimitLine(ll)
         combinedChartView.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)
+    }
+    
+    private func getBiggestValueInArray(_ array1:[Int], _ array2: [Int], _ array3: [Int]) -> Double {
+        
+        let nomalBrValue = Double(array1.sorted().last ?? 50)
+        let sleepBrValue = Double(array2.sorted().last ?? 50)
+        let heighestRightValue = Double(array3.sorted().last ?? 30)
+        
+        let heighestLeftValue = nomalBrValue >= sleepBrValue ? nomalBrValue : sleepBrValue
+        let finalValue = heighestLeftValue > heighestRightValue ? heighestLeftValue : heighestRightValue
+        
+        return Double(finalValue)
     }
 }

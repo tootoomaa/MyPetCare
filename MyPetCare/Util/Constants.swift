@@ -35,6 +35,11 @@ class Constants {
     static let heightRatio = UIScreen.main.bounds.height / Constants.heigthbase
     static let widthRatio = UIScreen.main.bounds.width / Constants.widthbase
     
+    static let emptyImage = UIImage(systemName: "questionmark.circle")?
+                                    .withRenderingMode(.alwaysOriginal)
+                                    .withTintColor(.black)
+                                    .pngData()!
+    
     // Color
     static var mainColor = UIColor.lightGreen
     
