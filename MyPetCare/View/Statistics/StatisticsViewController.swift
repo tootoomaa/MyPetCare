@@ -166,6 +166,7 @@ class StatisticsViewController: UIViewController, View {
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 
+                guard !reactor.currentState.petList.isEmpty else { return }
                 owner.configureChart(reactor.currentState.filterOption,
                                      reactor.currentState.normalBrChartData,
                                      reactor.currentState.sleepBrChartData,
@@ -180,6 +181,7 @@ class StatisticsViewController: UIViewController, View {
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 
+                guard !reactor.currentState.petList.isEmpty else { return }
                 owner.configureChart(reactor.currentState.filterOption,
                                      reactor.currentState.normalBrChartData,
                                      reactor.currentState.sleepBrChartData,
