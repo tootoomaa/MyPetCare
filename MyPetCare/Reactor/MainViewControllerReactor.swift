@@ -14,6 +14,30 @@ enum MeasureServiceType: String, CaseIterable {
     case breathRate = "호흡수\n측정"
     case breathRateInput = "호흡수\n수동 입력"
     case weight = "체중\n측정"
+    
+    func getColor() -> UIColor {
+        switch self {
+        case .breathRate:
+            return .cViolet
+            
+        case .breathRateInput:
+            return .systemTeal
+            
+        case .weight:
+            return .darkGreen
+        }
+    }
+    
+    func getTitle() -> String {
+        switch self {
+        case .breathRate:
+            return "호흡수"
+        case .breathRateInput:
+            return "수면호흡수"
+        case .weight:
+            return "몸무게"
+        }
+    }
 }
 
 enum MainFrameMenuType: String, CaseIterable {

@@ -152,6 +152,7 @@ class MainViewController: UIViewController, View {
             .compactMap{$0}
             .subscribe(onNext: { [unowned self] indexPath in
                 
+                //select를 통해 pet사진 테투리 체크표시 나타냄
                 let view = mainView.petProfileCollectionView
                 view.selectItem(at: indexPath, animated: false, scrollPosition: .centeredVertically)
                 
@@ -212,7 +213,7 @@ class MainViewController: UIViewController, View {
                     $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
                     let resultBR = lastData == nil ? " - 회/분" : "\(lastData?.resultBR ?? 0)회/분"
                     $0.valeuLabel.text = "\(resultBR)"
-                    $0.petStateLabel.isHidden = (lastData?.petState == PetState.nomal.rawValue)
+                    $0.petStateLabel.isHidden = !(lastData?.petState == PetState.sleep.rawValue)
                     $0.showMoreButton.rx.tap
                         .subscribe(on: MainScheduler.asyncInstance)
                         .subscribe(onNext: {

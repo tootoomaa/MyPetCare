@@ -184,10 +184,7 @@ class StatisticsViewController: UIViewController, View {
         charDataFilteringButton.rx.tap
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
-                let beforeAlpa = owner.statisticView.filterOptionTableView.alpha
-                UIView.animate(withDuration: 0.5) {
-                    owner.statisticView.filterOptionTableView.alpha = beforeAlpa == 1 ? 0 : 1
-                }
+                owner.statisticView.filterOptionShowAnimation()
             }).disposed(by: disposeBag)
         
         // MARK: - Filter Option TableView
@@ -210,7 +207,7 @@ class StatisticsViewController: UIViewController, View {
                             
                             cell.configureCell(petObj: petData)
                             
-                            // 첫 셀은 무조건 선택 되도록
+                            // 펫 데이터가 있으면 첫 펫은 무조건 선택 되도록
                             if reactor.currentState.selectedPet == petData {
                                 cell.isSelected = true
                                 let initialIndexPath = IndexPath(item: 0, section: 0)
@@ -236,14 +233,11 @@ class StatisticsViewController: UIViewController, View {
                             
                             let button = UIButton().then {
                                 cell.contentView.addSubview($0)
-                                $0.setTitle(type.rawValue, for: .normal)
+                                $0.setTitle(type.getTitle(), for: .normal)
                                 $0.setTitleColor(.black, for: .normal)
                                 $0.setTitleColor(.white, for: .selected)
                                 $0.setBackgroundColor(color: .white, forState: .normal)
-                                
-//                                case breathRate = "호흡수\n측정"
-//                                case weight = "체중\n측정"
-                                $0.setBackgroundColor(color: type == .breathRate ? .cViolet : .darkGreen,
+                                $0.setBackgroundColor(color: type.getColor(),
                                                       forState: .selected)
                                 $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
                                 $0.isSelected = true
@@ -268,7 +262,7 @@ class StatisticsViewController: UIViewController, View {
                         $0.leading.equalToSuperview().offset(20)
                         $0.trailing.equalToSuperview().inset(20)
                         $0.bottom.equalToSuperview().offset(-10)
-                        $0.height.equalTo(40)
+                        $0.height.equalTo(50)
                     }
                 }
                 
@@ -279,6 +273,15 @@ class StatisticsViewController: UIViewController, View {
             .map{Reactor.Action.setSelectedPet($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        statisticView.dismiaView.rx.tapGesture()
+            .skip(1)                                            // 최초 1회 bind 시 실행 차단
+            .withUnretained(self)
+            .subscribe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { owner, _ in
+                owner.statisticView.filterOptionShowAnimation()
+            }).disposed(by: disposeBag)
+        
     }
     
     // MARK: - Chart handler
