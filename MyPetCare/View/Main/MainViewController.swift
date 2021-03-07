@@ -203,7 +203,7 @@ class MainViewController: UIViewController, View {
                     serviceCollectionView.snp.makeConstraints {
                         $0.top.leading.equalToSuperview()
                         $0.bottom.trailing.equalToSuperview().offset(-8)
-                        $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
+                        $0.height.greaterThanOrEqualTo(60)
                     }
                 }
                 
