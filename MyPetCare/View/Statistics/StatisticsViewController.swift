@@ -15,6 +15,8 @@ class StatisticsViewController: UIViewController, View {
     // MARK: - Properties
     var disposeBag: DisposeBag = DisposeBag()
     
+    var allDetailData: [ChartDetailValue] = []
+    
     let statisticView = StatisticView()
     
     var charDataFilteringButton = UIButton().then {
@@ -92,6 +94,9 @@ class StatisticsViewController: UIViewController, View {
             }).disposed(by: disposeBag)
         
         configureNavigation()
+        
+        configureStatisticViewMainFrameTableView()
+        
     }
     
     private func configureNavigation() {
@@ -128,6 +133,14 @@ class StatisticsViewController: UIViewController, View {
         }
     }
     
+    private func configureStatisticViewMainFrameTableView() {
+        statisticView.mainFrameTable.dataSource = self
+        statisticView.mainFrameTable.delegate = self
+        statisticView.mainFrameTable
+            .register(MeasureDetailTableViewCell.self,
+                      forCellReuseIdentifier: MeasureDetailTableViewCell.identifier)
+    }
+    
     // MARK: - ReactorKit Binder
     func bind(reactor: StatisticsViewReactor) {
         
@@ -156,6 +169,14 @@ class StatisticsViewController: UIViewController, View {
             .map{!$0.isEmpty}
             .bind(to: statisticView.petListEmptyView.rx.isHidden)
             .disposed(by: disposeBag)
+        
+        reactor.state.map{$0.allDetailData}
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { owner, list in
+                owner.allDetailData = list
+                owner.statisticView.mainFrameTable.reloadData()
+            }).disposed(by: disposeBag)
         
         // 필터 옵션 변경에 따른 차트 재설정
         reactor.state.map{$0.filterOption}
@@ -375,3 +396,26 @@ class StatisticsViewController: UIViewController, View {
     }
 }
 
+extension StatisticsViewController: UITableViewDataSource, UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return allDetailData.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: MeasureDetailTableViewCell.identifier,
+                                                 for: indexPath) as! MeasureDetailTableViewCell
+        
+        let data = allDetailData[indexPath.row]
+        cell.configureChartDetailData(data: data)
+        
+        return cell
+        
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 70
+    }
+    
+}

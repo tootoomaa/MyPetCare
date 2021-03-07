@@ -2,6 +2,7 @@ PODS:
   - Charts (3.6.0):
     - Charts/Core (= 3.6.0)
   - Charts/Core (3.6.0)
+  - Differentiator (5.0.0)
   - ReactorKit (3.0.0):
     - RxSwift (~> 6.0)
     - WeakMapTable (~> 1.1)
@@ -13,6 +14,10 @@ PODS:
   - RxCocoa (6.1.0):
     - RxRelay (= 6.1.0)
     - RxSwift (= 6.1.0)
+  - RxDataSources (5.0.0):
+    - Differentiator (~> 5.0)
+    - RxCocoa (~> 6.0)
+    - RxSwift (~> 6.0)
   - RxGesture (4.0.0):
     - RxCocoa (~> 6.0)
     - RxSwift (~> 6.0)
@@ -36,6 +41,7 @@ DEPENDENCIES:
   - ReactorKit
   - RealmSwift
   - RxCocoa
+  - RxDataSources
   - RxGesture
   - RxRealm
   - RxSwift
@@ -46,10 +52,12 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Charts
+    - Differentiator
     - ReactorKit
     - Realm
     - RealmSwift
     - RxCocoa
+    - RxDataSources
     - RxGesture
     - RxRealm
     - RxRelay
@@ -61,10 +69,12 @@ SPEC REPOS:
 
 SPEC CHECKSUMS:
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
+  Differentiator: e8497ceab83c1b10ca233716d547b9af21b9344d
   ReactorKit: 5348c9881dcb546605b451e32759dccc9937d36e
   Realm: a03c41a3afbda6c197ba4dfba5428b8b54cc2df4
   RealmSwift: 5e7abc842276d7fabd386e67afbf3efde54eb1c6
   RxCocoa: 5c51f02d562cbd94629f6c26cf0c80fe4ab8d343
+  RxDataSources: aa47cc1ed6c500fa0dfecac5c979b723542d79cf
   RxGesture: b095a86df33d199a33b46a644e7c58bdef8ab035
   RxRealm: bd7c601e78cfebe48c24d4550db83c31e1ab2c33
   RxRelay: 483e1a19fad961b41f0b0c0bee506f46c1ae14fe
@@ -74,6 +84,6 @@ SPEC CHECKSUMS:
   Then: acfe0be7e98221c6204e12f8161459606d5d822d
   WeakMapTable: 05c694ce8439a7a9ebabb56187287a63c57673d6
 
-PODFILE CHECKSUM: 00b3c44d38b14ea362189ed398112bab9eb1bde5
+PODFILE CHECKSUM: 1f85ae4fa7e3f6c0a81e186f5fb1cdcf64f7fb74
 
 COCOAPODS: 1.10.0

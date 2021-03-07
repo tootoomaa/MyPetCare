@@ -115,10 +115,12 @@ class PhysicsMeasureViewController: UIViewController, View {
             .distinctUntilChanged()
             .subscribe(onNext: { [unowned self] in
                 
-                mainView.petImageView.image = UIImage(data: $0.image!)
+                guard let petImage = $0.image,
+                      let petMale = $0.male else { return }
+                
+                mainView.petImageView.image = UIImage(data: petImage)
                 mainView.petName.text = $0.name
-                let image = Male(rawValue: $0.male!)?.getPetMaleImage
-                mainView.petMaleImageView.image = image
+                mainView.petMaleImageView.image = Male(rawValue: petMale)?.getPetMaleImage
                 mainView.petAge.text = "\($0.age) yrs"
                 
             }).disposed(by: disposeBag)

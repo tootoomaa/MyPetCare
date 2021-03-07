@@ -354,7 +354,7 @@ class MainViewController: UIViewController, View {
             .withUnretained(self)
             .subscribe(onNext: { owner, serviceType in
                 
-                guard reactor.currentState.petList.isEmpty == true else {
+                guard reactor.currentState.petList.count > 1 else { // +버튼 때문에 1개 이상 일때
                     owner.serviceNotAvailableAlert(title: "서비스 불가",
                                                    message: "펫이 등록되어 있지 않습니다. 펫을 먼저 등록해주세요")
                     return

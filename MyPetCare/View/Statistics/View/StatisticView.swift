@@ -27,7 +27,6 @@ class StatisticView: UIView {
     )
     
     lazy var mainFrameTable = UITableView().then {
-        $0.estimatedRowHeight = 300
         $0.tableHeaderView = statisticChartView
     }
     

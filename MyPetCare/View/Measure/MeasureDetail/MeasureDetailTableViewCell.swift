@@ -153,10 +153,48 @@ class MeasureDetailTableViewCell: UITableViewCell {
         }
     }
     
+    // MARK: - Configure chart Detail Data
+    func configureChartDetailData(data: ChartDetailValue) {
+        
+        switch data.type {
+        
+        case .breathRate, .breathRateInput:
+            configureBROBbjectLayout()
+            
+            valueLabel.textColor = .systemGray2
+            
+//            dateLabel.text = TimeUtil().getString(data.createDate, .yymmdd)
+            detailDateLabel.text = TimeUtil().getString(data.createDate, .hhmm)
+            mainValueLabel.text = "\(data.value)회/분"
+            
+            guard let userMeasureDetailData = data.brOptionValue else { return }
+            valueLabel.text = "\(userMeasureDetailData.value)회/\(userMeasureDetailData.userMeasuerTiem)초"
+            
+            if data.brType == .sleep  {
+                petStateLabel.isHidden = false              // 수면 상태일 때 보여줌
+            }
+            
+            break
+            
+        case .weight:
+            configurePhysicsObject()
+//            dateLabel.text = TimeUtil().getString(data.createDate, .yymmdd)
+            detailDateLabel.text = TimeUtil().getString(data.createDate, .hhmm)
+            mainValueLabel.text = "\(data.value)kg"
+            break
+        }
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         
-        self.petStateLabel.isHidden = true
+        [dateLabel, detailDateLabel,
+         mainValueLabel, valueLabel,
+         petStateLabel, bottomView].forEach {
+            $0.removeFromSuperview()
+         }
         
+        self.petStateLabel.isHidden = true
+        self.valueLabel.text = ""
     }
 }
