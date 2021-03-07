@@ -66,7 +66,7 @@ class MainViewControllerReactor: Reactor {
     
     struct State {
         var mainFrameTableViewItems = Constants.MainFrameTableViewItem.allCases
-        var petList: [PetObject]?
+        var petList: [PetObject]
         var selectedPet: PetObject?
         var selectedIndexPath: IndexPath
         var selectedLastedPetData: LastMeasureObject?
@@ -79,7 +79,7 @@ class MainViewControllerReactor: Reactor {
     
     // MARK: - Init
     init(provider: ServiceProviderType) {
-        initialState = State(petList: nil,
+        initialState = State(petList: [],
                              selectedPet: nil,
                              selectedIndexPath: IndexPath(row: 0, section: 0),
                              selectedLastedPetData: nil)
@@ -123,7 +123,7 @@ class MainViewControllerReactor: Reactor {
             
         case .selectedIndexPath(let indexPath):
             
-            let petData = currentState.petList![indexPath.row]
+            let petData = currentState.petList[indexPath.row]
             let lastData = provider.dataBaseService.loadLastData(petData.id!)
             
             return Observable.concat([.just(.setSelectedIndex(indexPath)),

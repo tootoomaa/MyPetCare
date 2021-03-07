@@ -87,7 +87,7 @@ class MainViewController: UIViewController, View {
                 
                 let centerX = mainView.petProfileView.center.x      // PetProfileView의 기준
                 
-                guard reactor?.currentState.petList?.count ?? 0 > 1 else { return }
+                guard reactor?.currentState.petList.count ?? 0 > 1 else { return }
                 let view = mainView.petProfileView.dashBoardView
                 let velocity = $0.velocity(in: view)
                 
@@ -121,7 +121,7 @@ class MainViewController: UIViewController, View {
         
         self.rx.viewDidLoad
             .subscribe(onNext: { [unowned self] _ in
-                guard reactor.currentState.petList?.count != 1 else { return }
+                guard reactor.currentState.petList.count != 1 else { return }
                 mainView.petProfileCollectionView
                     .selectItem(at: IndexPath(row: 0, section: 0),
                                 animated: false,
@@ -165,6 +165,11 @@ class MainViewController: UIViewController, View {
         // 펫 CollectionView 리스트 생성
         reactor.state.map{$0.petList}
             .distinctUntilChanged()
+            .do(onNext: {
+                if $0.isEmpty {
+                    self.mainView.configureSelectedPetData(pet: PetObject())
+                }
+            })
             .compactMap{$0}
             .bind(to: mainView.petProfileCollectionView.rx
                     .items(cellIdentifier: PetProfileImageCell.identifier,
@@ -349,7 +354,7 @@ class MainViewController: UIViewController, View {
             .withUnretained(self)
             .subscribe(onNext: { owner, serviceType in
                 
-                guard reactor.currentState.petList?.isEmpty == true else {
+                guard reactor.currentState.petList.isEmpty == true else {
                     owner.serviceNotAvailableAlert(title: "서비스 불가",
                                                    message: "펫이 등록되어 있지 않습니다. 펫을 먼저 등록해주세요")
                     return

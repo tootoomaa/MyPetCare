@@ -207,8 +207,16 @@ class MainView: UIView {
     
     // MARK: - UI Data Setter
     func configureSelectedPetData(pet: PetObject) {
-        selectedPetMaleImageView.image = UIImage(named: "\(pet.male ?? "boy")")
-        selectedPetName.text = pet.name
-        selectPetImageView.image = UIImage(data: pet.image!)
+        guard let petMale = pet.male,
+              let petImage = pet.image,
+              let petName = pet.name else { // 초기화
+            selectedPetName.text = ""
+            selectPetImageView.image = nil
+            selectedPetMaleImageView.image = nil
+            return
+        }
+        selectedPetMaleImageView.image = Male(rawValue: petMale)?.getPetMaleImage
+        selectedPetName.text = petName
+        selectPetImageView.image = UIImage(data: petImage)
     }
 }
