@@ -32,14 +32,24 @@ class StatisticView: UIView {
     }
     
     let filterOptionTableView = UITableView().then {
-        $0.isHidden = true
         $0.estimatedRowHeight = 50
         $0.separatorStyle = .none
         $0.isScrollEnabled = false
         $0.register(UITableViewCell.self,
                     forCellReuseIdentifier: "Cell")
-
+        $0.isHidden = true
     }
+    
+    let petListEmptyView = UILabel().then {
+        $0.text = "펫이 등록되어 있지 않습니다."
+        $0.textColor = .white
+        $0.textAlignment = .center
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 20)
+        $0.backgroundColor = .systemGray2
+        $0.addCornerRadius(20)
+        $0.isHidden = true
+    }
+
     
     let dismiaView = UIView().then {
         $0.backgroundColor = UIColor.black.withAlphaComponent(0.2)
@@ -78,6 +88,13 @@ class StatisticView: UIView {
         dismiaView.snp.makeConstraints {
             $0.top.equalTo(filterOptionTableView.snp.bottom)
             $0.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        filterOptionTableView.addSubview(petListEmptyView)
+        petListEmptyView.snp.makeConstraints {
+            $0.edges.equalToSuperview().inset(padding)
+            $0.height.equalTo(140-padding*2)                // top, bottom Padding
+            $0.width.equalTo(Constants.viewWidth-padding*2) // leading, trailing
         }
     }
     
