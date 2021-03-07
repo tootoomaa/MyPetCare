@@ -55,15 +55,6 @@ class StatisticsViewController: UIViewController, View {
         $0.allowsMultipleSelection = false
     }
     
-    let petListEmptyView = UILabel().then {
-        $0.text = "펫이 등록되어 있지 않습니다."
-        $0.textColor = .white
-        $0.textAlignment = .center
-        $0.font = UIFont(name: "Cafe24Syongsyong", size: 20)
-        $0.backgroundColor = .systemGray2
-        $0.addCornerRadius(20)
-    }
-    
     let measureListLayout = UICollectionViewFlowLayout().then {
         $0.scrollDirection = .horizontal
         $0.itemSize = CGSize(width: 75, height: 40)
@@ -144,7 +135,7 @@ class StatisticsViewController: UIViewController, View {
             .map{Reactor.Action.loadInitialData}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-
+        
         reactor.state.map{$0.selectedPet}
             .distinctUntilChanged()
             .do(onNext: {
@@ -163,7 +154,7 @@ class StatisticsViewController: UIViewController, View {
         
         reactor.state.map{$0.petList}
             .map{!$0.isEmpty}
-            .bind(to: petListEmptyView.rx.isHidden)
+            .bind(to: statisticView.petListEmptyView.rx.isHidden)
             .disposed(by: disposeBag)
         
         // 필터 옵션 변경에 따른 차트 재설정
@@ -257,7 +248,7 @@ class StatisticsViewController: UIViewController, View {
                             
                         }.disposed(by: disposeBag)
                     
-                    [petListCollectionView, petListEmptyView].forEach {
+                    [petListCollectionView].forEach {
                         cell.contentView.addSubview($0)
                         $0.snp.makeConstraints {
                             $0.top.equalToSuperview().offset(10)
@@ -320,7 +311,7 @@ class StatisticsViewController: UIViewController, View {
             .disposed(by: disposeBag)
         
         statisticView.dismiaView.rx.tapGesture()
-            .skip(1)                                            // 최초 1회 bind 시 실행 차단
+            .skip(1)                             // 최초 1회 bind 시 실행 차단
             .withUnretained(self)
             .subscribe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { owner, _ in
