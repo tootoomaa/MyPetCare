@@ -136,6 +136,9 @@ class MainViewControllerReactor: Reactor {
         case .deletePet:
             
             provider.dataBaseService.delete(currentState.selectedPet)
+            
+            GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
+            
             return .just(.reset)
         }
     }

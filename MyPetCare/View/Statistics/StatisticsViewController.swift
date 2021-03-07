@@ -55,6 +55,15 @@ class StatisticsViewController: UIViewController, View {
         $0.allowsMultipleSelection = false
     }
     
+    let petListEmptyView = UILabel().then {
+        $0.text = "펫이 등록되어 있지 않습니다."
+        $0.textColor = .white
+        $0.textAlignment = .center
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 20)
+        $0.backgroundColor = .systemGray2
+        $0.addCornerRadius(20)
+    }
+    
     let measureListLayout = UICollectionViewFlowLayout().then {
         $0.scrollDirection = .horizontal
         $0.itemSize = CGSize(width: 75, height: 40)
@@ -138,14 +147,24 @@ class StatisticsViewController: UIViewController, View {
 
         reactor.state.map{$0.selectedPet}
             .distinctUntilChanged()
+            .do(onNext: {
+                if $0 == nil {
+                    self.selectedPetName.text = ""
+                    self.selectedPetMaleImageView.image = UIImage()
+                    self.selectPetImageView.image = UIImage()
+                }
+            })
             .compactMap{$0}
-            .filter{$0.createDate != nil}
             .subscribe(onNext: {
                 self.selectedPetName.text = $0.name
                 self.selectPetImageView.image = UIImage(data: $0.image!)
                 self.selectedPetMaleImageView.image = Male(rawValue: $0.male!)?.getPetMaleImage
             }).disposed(by: disposeBag)
         
+        reactor.state.map{$0.petList}
+            .map{!$0.isEmpty}
+            .bind(to: petListEmptyView.rx.isHidden)
+            .disposed(by: disposeBag)
         
         // 필터 옵션 변경에 따른 차트 재설정
         reactor.state.map{$0.filterOption}
@@ -166,6 +185,7 @@ class StatisticsViewController: UIViewController, View {
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 
+                guard !reactor.currentState.petList.isEmpty else { return }
                 owner.configureChart(reactor.currentState.filterOption,
                                      reactor.currentState.normalBrChartData,
                                      reactor.currentState.sleepBrChartData,
@@ -180,6 +200,7 @@ class StatisticsViewController: UIViewController, View {
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 
+                guard !reactor.currentState.petList.isEmpty else { return }
                 owner.configureChart(reactor.currentState.filterOption,
                                      reactor.currentState.normalBrChartData,
                                      reactor.currentState.sleepBrChartData,
@@ -236,13 +257,15 @@ class StatisticsViewController: UIViewController, View {
                             
                         }.disposed(by: disposeBag)
                     
-                    cell.contentView.addSubview(petListCollectionView)
-                    petListCollectionView.snp.makeConstraints {
-                        $0.top.equalToSuperview().offset(10)
-                        $0.leading.equalToSuperview().offset(20)
-                        $0.trailing.equalToSuperview().inset(20)
-                        $0.bottom.equalToSuperview().offset(-10)
-                        $0.height.equalTo(50)
+                    [petListCollectionView, petListEmptyView].forEach {
+                        cell.contentView.addSubview($0)
+                        $0.snp.makeConstraints {
+                            $0.top.equalToSuperview().offset(10)
+                            $0.leading.equalToSuperview().offset(20)
+                            $0.trailing.equalToSuperview().inset(20)
+                            $0.bottom.equalToSuperview().offset(-10)
+                            $0.height.equalTo(50)
+                        }
                     }
                     
                 case .dataType:
@@ -276,13 +299,15 @@ class StatisticsViewController: UIViewController, View {
                             
                         }.disposed(by: disposeBag)
                     
-                    cell.contentView.addSubview(measureDataTypeListCollectionView)
-                    measureDataTypeListCollectionView.snp.makeConstraints {
-                        $0.top.equalToSuperview().offset(10)
-                        $0.leading.equalToSuperview().offset(20)
-                        $0.trailing.equalToSuperview().inset(20)
-                        $0.bottom.equalToSuperview().offset(-10)
-                        $0.height.equalTo(50)
+                    [measureDataTypeListCollectionView].forEach {
+                        cell.contentView.addSubview($0)
+                        $0.snp.makeConstraints {
+                            $0.top.equalToSuperview().offset(10)
+                            $0.leading.equalToSuperview().offset(20)
+                            $0.trailing.equalToSuperview().inset(20)
+                            $0.bottom.equalToSuperview().offset(-10)
+                            $0.height.equalTo(50)
+                        }
                     }
                 }
                 

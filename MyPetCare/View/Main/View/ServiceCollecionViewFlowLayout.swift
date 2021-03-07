@@ -14,7 +14,7 @@ class ServiceCollecionViewFlowLayout:NSObject, UICollectionViewDelegateFlowLayou
         static var miniMumItemSpacing: CGFloat = 10
         static var miniMumLineSpacing: CGFloat = 10
         static var edgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        static var collectionViewHeight: CGFloat = 60*Constants.heightRatio
+        static var collectionViewHeight: CGFloat = 60
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {

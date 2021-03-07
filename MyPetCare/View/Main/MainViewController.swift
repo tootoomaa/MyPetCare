@@ -203,7 +203,7 @@ class MainViewController: UIViewController, View {
                     serviceCollectionView.snp.makeConstraints {
                         $0.top.leading.equalToSuperview()
                         $0.bottom.trailing.equalToSuperview().offset(-8)
-                        $0.height.greaterThanOrEqualTo(60*Constants.widthRatio)
+                        $0.height.greaterThanOrEqualTo(60)
                     }
                 }
                 
@@ -218,7 +218,11 @@ class MainViewController: UIViewController, View {
                         .subscribe(on: MainScheduler.asyncInstance)
                         .subscribe(onNext: {
                             
-                            guard let selectedPet = reactor.currentState.selectedPet else { return }
+                            guard let selectedPet = reactor.currentState.selectedPet else {
+                                serviceNotAvailableAlert(title: "서비스 불가",
+                                                         message: "펫이 등록되지 않아 상세 정보 보기가 불가능합니다.")
+                                return
+                            }
                             let measureDetailVC = MeasureDetailViewController(type: menuType)
                             measureDetailVC.reactor = MeasureViewReactor(selectedPat: selectedPet,
                                                                          provider: reactor.provider)
@@ -236,7 +240,11 @@ class MainViewController: UIViewController, View {
                         .subscribe(on: MainScheduler.asyncInstance)
                         .subscribe(onNext: {
                             
-                            guard let selectedPet = reactor.currentState.selectedPet else { return }
+                            guard let selectedPet = reactor.currentState.selectedPet else {
+                                serviceNotAvailableAlert(title: "서비스 불가",
+                                                         message: "펫이 등록되지 않아 상세 정보 보기가 불가능합니다.")
+                                return
+                            }
                             let measureDetailVC = MeasureDetailViewController(type: menuType)
                             measureDetailVC.reactor = MeasureViewReactor(selectedPat: selectedPet,
                                                                          provider: reactor.provider)
@@ -338,7 +346,14 @@ class MainViewController: UIViewController, View {
             .compactMap{self.serviceCollectionView.cellForItem(at: $0) as? MeasureServiceCell}
             .compactMap{$0.cellType}
             .subscribe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { [unowned self] serviceType in
+            .withUnretained(self)
+            .subscribe(onNext: { owner, serviceType in
+                
+                guard reactor.currentState.petList?.isEmpty == true else {
+                    owner.serviceNotAvailableAlert(title: "서비스 불가",
+                                                   message: "펫이 등록되어 있지 않습니다. 펫을 먼저 등록해주세요")
+                    return
+                }
                 
                 switch serviceType {
                 
@@ -354,7 +369,7 @@ class MainViewController: UIViewController, View {
                             self.mainView.mainFrameTableView.reloadRows(
                                 at: [cellBRcount, heightWidthBRcount],
                                 with: .automatic)
-                        }).disposed(by: disposeBag)
+                        }).disposed(by: owner.disposeBag)
                     
                     let naviC = UINavigationController(rootViewController: hrmeasureVC)
                     
@@ -371,9 +386,15 @@ class MainViewController: UIViewController, View {
                     
                     naviC.modalPresentationStyle = .overFullScreen
                     self.present(naviC, animated: true, completion: nil)
-                
                 }
             }).disposed(by: disposeBag)
         
+    }
+    
+    private func serviceNotAvailableAlert(title: String, message: String) {
+        let alertC = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okButton = UIAlertAction(title: "확인", style: .default) { _ in }
+        alertC.addAction(okButton)
+        self.present(alertC, animated: true, completion: nil)
     }
 }
