@@ -7,6 +7,7 @@
 
 import Foundation
 import ReactorKit
+import RxDataSources
 
 typealias FilterOptions = (pet: PetObject,
                            measureData: [MeasureServiceType],
@@ -15,6 +16,24 @@ typealias FilterOptions = (pet: PetObject,
 enum StatisticsFilterOptionSection: String, CaseIterable {
     case petList = "펫 리스트"
     case dataType = "선택 정보"
+}
+
+struct StatisticDetailDataTableViewSection {
+    let items: [ChartDetailValue]
+    let header: String
+    
+    init(items: [ChartDetailValue], header: String) {
+        self.items = items
+        self.header = header
+    }
+}
+
+extension StatisticDetailDataTableViewSection: SectionModelType {
+    typealias Item = ChartDetailValue
+    
+    init(original: Self, items: [Self.Item]) {
+        self = original
+    }
 }
 
 struct ChartDetailValue: Equatable, CustomStringConvertible {
@@ -57,11 +76,13 @@ class StatisticsViewReactor: Reactor {
         case setSleepBrChartData([StatisticsBrData])        // [선택] 차트용 수면 호흡 데이터
         case setPhyChartData([StatisticPhyData])            // [선택] 차트용 몸무게 데이터
         case setAllDetailDate([ChartDetailValue])           // [선택] 펫 측정 상세 데이터 for TableView
+        case setSectionData([StatisticDetailDataTableViewSection])
         
         case setNomalBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 보통 호흡 데이터
         case setSleepBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 수면 호흡 데이터
         case setPhyChartDatas([[StatisticPhyData]])         // [전체] 차트용 몸무게 데이터
         case setAllDetailDatas([[ChartDetailValue]])        // [전체] 펫별 측정 상세 데이터 for TableView
+        case setSectionDatas([[StatisticDetailDataTableViewSection]])
         
         case reloadChartData                                // When chartReload Measure Data change
     }
@@ -82,6 +103,9 @@ class StatisticsViewReactor: Reactor {
         var sleepBrChartDatas: [[StatisticsBrData]]
         var phyDatas: [[StatisticPhyData]]
         var allDetailDatas: [[ChartDetailValue]]
+        
+        var sectionTableViewData: [StatisticDetailDataTableViewSection]
+        var sectionTableViewDatas: [[StatisticDetailDataTableViewSection]]
     }
     
     var initialState: State
@@ -107,7 +131,10 @@ class StatisticsViewReactor: Reactor {
                              normalBrChartDatas: [],
                              sleepBrChartDatas: [],
                              phyDatas: [],
-                             allDetailDatas: [])
+                             allDetailDatas: [],
+                             
+                             sectionTableViewData: [],
+                             sectionTableViewDatas: [])
     }
     
     // MARK: - Mutate
@@ -115,6 +142,7 @@ class StatisticsViewReactor: Reactor {
         
         switch action {
         case .loadInitialData:
+            var sectionDataLists: [[StatisticDetailDataTableViewSection]] = []
             var allDetailDatas: [[ChartDetailValue]] = []
             var nomalBrDatas: [[StatisticsBrData]] = []
             var sleepBrDatas: [[StatisticsBrData]] = []
@@ -179,6 +207,30 @@ class StatisticsViewReactor: Reactor {
             let curruntPhycisData = phyDatas[currentState.selectIndex]
             let currentAllDetailData = allDetailDatas[currentState.selectIndex]
             
+            
+            let list = TimeUtil().getMonthAndDayString(type: .month).reversed()
+            
+            allDetailDatas.forEach { detailDataList in
+                
+                var sectionDataList: [StatisticDetailDataTableViewSection] = []
+                
+                list.forEach { dayIndex in
+                    
+                    let tempList = detailDataList.filter {
+                        TimeUtil().getMonthAndDayString(date: $0.createDate) == dayIndex
+                    }
+                    
+                    guard let firstData = tempList.first else { return }
+                    let sectionHeader = TimeUtil().getString(firstData.createDate, .yymmdd)
+                    sectionDataList.append(StatisticDetailDataTableViewSection(items: tempList,
+                                                                               header: sectionHeader))
+                }
+                
+                sectionDataLists.append(sectionDataList)
+            }
+            
+            let curruntSectionData = sectionDataLists[currentState.selectIndex]
+            
             return Observable.merge([.just(.setSelectedPet(pet)),
                                      .just(.setPetObjectList(petList)),
                                      .just(.setNomalBrChartData(currnetNormalBrData)),
@@ -189,6 +241,8 @@ class StatisticsViewReactor: Reactor {
                                      .just(.setPhyChartDatas(phyDatas)),
                                      .just(.setAllDetailDate(currentAllDetailData)),
                                      .just(.setAllDetailDatas(allDetailDatas)),
+                                     .just(.setSectionData(curruntSectionData)),
+                                     .just(.setSectionDatas(sectionDataLists)),
                                      .just(.reloadChartData)])
             
         case .inputDuration(let duration):
@@ -203,12 +257,14 @@ class StatisticsViewReactor: Reactor {
             let currnetNormalBrData = currentState.normalBrChartDatas[index]
             let currnetSleepData = currentState.sleepBrChartDatas[index]
             let curruntPhycisData = currentState.phyDatas[index]
+            let curruntSectiondData = currentState.sectionTableViewDatas[index]
             
             return Observable.merge([.just(.setSelectedPet(petObj)),
                                      .just(.setSelectPetIndex(index)),
                                      .just(.setNomalBrChartData(currnetNormalBrData)),
                                      .just(.setSleepBrChartData(currnetSleepData)),
-                                     .just(.setPhyChartData(curruntPhycisData))])
+                                     .just(.setPhyChartData(curruntPhycisData)),
+                                     .just(.setSectionData(curruntSectiondData))])
             
         case .setMeasureOption(let measureServiceType):
             var list = currentState.filterOption.measureData
@@ -277,6 +333,12 @@ class StatisticsViewReactor: Reactor {
             
         case .setAllDetailDatas(let alldata):
             newState.allDetailDatas = alldata
+            
+        case .setSectionData(let list):
+            newState.sectionTableViewData = list
+            
+        case .setSectionDatas(let lists):
+            newState.sectionTableViewDatas = lists
             
         case .reloadChartData:
             newState.reloadChartTrigger.toggle()

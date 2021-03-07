@@ -53,7 +53,8 @@ class StatisticChartView: UIView {
         
         combinedChartView.snp.makeConstraints {
             $0.top.equalTo(durationSegmentController.snp.bottom).offset(5)
-            $0.leading.trailing.bottom.equalTo(safeAreaLayoutGuide)
+            $0.leading.trailing.equalTo(safeAreaLayoutGuide)
+            $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
         }
     }
     

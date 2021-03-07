@@ -160,7 +160,6 @@ class MeasureDetailTableViewCell: UITableViewCell {
         
         case .breathRate, .breathRateInput:
             configureBROBbjectLayout()
-            
             valueLabel.textColor = .systemGray2
             
 //            dateLabel.text = TimeUtil().getString(data.createDate, .yymmdd)
@@ -182,6 +181,11 @@ class MeasureDetailTableViewCell: UITableViewCell {
             detailDateLabel.text = TimeUtil().getString(data.createDate, .hhmm)
             mainValueLabel.text = "\(data.value)kg"
             break
+        }
+        
+        self.detailDateLabel.snp.remakeConstraints {
+            $0.leading.equalTo(padding*2)
+            $0.centerY.equalTo(contentView.snp.centerY)
         }
     }
     

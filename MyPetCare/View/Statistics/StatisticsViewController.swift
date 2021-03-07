@@ -9,6 +9,7 @@ import Foundation
 import UIKit
 import ReactorKit
 import RxGesture
+import RxDataSources
 
 class StatisticsViewController: UIViewController, View {
     
@@ -18,6 +19,17 @@ class StatisticsViewController: UIViewController, View {
     var allDetailData: [ChartDetailValue] = []
     
     let statisticView = StatisticView()
+    
+    lazy var dataSource = RxTableViewSectionedReloadDataSource<StatisticDetailDataTableViewSection> {
+        (dataSource, tableView, indexPath, item) in
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: MeasureDetailTableViewCell.identifier,
+                                                 for: indexPath) as! MeasureDetailTableViewCell
+        
+        cell.selectionStyle = .none
+        cell.configureChartDetailData(data: item)
+        return cell
+    }
     
     var charDataFilteringButton = UIButton().then {
         let image = UIImage(systemName: "slider.horizontal.3")?
@@ -134,8 +146,14 @@ class StatisticsViewController: UIViewController, View {
     }
     
     private func configureStatisticViewMainFrameTableView() {
-        statisticView.mainFrameTable.dataSource = self
-        statisticView.mainFrameTable.delegate = self
+        
+        dataSource.titleForHeaderInSection = { ds, index in
+            return ds.sectionModels[index].header
+        }
+        
+        statisticView.mainFrameTable.rx.setDelegate(self)
+            .disposed(by: disposeBag)
+        statisticView.mainFrameTable.rowHeight = 70
         statisticView.mainFrameTable
             .register(MeasureDetailTableViewCell.self,
                       forCellReuseIdentifier: MeasureDetailTableViewCell.identifier)
@@ -204,6 +222,11 @@ class StatisticsViewController: UIViewController, View {
                                      reactor.currentState.phyData)
                 
             }).disposed(by: disposeBag)
+        
+        reactor.state.map{$0.sectionTableViewData}
+            .filter{!$0.isEmpty}
+            .bind(to: statisticView.mainFrameTable.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
         
         // 데이터 변경에 따른 차트 재설정
         reactor.state.map{$0.selectIndex}
@@ -396,26 +419,19 @@ class StatisticsViewController: UIViewController, View {
     }
 }
 
-extension StatisticsViewController: UITableViewDataSource, UITableViewDelegate {
+extension StatisticsViewController: UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return allDetailData.count
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return UILabel().then {
+            $0.text = "  \(dataSource.sectionModels[section].header)"
+            $0.textColor = .white
+            $0.font = UIFont(name: "Cafe24Syongsyong", size: 20)
+            $0.backgroundColor = .systemGray4
+            $0.addCornerRadius(2)
+        }
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: MeasureDetailTableViewCell.identifier,
-                                                 for: indexPath) as! MeasureDetailTableViewCell
-        
-        let data = allDetailData[indexPath.row]
-        cell.configureChartDetailData(data: data)
-        
-        return cell
-        
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 30
     }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
-    }
-    
 }
