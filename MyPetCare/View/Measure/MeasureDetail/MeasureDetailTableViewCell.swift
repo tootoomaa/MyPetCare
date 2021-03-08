@@ -106,7 +106,7 @@ class MeasureDetailTableViewCell: UITableViewCell {
         
         petStateLabel.snp.makeConstraints {
             $0.centerY.equalToSuperview()
-            $0.trailing.equalToSuperview().offset(-120)
+            $0.trailing.equalTo(mainValueLabel.snp.leading).offset(-10)
         }
         
         bottomView.snp.makeConstraints {

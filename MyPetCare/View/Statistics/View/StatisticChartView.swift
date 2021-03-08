@@ -11,8 +11,9 @@ import Charts
 
 class StatisticChartView: UIView {
     
-    let brColor: UIColor = .cViolet
-    let wtColor: UIColor = .darkGreen
+    let brColor: UIColor = MeasureServiceType.breathRate.getColor()
+    let sleepBrColor: UIColor = MeasureServiceType.breathRateInput.getColor()
+    let wtColor: UIColor = MeasureServiceType.weight.getColor()
     
     // MARK: - Properties
     let durationString = ["주간","월간"]
@@ -133,14 +134,29 @@ class StatisticChartView: UIView {
                     .then {
                         $0.setColor(brColor, alpha: 1)
                         $0.highlightEnabled = false
-                        $0.valueTextColor = .orange
+                        $0.valueTextColor = brColor
                     }
                 data.barData = BarChartData(dataSet: newDataSet).then {
                     $0.barWidth = 0.5
                 }
                 
             case .breathRateInput:
-                break
+                var tempDataEntries: [BarChartDataEntry] = []
+                for i in 0..<dayValue.count {
+                    let dataEntry = BarChartDataEntry(x: Double(i), y: Double(resultSleepBrList[i]))
+                    tempDataEntries.append(dataEntry)
+                }
+                
+                let newDataSet = BarChartDataSet(entries: tempDataEntries,
+                                                 label: labelString)
+                    .then {
+                        $0.setColor(sleepBrColor, alpha: 1)
+                        $0.highlightEnabled = false
+                        $0.valueTextColor = sleepBrColor
+                    }
+                data.barData = BarChartData(dataSet: newDataSet).then {
+                    $0.barWidth = 0.5
+                }
                 
             case .weight:
                 var tempDataEntries: [ChartDataEntry] = []
