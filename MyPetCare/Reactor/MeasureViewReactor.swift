@@ -30,6 +30,7 @@ class MeasureViewReactor: Reactor {
         // PhysicsMeasureViewContoller
         case savePhysicsData(Double)                // 몸무게 저장
         case saveBRCount(Double)                    // 측정값
+        case setMeasureTime(Date)
         // MeasureDetailViewController
         case loadBrCountData
         case loadPhysicsData
@@ -44,6 +45,7 @@ class MeasureViewReactor: Reactor {
         case setCountDownNumber(Int)                // 카운트 다운 숫자
         case plusBRCount                            // 호흡수 측정값
         case setPetState(Bool)                      // 펫 상태값, 기본 <-> 수면
+        case setUserSelectedMeasureTime(Date)       // 수동 측정 시각 입력
         case resetBRCount                           // 호흡수 측정값 초기화
         case saveCompleteAndDismiss                 // 저장 완료 및 dismiss
         // MeasureDetailVC
@@ -59,7 +61,8 @@ class MeasureViewReactor: Reactor {
         var countDownLabelText: String?             // Count Down Label
         var countTimeNumber: Int                    // Count Down Time
         var brCount: Int                            // 호흡수 측정값
-        var petState: Bool
+        var petState: Bool                          // 펫 상태 (휴식, 수면)
+        var userSelectedMeasureTime: Date           // 사용자가 수동으로 입력한 시간
         var saveCompleteAndDismiss: Bool?           // 저장 완료 및 dismiss
         // MeasureDetailVC
         var brCountHistory: [BRObject]
@@ -106,6 +109,7 @@ class MeasureViewReactor: Reactor {
                              countTimeNumber: 0,
                              brCount: 0,
                              petState: false,
+                             userSelectedMeasureTime: Date(),
                              saveCompleteAndDismiss: nil,
                              brCountHistory: [],
                              physicsHistory: [])
@@ -149,14 +153,10 @@ class MeasureViewReactor: Reactor {
             provider.dataBaseService.add(bpObject)
             
             // Last Data Save
-            let lastData = provider.dataBaseService
-                            .loadLastData(currentState.selectedPet.id!)
-                            .toArray()
-            
-            provider.dataBaseService.write {
-                lastData.first!.resultBR = resultBRCount
-                lastData.first!.petState = currentPetState
-            }
+            self.lastDataSave(petId: petId,
+                              resultBr: Double(resultBRCount),
+                              lastBrCountMeasureTime: Date(),
+                              petState: currentState.petState)
             
             GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())     // 데이터 갱신 업데이트
             return .just(.saveCompleteAndDismiss)
@@ -166,25 +166,25 @@ class MeasureViewReactor: Reactor {
             
         case .savePhysicsData(let weight): // 몸무게 저장 로직
             
-            // DB 저장
+            // 메인 펫 프로필 DB 저장
             let petObj = currentState.selectedPet
             provider.dataBaseService.write {
                 petObj.weight = weight
             }
             
             // 최근 데이터 저장
-            let lastData = provider.dataBaseService
-                                   .loadLastData(petObj.id!).toArray().first
-            provider.dataBaseService.write {
-                lastData?.weight = weight
-            }
+            self.lastDataSave(petId: petId,
+                              weight: weight,
+                              lastWeightMeasureTime: currentState.userSelectedMeasureTime)
             
+            // 신규 측정 데이터 저장
             let newPhysicObj = PhysicsObject().then {
                 $0.id = UUID().uuidString
                 $0.petId = currentState.selectedPet.id
-                $0.createDate = Date()
+                $0.createDate = currentState.userSelectedMeasureTime
                 $0.weight = weight
             }
+            
             provider.dataBaseService.add(newPhysicObj)
             GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())                    // 데이터 갱신 업데이트
             return .empty()
@@ -196,7 +196,7 @@ class MeasureViewReactor: Reactor {
             let bpObject = BRObject().then {
                 $0.id = UUID().uuidString
                 $0.petId = currentState.selectedPet.id
-                $0.createDate = Date()
+                $0.createDate = currentState.userSelectedMeasureTime
                 $0.originalBR = Int(brCount/60)
                 $0.resultBR = Int(brCount)
                 $0.userSettingTime = 60
@@ -205,17 +205,26 @@ class MeasureViewReactor: Reactor {
             provider.dataBaseService.add(bpObject)
 
             // Last Data Save
-            let lastData = provider.dataBaseService
-                            .loadLastData(currentState.selectedPet.id!)
-                            .toArray()
-            
-            provider.dataBaseService.write {
-                lastData.first!.resultBR = Int(brCount)
-                lastData.first!.petState = currentPetState
-            }
+            self.lastDataSave(petId: petId,
+                              resultBr: brCount,
+                              lastBrCountMeasureTime: currentState.userSelectedMeasureTime,
+                              petState: currentState.petState)
+//            if let lastData = provider.dataBaseService
+//                            .loadLastData(currentState.selectedPet.id!)
+//                            .toArray().first {
+//
+//                provider.dataBaseService.write {
+//                    lastData.resultBR = Int(brCount)
+//                    lastData.petState = currentPetState
+//                    lastData.lastBrCountMeasureTime = currentState.userSelectedMeasureTime
+//                }
+//            }
             
             GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
             return .empty()
+            
+        case .setMeasureTime(let date):
+            return .just(.setUserSelectedMeasureTime(date))
             
         case .loadBrCountData:
             let list = provider.dataBaseService.laodBrCountDataHistory(petId)
@@ -289,6 +298,9 @@ class MeasureViewReactor: Reactor {
         case .setPetState(let state):
             newState.petState = state
             
+        case .setUserSelectedMeasureTime(let date):
+            newState.userSelectedMeasureTime = date
+            
         case .saveCompleteAndDismiss:
             newState.saveCompleteAndDismiss = true
             
@@ -301,5 +313,49 @@ class MeasureViewReactor: Reactor {
         }
         
         return newState
+    }
+    
+    // MARK: - Last Data Hanlder
+    /*
+     @objc dynamic var petId: String?
+     @objc dynamic var resultBR: Int = 0
+     @objc dynamic var lastBrCountMeasureTime: Date?
+     @objc dynamic var weight: Double = 0.0
+     @objc dynamic var lastweightMeasureTime: Date?
+     @objc dynamic var petState: PetState.RawValue = "기본"
+     */
+    /// 최근 데이터 저장
+    private func lastDataSave(petId: String,
+                              resultBr: Double? = nil,
+                              lastBrCountMeasureTime: Date? = nil,
+                              weight: Double? = nil,
+                              lastWeightMeasureTime: Date? = nil,
+                              petState: Bool? = false
+    ) {
+        
+        guard let lastData = provider.dataBaseService.loadLastData(petId).toArray().first else {
+            print("Empty")
+            return
+        }
+        
+        // 호흡수 저장
+        if let resultBr = resultBr,
+           let petState = petState,
+           let lastBrCountMeasureTime = lastBrCountMeasureTime{
+            provider.dataBaseService.write {
+                lastData.resultBR = Int(resultBr)
+                lastData.petState = petState == true ? PetState.sleep.rawValue : PetState.nomal.rawValue
+                lastData.lastBrCountMeasureTime = lastBrCountMeasureTime
+            }
+        }
+        
+        // 체중 데이터 저장
+        if let newWeight = weight,
+           let lastWeightMeasureTiem = lastWeightMeasureTime {
+            provider.dataBaseService.write {
+                lastData.weight = newWeight
+                lastData.lastweightMeasureTime = lastWeightMeasureTiem
+            }
+        }
     }
 }

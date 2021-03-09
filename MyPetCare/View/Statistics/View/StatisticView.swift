@@ -27,8 +27,8 @@ class StatisticView: UIView {
     )
     
     lazy var mainFrameTable = UITableView().then {
-        $0.estimatedRowHeight = 300
         $0.tableHeaderView = statisticChartView
+        $0.separatorStyle = .none
     }
     
     let filterOptionTableView = UITableView().then {
@@ -49,7 +49,6 @@ class StatisticView: UIView {
         $0.addCornerRadius(20)
         $0.isHidden = true
     }
-
     
     let dismiaView = UIView().then {
         $0.backgroundColor = UIColor.black.withAlphaComponent(0.2)

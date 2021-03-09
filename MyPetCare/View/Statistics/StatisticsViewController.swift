@@ -9,13 +9,27 @@ import Foundation
 import UIKit
 import ReactorKit
 import RxGesture
+import RxDataSources
 
 class StatisticsViewController: UIViewController, View {
     
     // MARK: - Properties
     var disposeBag: DisposeBag = DisposeBag()
     
+    var allDetailData: [ChartDetailValue] = []
+    
     let statisticView = StatisticView()
+    
+    lazy var dataSource = RxTableViewSectionedReloadDataSource<StatisticDetailDataTableViewSection> {
+        (dataSource, tableView, indexPath, item) in
+        
+        let cell = tableView.dequeueReusableCell(withIdentifier: MeasureDetailTableViewCell.identifier,
+                                                 for: indexPath) as! MeasureDetailTableViewCell
+        
+        cell.selectionStyle = .none
+        cell.configureChartDetailData(data: item)
+        return cell
+    }
     
     var charDataFilteringButton = UIButton().then {
         let image = UIImage(systemName: "slider.horizontal.3")?
@@ -92,6 +106,9 @@ class StatisticsViewController: UIViewController, View {
             }).disposed(by: disposeBag)
         
         configureNavigation()
+        
+        configureStatisticViewMainFrameTableView()
+        
     }
     
     private func configureNavigation() {
@@ -128,6 +145,20 @@ class StatisticsViewController: UIViewController, View {
         }
     }
     
+    private func configureStatisticViewMainFrameTableView() {
+        
+        dataSource.titleForHeaderInSection = { ds, index in
+            return ds.sectionModels[index].header
+        }
+        
+        statisticView.mainFrameTable.rx.setDelegate(self)
+            .disposed(by: disposeBag)
+        statisticView.mainFrameTable.rowHeight = 70
+        statisticView.mainFrameTable
+            .register(MeasureDetailTableViewCell.self,
+                      forCellReuseIdentifier: MeasureDetailTableViewCell.identifier)
+    }
+    
     // MARK: - ReactorKit Binder
     func bind(reactor: StatisticsViewReactor) {
         
@@ -157,6 +188,14 @@ class StatisticsViewController: UIViewController, View {
             .bind(to: statisticView.petListEmptyView.rx.isHidden)
             .disposed(by: disposeBag)
         
+        reactor.state.map{$0.allDetailData}
+            .withUnretained(self)
+            .observe(on: MainScheduler.asyncInstance)
+            .subscribe(onNext: { owner, list in
+                owner.allDetailData = list
+                owner.statisticView.mainFrameTable.reloadData()
+            }).disposed(by: disposeBag)
+        
         // 필터 옵션 변경에 따른 차트 재설정
         reactor.state.map{$0.filterOption}
             .observe(on: MainScheduler.asyncInstance)
@@ -183,6 +222,11 @@ class StatisticsViewController: UIViewController, View {
                                      reactor.currentState.phyData)
                 
             }).disposed(by: disposeBag)
+        
+        reactor.state.map{$0.sectionTableViewData}
+            .filter{!$0.isEmpty}
+            .bind(to: statisticView.mainFrameTable.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
         
         // 데이터 변경에 따른 차트 재설정
         reactor.state.map{$0.selectIndex}
@@ -375,3 +419,19 @@ class StatisticsViewController: UIViewController, View {
     }
 }
 
+extension StatisticsViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return UILabel().then {
+            $0.text = "  \(dataSource.sectionModels[section].header)"
+            $0.textColor = .white
+            $0.font = UIFont(name: "Cafe24Syongsyong", size: 20)
+            $0.backgroundColor = .systemGray4
+            $0.addCornerRadius(2)
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 30
+    }
+}

@@ -7,6 +7,7 @@
 
 import Foundation
 import ReactorKit
+import RxDataSources
 
 typealias FilterOptions = (pet: PetObject,
                            measureData: [MeasureServiceType],
@@ -15,6 +16,42 @@ typealias FilterOptions = (pet: PetObject,
 enum StatisticsFilterOptionSection: String, CaseIterable {
     case petList = "펫 리스트"
     case dataType = "선택 정보"
+}
+
+struct StatisticDetailDataTableViewSection {
+    let items: [ChartDetailValue]
+    let header: String
+    
+    init(items: [ChartDetailValue], header: String) {
+        self.items = items
+        self.header = header
+    }
+}
+
+extension StatisticDetailDataTableViewSection: SectionModelType {
+    typealias Item = ChartDetailValue
+    
+    init(original: Self, items: [Self.Item]) {
+        self = original
+    }
+}
+
+struct ChartDetailValue: Equatable, CustomStringConvertible {
+    var type: MeasureServiceType
+    var createDate: Date
+    var value: Double
+    var brType: PetState?
+    var brOptionValue: (userMeasuerTiem: Int, value: Int)?
+    
+    var description: String {
+        return "\(TimeUtil().getString(createDate, .callHistoryCellStyle))"
+    }
+    
+    static func == (lhs: ChartDetailValue, rhs: ChartDetailValue) -> Bool {
+        return lhs.createDate != rhs.createDate
+            || lhs.value != rhs.value
+            || lhs.type != rhs.type
+    }
 }
 
 class StatisticsViewReactor: Reactor {
@@ -38,10 +75,15 @@ class StatisticsViewReactor: Reactor {
         case setNomalBrChartData([StatisticsBrData])        // [선택] 차트용 보통 호흡 데이터
         case setSleepBrChartData([StatisticsBrData])        // [선택] 차트용 수면 호흡 데이터
         case setPhyChartData([StatisticPhyData])            // [선택] 차트용 몸무게 데이터
+        case setAllDetailDate([ChartDetailValue])           // [선택] 펫 측정 상세 데이터 for TableView
+        case setSectionData([StatisticDetailDataTableViewSection])
         
         case setNomalBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 보통 호흡 데이터
         case setSleepBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 수면 호흡 데이터
         case setPhyChartDatas([[StatisticPhyData]])         // [전체] 차트용 몸무게 데이터
+        case setAllDetailDatas([[ChartDetailValue]])        // [전체] 펫별 측정 상세 데이터 for TableView
+        case setSectionDatas([[StatisticDetailDataTableViewSection]])
+        
         case reloadChartData                                // When chartReload Measure Data change
     }
     
@@ -55,15 +97,21 @@ class StatisticsViewReactor: Reactor {
         var normalBrChartData: [StatisticsBrData]
         var sleepBrChartData: [StatisticsBrData]
         var phyData: [StatisticPhyData]
+        var allDetailData: [ChartDetailValue]
         
         var normalBrChartDatas: [[StatisticsBrData]]
         var sleepBrChartDatas: [[StatisticsBrData]]
         var phyDatas: [[StatisticPhyData]]
+        var allDetailDatas: [[ChartDetailValue]]
+        
+        var sectionTableViewData: [StatisticDetailDataTableViewSection]
+        var sectionTableViewDatas: [[StatisticDetailDataTableViewSection]]
     }
     
     var initialState: State
     var provider: ServiceProviderType
     
+    // MARK: - Init
     init(provider: ServiceProviderType) {
         self.provider = provider
         
@@ -78,16 +126,24 @@ class StatisticsViewReactor: Reactor {
                              normalBrChartData: [],
                              sleepBrChartData: [],
                              phyData: [],
+                             allDetailData: [],
                              
                              normalBrChartDatas: [],
                              sleepBrChartDatas: [],
-                             phyDatas: [])
+                             phyDatas: [],
+                             allDetailDatas: [],
+                             
+                             sectionTableViewData: [],
+                             sectionTableViewDatas: [])
     }
     
+    // MARK: - Mutate
     func mutate(action: Action) -> Observable<Mutation> {
         
         switch action {
         case .loadInitialData:
+            var sectionDataLists: [[StatisticDetailDataTableViewSection]] = []
+            var allDetailDatas: [[ChartDetailValue]] = []
             var nomalBrDatas: [[StatisticsBrData]] = []
             var sleepBrDatas: [[StatisticsBrData]] = []
             var phyDatas: [[StatisticPhyData]] = []
@@ -101,25 +157,79 @@ class StatisticsViewReactor: Reactor {
             
             petList.compactMap{$0.id}
                 .forEach { petId in
+                    var currentPetAllData: [ChartDetailValue] = []
                     let brData = provider.dataBaseService
                         .loadPetBRLog(petId)
                         .toArray()
-                        .map{StatisticsBrData(brObj: $0)}
                     
-                    nomalBrDatas.append(brData.filter{$0.petState == PetState.nomal.rawValue})
-                    sleepBrDatas.append(brData.filter{$0.petState == PetState.sleep.rawValue})
+                    /// 호흡 데이터 생성 ------------------------------------------
+                    // 차트 데이터 생성
+                    let brDataForChart = brData.map{StatisticsBrData(brObj: $0)}
+                    nomalBrDatas.append(brDataForChart.filter{$0.petState == PetState.nomal.rawValue})
+                    sleepBrDatas.append(brDataForChart.filter{$0.petState == PetState.sleep.rawValue})
                     
-                    let fetchedPhyData = provider.dataBaseService
+                    // 차트 디테일 데이터 생성 (상세 정보)
+                    let brDataForDetail = brData.map{
+                        ChartDetailValue(
+                            type: .breathRate,
+                            createDate: $0.createDate!,
+                            value: Double($0.resultBR),
+                            brType: PetState(rawValue: $0.petState),
+                            brOptionValue: ($0.originalBR, $0.userSettingTime)
+                        )
+                    }
+                    currentPetAllData.append(contentsOf: brDataForDetail)
+                    /// 체중 데이터 생성 ------------------------------------------
+                    // 차트 데이터 생성
+                    let phyData = provider.dataBaseService
                         .loadPhysicsDataHistory(petId)
-                        .map{StatisticPhyData(phyObj: $0)}
                     
-                    phyDatas.append(fetchedPhyData)
+                    let weightDataForChart = phyData.map{StatisticPhyData(phyObj: $0)}
+                    phyDatas.append(weightDataForChart)
+                    
+                    // 차트 디테일 데이터 생성 (상세 정보)
+                    let weightDataForDetail = phyData.map{
+                        ChartDetailValue(
+                            type: .weight,
+                            createDate: $0.createDate!,
+                            value: $0.weight,
+                            brType: nil,
+                            brOptionValue: nil)
+                    }
+                    currentPetAllData.append(contentsOf: weightDataForDetail)
+                    currentPetAllData.sort {$0.createDate > $1.createDate}
+                    allDetailDatas.append(currentPetAllData)
                 }
             
             let pet = petList[currentState.selectIndex]
             let currnetNormalBrData = nomalBrDatas[currentState.selectIndex]
             let currnetSleepData = sleepBrDatas[currentState.selectIndex]
             let curruntPhycisData = phyDatas[currentState.selectIndex]
+            let currentAllDetailData = allDetailDatas[currentState.selectIndex]
+            
+            
+            let list = TimeUtil().getMonthAndDayString(type: .month).reversed()
+            
+            allDetailDatas.forEach { detailDataList in
+                
+                var sectionDataList: [StatisticDetailDataTableViewSection] = []
+                
+                list.forEach { dayIndex in
+                    
+                    let tempList = detailDataList.filter {
+                        TimeUtil().getMonthAndDayString(date: $0.createDate) == dayIndex
+                    }
+                    
+                    guard let firstData = tempList.first else { return }
+                    let sectionHeader = TimeUtil().getString(firstData.createDate, .yymmdd)
+                    sectionDataList.append(StatisticDetailDataTableViewSection(items: tempList,
+                                                                               header: sectionHeader))
+                }
+                
+                sectionDataLists.append(sectionDataList)
+            }
+            
+            let curruntSectionData = sectionDataLists[currentState.selectIndex]
             
             return Observable.merge([.just(.setSelectedPet(pet)),
                                      .just(.setPetObjectList(petList)),
@@ -129,6 +239,10 @@ class StatisticsViewReactor: Reactor {
                                      .just(.setNomalBrChartDatas(nomalBrDatas)),
                                      .just(.setSleepBrChartDatas(sleepBrDatas)),
                                      .just(.setPhyChartDatas(phyDatas)),
+                                     .just(.setAllDetailDate(currentAllDetailData)),
+                                     .just(.setAllDetailDatas(allDetailDatas)),
+                                     .just(.setSectionData(curruntSectionData)),
+                                     .just(.setSectionDatas(sectionDataLists)),
                                      .just(.reloadChartData)])
             
         case .inputDuration(let duration):
@@ -143,12 +257,14 @@ class StatisticsViewReactor: Reactor {
             let currnetNormalBrData = currentState.normalBrChartDatas[index]
             let currnetSleepData = currentState.sleepBrChartDatas[index]
             let curruntPhycisData = currentState.phyDatas[index]
+            let curruntSectiondData = currentState.sectionTableViewDatas[index]
             
             return Observable.merge([.just(.setSelectedPet(petObj)),
                                      .just(.setSelectPetIndex(index)),
                                      .just(.setNomalBrChartData(currnetNormalBrData)),
                                      .just(.setSleepBrChartData(currnetSleepData)),
-                                     .just(.setPhyChartData(curruntPhycisData))])
+                                     .just(.setPhyChartData(curruntPhycisData)),
+                                     .just(.setSectionData(curruntSectiondData))])
             
         case .setMeasureOption(let measureServiceType):
             var list = currentState.filterOption.measureData
@@ -169,6 +285,7 @@ class StatisticsViewReactor: Reactor {
         }
     }
     
+    // MARK: - Reduce
     func reduce(state: State, mutation: Mutation) -> State {
         
         var newState = state
@@ -202,6 +319,9 @@ class StatisticsViewReactor: Reactor {
         case .setPhyChartData(let list):
             newState.phyData = list
             
+        case .setAllDetailDate(let list):
+            newState.allDetailData = list
+            
         case .setNomalBrChartDatas(let brChartData):
             newState.normalBrChartDatas = brChartData
             
@@ -210,6 +330,15 @@ class StatisticsViewReactor: Reactor {
             
         case .setPhyChartDatas(let phyChartData):
             newState.phyDatas = phyChartData
+            
+        case .setAllDetailDatas(let alldata):
+            newState.allDetailDatas = alldata
+            
+        case .setSectionData(let list):
+            newState.sectionTableViewData = list
+            
+        case .setSectionDatas(let lists):
+            newState.sectionTableViewDatas = lists
             
         case .reloadChartData:
             newState.reloadChartTrigger.toggle()
@@ -224,6 +353,9 @@ class StatisticsViewReactor: Reactor {
                                  GlobalState.MeasureDataUpdateAndChartReload
                                     .map{ _ in .loadInitialData}])
     }
+    
+    // MARK: - Data Handler
+    
 }
 
 
