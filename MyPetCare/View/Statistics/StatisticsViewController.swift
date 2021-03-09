@@ -16,8 +16,6 @@ class StatisticsViewController: UIViewController, View {
     // MARK: - Properties
     var disposeBag: DisposeBag = DisposeBag()
     
-    var allDetailData: [ChartDetailValue] = []
-    
     let statisticView = StatisticView()
     
     lazy var dataSource = RxTableViewSectionedReloadDataSource<StatisticDetailDataTableViewSection> {
@@ -183,32 +181,19 @@ class StatisticsViewController: UIViewController, View {
                 self.selectedPetMaleImageView.image = Male(rawValue: $0.male!)?.getPetMaleImage
             }).disposed(by: disposeBag)
         
+        
         reactor.state.map{$0.petList}
             .map{!$0.isEmpty}
             .bind(to: statisticView.petListEmptyView.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map{$0.allDetailData}
-            .withUnretained(self)
-            .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { owner, list in
-                owner.allDetailData = list
-                owner.statisticView.mainFrameTable.reloadData()
-            }).disposed(by: disposeBag)
-        
-        // 필터 옵션 변경에 따른 차트 재설정
-        reactor.state.map{$0.filterOption}
-            .observe(on: MainScheduler.asyncInstance)
-            .distinctUntilChanged { (filter1, filter2) -> Bool in
-                guard filter1.pet == filter2.pet else { return false }
-                guard filter1.measureData == filter2.measureData else { return false }
-                guard filter1.duration == filter2.duration else { return false }
-                return true}
-            .map{ _ in Reactor.Action.reloadChart}
-            .bind(to: reactor.action)
+        // 상세 정보 테이블 뷰 생성
+        reactor.state.map{$0.sectionTableViewData}
+            .filter{!$0.isEmpty}
+            .bind(to: statisticView.mainFrameTable.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
-        // 데이터 변경에 따른 차트 재설정
+        // 데이터 변경 트리거 ( 실제 데이터 변경 적용 )
         reactor.state.map{$0.reloadChartTrigger}
             .observe(on: MainScheduler.asyncInstance)
             .distinctUntilChanged()
@@ -223,25 +208,24 @@ class StatisticsViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
-        reactor.state.map{$0.sectionTableViewData}
-            .filter{!$0.isEmpty}
-            .bind(to: statisticView.mainFrameTable.rx.items(dataSource: dataSource))
+        // 펫 선택 변경에 따른 차트 재설정
+        reactor.state.map{$0.selectIndex}
+            .distinctUntilChanged()
+            .map{_ in Reactor.Action.reloadChart}
+            .bind(to: reactor.action)
             .disposed(by: disposeBag)
         
-        // 데이터 변경에 따른 차트 재설정
-        reactor.state.map{$0.selectIndex}
+        // 필터 옵션 변경에 따른 차트 재설정
+        reactor.state.map{$0.filterOption}
             .observe(on: MainScheduler.asyncInstance)
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
-                
-                guard !reactor.currentState.petList.isEmpty else { return }
-                owner.configureChart(reactor.currentState.filterOption,
-                                     reactor.currentState.normalBrChartData,
-                                     reactor.currentState.sleepBrChartData,
-                                     reactor.currentState.phyData)
-                
-            }).disposed(by: disposeBag)
+            .distinctUntilChanged { (filter1, filter2) -> Bool in
+                guard filter1.pet == filter2.pet else { return false }
+                guard filter1.measureData == filter2.measureData else { return false }
+                guard filter1.duration == filter2.duration else { return false }
+                return true}
+            .map{ _ in Reactor.Action.reloadChart}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         // 기간 선택 segment 설정
         statisticView.statisticChartView

@@ -74,6 +74,15 @@ class StatisticChartView: UIView {
             $0.yEntrySpace = 0.0;
         }
         
+        _ = groupBarChartView.xAxis.then {
+            $0.labelFont = .systemFont(ofSize: 10, weight: .bold)
+//            $0.forceLabelsEnabled = true
+            $0.granularity = 1
+            $0.granularityEnabled = true
+            $0.drawGridLinesEnabled = true
+            $0.labelPosition = .bottom
+        }
+        
         _ = groupBarChartView.then {
             $0.noDataText = "데이터가 없습니다."
             $0.noDataFont = .dynamicFont(name: "Cafe24Syongsyong", size: 20)
@@ -118,10 +127,16 @@ class StatisticChartView: UIView {
         }
     }
     
+    // MARK: - Set Chart
     func setChart(filterOption: FilterOptions,
                   resultNormalBrList:[Int],
                   resultSleepBrList:[Int],
                   resultPhyList:[Double]) {
+        
+        guard !filterOption.measureData.isEmpty else {
+            groupBarChartView.clear()
+            return
+        }
         
         // 최대값 설정
         let finalValue = getBiggestValueInArray(resultNormalBrList, resultSleepBrList, resultPhyList.map{Int($0)}) + 5
@@ -129,7 +144,7 @@ class StatisticChartView: UIView {
         groupBarChartView.rightAxis.axisMaximum = finalValue    // top padding
         
         // 요일 데이터 생성
-        var dayValue: [String] = TimeUtil().getDayStringByCurrentDay(type: filterOption.duration)
+        let dayValue: [String] = TimeUtil().getDayStringByCurrentDay(type: filterOption.duration)
         
         // 데이터 생성
         var data: [BarChartDataSet] = []
@@ -187,32 +202,50 @@ class StatisticChartView: UIView {
             }
         }
         
+        // MARK: - Common Thing For Chart
+        // y축 보여줄지 여부 체크
+        checkAxisShowedByData(filterOption)
+        
+        groupBarChartView.xAxis.centerAxisLabelsEnabled = true
+        
+        if filterOption.duration == .weak { // x 축 전체 라벨 표시
+            groupBarChartView.xAxis.setLabelCount(dayValue.count, force: false)
+        }
+        
+        let dataCount = Double(data.count)
         let groupSpace = 0.5
-        let barSpace = 0.03 // x2 dataset
-        let barWidth = 0.42 // x2 dataset
+        let barSpace = 0.05 // x2 dataset
+        let barWidth: Double = ((1.0-groupSpace)-barSpace*(dataCount))/dataCount   //0.29 // x3 dataset
         // (0.45 + 0.02) * 2 + 0.06 = 1.00 -> interval per "group"
         // (barWidth+barSpace)*2 + groupSpace = 1.00
         
-        let finalData = BarChartData(dataSets: data)
-        finalData.barWidth = barWidth
-        
-        _ = groupBarChartView.xAxis.then {
-            $0.labelFont = .systemFont(ofSize: 10, weight: .bold)
-            $0.forceLabelsEnabled = true
-            $0.granularity = 1
-            $0.granularityEnabled = true
-            $0.centerAxisLabelsEnabled = true
-            $0.drawGridLinesEnabled = true
-            $0.labelPosition = .bottom
+        // MARK: - Chart for one measure data
+        guard filterOption.measureData.count != 1 else {
+            
+            let finalData = BarChartData(dataSet: data.first)
+            finalData.barWidth = barWidth
+            groupBarChartView.data = finalData
+            
+            groupBarChartView.xAxis.axisMinimum = -1
+            groupBarChartView.xAxis.axisMaximum = filterOption.duration.getDayForStatistics()+1
+            groupBarChartView.xAxis.centerAxisLabelsEnabled = false
+            
+            groupBarChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: dayValue)
+            
+            groupBarChartView.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)
+            return
         }
         
-        groupBarChartView.xAxis.setLabelCount(dayValue.count+1, force: true)
-        groupBarChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: dayValue.map{_ in " "})
+        // MARK: - Chart setting for more two measure data
+        let finalData = BarChartData(dataSets: data)
+        finalData.barWidth = barWidth
+
+        groupBarChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: dayValue)
         
         let gg = finalData.groupWidth(groupSpace: groupSpace, barSpace: barSpace)
         print("Groupspace: \(gg)")
         let startIndex: Double = 0.0
-        let groupCount = Double(filterOption.duration == .weak ? 7 : 30)
+        let groupCount = filterOption.duration.getDayForStatistics()
         
         groupBarChartView.xAxis.axisMinimum = 0
         groupBarChartView.xAxis.axisMaximum = startIndex + gg * groupCount
@@ -224,6 +257,7 @@ class StatisticChartView: UIView {
         groupBarChartView.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)
     }
     
+    // MARK: - Chart helper
     private func getBiggestValueInArray(_ array1:[Int], _ array2: [Int], _ array3: [Int]) -> Double {
         
         let nomalBrValue = Double(array1.sorted().last ?? 50)
@@ -234,5 +268,19 @@ class StatisticChartView: UIView {
         let finalValue = heighestLeftValue > heighestRightValue ? heighestLeftValue : heighestRightValue
         
         return Double(finalValue)
+    }
+    
+    /// 데이터에 따라서 차트의 왼쪽 오른쪽 Y축 감추고 보여주고 용도
+    fileprivate func checkAxisShowedByData(_ filterOption: FilterOptions) {
+        groupBarChartView.rightAxis.enabled = true
+        groupBarChartView.leftAxis.enabled = true
+        
+        if filterOption.measureData.filter({ $0 == .weight }).isEmpty {
+            groupBarChartView.rightAxis.enabled = false
+        }
+        
+        if filterOption.measureData.filter({$0 == .breathRate || $0 == .breathRateInput}).isEmpty {
+            groupBarChartView.leftAxis.enabled = false
+        }
     }
 }

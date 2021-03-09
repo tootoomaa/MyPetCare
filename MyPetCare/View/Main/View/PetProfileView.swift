@@ -46,7 +46,7 @@ class PetProfileView: UIView {
     
     var ageValueLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = .dynamicSystemFont(size: 14, weight: .semibold)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 14)
     }
     
     var weightLabel = UILabel().then {
@@ -57,7 +57,7 @@ class PetProfileView: UIView {
     
     var weightValueLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = .dynamicSystemFont(size: 14, weight: .semibold)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 14)
     }
     
     var heightLabel = UILabel().then {
@@ -68,7 +68,7 @@ class PetProfileView: UIView {
     
     var heightValueLabel = UILabel().then {
         $0.textColor = .black
-        $0.font = .systemFont(ofSize: 14, weight: .semibold)
+        $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 14)
     }
     
     let editButton = UIButton().then {

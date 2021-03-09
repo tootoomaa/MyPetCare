@@ -56,5 +56,14 @@ class Constants {
     enum duration: Int, CaseIterable {
         case weak = 0
         case month = 1
+        
+        func getDayForStatistics() -> Double {
+            switch self {
+            case .month:
+                return 29.0
+            case .weak:
+                return 6.0
+            }
+        }
     }
 }
