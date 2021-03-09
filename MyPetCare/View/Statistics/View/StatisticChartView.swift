@@ -24,7 +24,7 @@ class StatisticChartView: UIView {
         $0.addBorder(.black, 0.2)
     }
     
-    let combinedChartView = CombinedChartView()
+    let combinedChartView = BarChartView()
     
     // MARK: - Life Cycle
     init(frame: CGRect, segmentHeight: CGFloat) {
@@ -61,6 +61,24 @@ class StatisticChartView: UIView {
     
     // MARK: - Configure Bar Chart
     private func configureBarchart() {
+        
+        let l = combinedChartView.legend
+        l.horizontalAlignment = .right
+        l.verticalAlignment = .top
+        l.orientation = .vertical
+        l.drawInside = true
+        l.font = .systemFont(ofSize: 8, weight: .light)
+        l.yOffset = 10
+        l.xOffset = 10
+        l.yEntrySpace = 0
+        
+        
+        let xAxis = combinedChartView.xAxis
+        xAxis.labelFont = .systemFont(ofSize: 10, weight: .light)
+        xAxis.granularity = 1
+        xAxis.centerAxisLabelsEnabled = true
+
+        
         _ = combinedChartView.then {
             $0.noDataText = "데이터가 없습니다."
             $0.noDataFont = .dynamicFont(name: "Cafe24Syongsyong", size: 20)
@@ -83,7 +101,7 @@ class StatisticChartView: UIView {
                 $0.axisMinimum = 0 // FIXME: HUH?? this replaces startAtZero = YES
                 $0.axisMaximum = 50
             }
-            // 오른쪽 X축
+            // 오른쪽 Y축
             _ = $0.rightAxis.then {
                 $0.labelFont = .systemFont(ofSize: 10)
                 $0.labelTextColor = wtColor
@@ -115,9 +133,10 @@ class StatisticChartView: UIView {
         
         // 요일 데이터 생성
         let dayValue: [String] = TimeUtil().getDayStringByCurrentDay(type: filterOption.duration)
+        let groupCount = Double(filterOption.duration.rawValue)
                 
         // 데이터 생성
-        let data: CombinedChartData = CombinedChartData()
+        var data: [BarChartDataSet] = []
         filterOption.measureData.forEach {
             guard let labelString = $0.rawValue.components(separatedBy: .newlines).first else { return }
             
@@ -136,9 +155,7 @@ class StatisticChartView: UIView {
                         $0.highlightEnabled = false
                         $0.valueTextColor = brColor
                     }
-                data.barData = BarChartData(dataSet: newDataSet).then {
-                    $0.barWidth = 0.5
-                }
+                data.append(newDataSet)
                 
             case .breathRateInput:
                 var tempDataEntries: [BarChartDataEntry] = []
@@ -154,40 +171,49 @@ class StatisticChartView: UIView {
                         $0.highlightEnabled = false
                         $0.valueTextColor = sleepBrColor
                     }
-                data.barData = BarChartData(dataSet: newDataSet).then {
-                    $0.barWidth = 0.5
-                }
+                data.append(newDataSet)
                 
             case .weight:
-                var tempDataEntries: [ChartDataEntry] = []
+                var tempDataEntries: [BarChartDataEntry] = []
                 for i in 0..<dayValue.count {
-                    let dataEntry = ChartDataEntry(x: Double(i), y: resultPhyList[i])
+                    let dataEntry = BarChartDataEntry(x: Double(i), y: resultPhyList[i])
                     tempDataEntries.append(dataEntry)
                 }
                 
-                let newDataSet = LineChartDataSet(entries: tempDataEntries,
+                let newDataSet = BarChartDataSet(entries: tempDataEntries,
                                                  label: labelString)
                     .then {
                         $0.setColor(wtColor, alpha: 1)
                         $0.highlightEnabled = false
-                        $0.circleRadius = 2.0
-                        $0.circleHoleRadius = 2.0
-                        $0.mode = .cubicBezier
                         $0.valueTextColor = wtColor
                     }
-                data.lineData = LineChartData(dataSet: newDataSet)
+                data.append(newDataSet)
             }
         }
         
+        let groupSpace = 0.5
+        let barSpace = 0.01 // x2 dataset
+        let barWidth = 1.0 // x2 dataset
+        // (0.45 + 0.02) * 2 + 0.06 = 1.00 -> interval per "group"
+        
+        let finalData = BarChartData(dataSets: data)
+        
+        // make this BarData object grouped
+        finalData.groupBars(fromX: 0, groupSpace: groupSpace, barSpace: barSpace)
+        
+        combinedChartView.xAxis.axisMinimum = 0.0
+        combinedChartView.xAxis.axisMaximum = finalData.groupWidth(groupSpace: groupSpace, barSpace: barSpace)*Double(filterOption.duration == .weak ? 7 : 30)
+        finalData.barWidth = barWidth
+        
         // 데이터 셋팅 ( 바, 라인 )
-        combinedChartView.data = data
+        combinedChartView.data = finalData
         
         // X축
         combinedChartView.xAxis.labelPosition = .bottom                         // X축 레이블 위치 조정
         combinedChartView.xAxis.setLabelCount(dayValue.count, force: true)      // x축 전체 라벨 보이기
         combinedChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: dayValue) // X축 레이블 포맷 지정
         
-        // 리미트라인
+        // 리미트라인`
 //        let ll = ChartLimitLine(limit: 10.0, label: "타겟")
 //        combineChartView.leftAxis.addLimitLine(ll)
         combinedChartView.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)

@@ -20,6 +20,13 @@ class PhysicsMeasureViewController: UIViewController, View {
     
     let closeNanviButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: nil, action: nil)
     
+    let datePicker = UIDatePicker().then {
+        $0.datePickerMode = .dateAndTime
+        $0.locale = Constants.currentLocale
+        $0.maximumDate = Date()
+        $0.tintColor = .black
+    }
+    
     // MARK: - Life Cycle
     init(type: MeasureServiceType) {
         self.measureType = type
@@ -78,13 +85,19 @@ class PhysicsMeasureViewController: UIViewController, View {
         keyboardToolbar.sizeToFit()
         keyboardToolbar.barStyle = .default
         
+        // padding 버튼
         let flexBarButton = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
         
+        // 날자 선택 (기본 현재 날짜)
+        let datePickerItem = UIBarButtonItem(customView: datePicker)
+        
+        // . 입력 버튼
         let dot = UIBarButtonItem(title: "   ●   ", style: .plain, target: nil, action: nil).then {
             // dot의 특수문자는 "Cafe24Syongsyong" 폰트에 없음
             $0.tintColor = .black
         }
         
+        // 완료 버튼
         let done = UIBarButtonItem(title: "Save", style: .plain, target: nil, action: nil)
         
         [done].forEach {
@@ -103,7 +116,7 @@ class PhysicsMeasureViewController: UIViewController, View {
                 self.saveAlertController()
             }).disposed(by: disposeBag)
         
-        keyboardToolbar.items = measureType == .weight ? [dot, flexBarButton, done] : [flexBarButton, done]
+        keyboardToolbar.items = measureType == .weight ? [datePickerItem, flexBarButton, dot, done] : [datePickerItem, flexBarButton, done]
         textField.inputAccessoryView = keyboardToolbar
     }
     
@@ -141,6 +154,12 @@ class PhysicsMeasureViewController: UIViewController, View {
         // 사용자 펫 수면 여부 체크 스위치
         mainView.petStateButton.rx.isOn
             .map{Reactor.Action.setPetState($0)}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        // 수동 입력시 사용자가 변경한 시간 값 설정
+        datePicker.rx.value.changed
+            .map{Reactor.Action.setMeasureTime($0)}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
