@@ -24,7 +24,7 @@ class StatisticChartView: UIView {
         $0.addBorder(.black, 0.2)
     }
     
-    let combinedChartView = BarChartView()
+    let groupBarChartView = BarChartView()
     
     // MARK: - Life Cycle
     init(frame: CGRect, segmentHeight: CGFloat) {
@@ -42,7 +42,7 @@ class StatisticChartView: UIView {
     // MARK: - Configure Layout
     private func configureLayout(_ frame: CGRect, _ segmentHeight: CGFloat) {
         
-        [durationSegmentController, combinedChartView].forEach {
+        [durationSegmentController, groupBarChartView].forEach {
             addSubview($0)
         }
         
@@ -52,7 +52,7 @@ class StatisticChartView: UIView {
             $0.height.equalTo(segmentHeight)
         }
         
-        combinedChartView.snp.makeConstraints {
+        groupBarChartView.snp.makeConstraints {
             $0.top.equalTo(durationSegmentController.snp.bottom).offset(5)
             $0.leading.trailing.equalTo(safeAreaLayoutGuide)
             $0.bottom.equalTo(safeAreaLayoutGuide).offset(-10)
@@ -61,25 +61,20 @@ class StatisticChartView: UIView {
     
     // MARK: - Configure Bar Chart
     private func configureBarchart() {
-        
-        let l = combinedChartView.legend
-        l.horizontalAlignment = .right
-        l.verticalAlignment = .top
-        l.orientation = .vertical
-        l.drawInside = true
-        l.font = .systemFont(ofSize: 8, weight: .light)
-        l.yOffset = 10
-        l.xOffset = 10
-        l.yEntrySpace = 0
-        
-        
-        let xAxis = combinedChartView.xAxis
-        xAxis.labelFont = .systemFont(ofSize: 10, weight: .light)
-        xAxis.granularity = 1
-        xAxis.centerAxisLabelsEnabled = true
 
+        //legend
+        _ = groupBarChartView.legend.then {
+            $0.enabled = true
+            $0.horizontalAlignment = .center
+            $0.verticalAlignment = .top
+            $0.orientation = .horizontal
+            $0.drawInside = false
+            $0.yOffset = 10.0;
+            $0.xOffset = 10.0;
+            $0.yEntrySpace = 0.0;
+        }
         
-        _ = combinedChartView.then {
+        _ = groupBarChartView.then {
             $0.noDataText = "데이터가 없습니다."
             $0.noDataFont = .dynamicFont(name: "Cafe24Syongsyong", size: 20)
             $0.noDataTextColor = .black
@@ -90,6 +85,7 @@ class StatisticChartView: UIView {
                 $0.labelFont = .systemFont(ofSize: 10)
                 $0.labelTextColor = brColor
                 $0.labelCount = 5
+                $0.drawGridLinesEnabled = false
                 
                 let format = NumberFormatter()
                 format.minimumFractionDigits = 0
@@ -107,6 +103,7 @@ class StatisticChartView: UIView {
                 $0.labelTextColor = wtColor
                 $0.labelCount = 5
                 $0.granularity = 1
+                $0.drawGridLinesEnabled = false
                 
                 let format = NumberFormatter()
                 format.minimumFractionDigits = 0
@@ -128,17 +125,16 @@ class StatisticChartView: UIView {
         
         // 최대값 설정
         let finalValue = getBiggestValueInArray(resultNormalBrList, resultSleepBrList, resultPhyList.map{Int($0)}) + 5
-        combinedChartView.leftAxis.axisMaximum = finalValue     // top padding
-        combinedChartView.rightAxis.axisMaximum = finalValue    // top padding
+        groupBarChartView.leftAxis.axisMaximum = finalValue     // top padding
+        groupBarChartView.rightAxis.axisMaximum = finalValue    // top padding
         
         // 요일 데이터 생성
-        let dayValue: [String] = TimeUtil().getDayStringByCurrentDay(type: filterOption.duration)
-        let groupCount = Double(filterOption.duration.rawValue)
-                
+        var dayValue: [String] = TimeUtil().getDayStringByCurrentDay(type: filterOption.duration)
+        
         // 데이터 생성
         var data: [BarChartDataSet] = []
         filterOption.measureData.forEach {
-            guard let labelString = $0.rawValue.components(separatedBy: .newlines).first else { return }
+            let labelString = $0.getTitle()
             
             switch $0 {
             case .breathRate:
@@ -192,31 +188,40 @@ class StatisticChartView: UIView {
         }
         
         let groupSpace = 0.5
-        let barSpace = 0.01 // x2 dataset
-        let barWidth = 1.0 // x2 dataset
+        let barSpace = 0.03 // x2 dataset
+        let barWidth = 0.42 // x2 dataset
         // (0.45 + 0.02) * 2 + 0.06 = 1.00 -> interval per "group"
+        // (barWidth+barSpace)*2 + groupSpace = 1.00
         
         let finalData = BarChartData(dataSets: data)
-        
-        // make this BarData object grouped
-        finalData.groupBars(fromX: 0, groupSpace: groupSpace, barSpace: barSpace)
-        
-        combinedChartView.xAxis.axisMinimum = 0.0
-        combinedChartView.xAxis.axisMaximum = finalData.groupWidth(groupSpace: groupSpace, barSpace: barSpace)*Double(filterOption.duration == .weak ? 7 : 30)
         finalData.barWidth = barWidth
         
-        // 데이터 셋팅 ( 바, 라인 )
-        combinedChartView.data = finalData
+        _ = groupBarChartView.xAxis.then {
+            $0.labelFont = .systemFont(ofSize: 10, weight: .bold)
+            $0.forceLabelsEnabled = true
+            $0.granularity = 1
+            $0.granularityEnabled = true
+            $0.centerAxisLabelsEnabled = true
+            $0.drawGridLinesEnabled = true
+            $0.labelPosition = .bottom
+        }
         
-        // X축
-        combinedChartView.xAxis.labelPosition = .bottom                         // X축 레이블 위치 조정
-        combinedChartView.xAxis.setLabelCount(dayValue.count, force: true)      // x축 전체 라벨 보이기
-        combinedChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: dayValue) // X축 레이블 포맷 지정
+        groupBarChartView.xAxis.setLabelCount(dayValue.count+1, force: true)
+        groupBarChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: dayValue.map{_ in " "})
         
-        // 리미트라인`
-//        let ll = ChartLimitLine(limit: 10.0, label: "타겟")
-//        combineChartView.leftAxis.addLimitLine(ll)
-        combinedChartView.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)
+        let gg = finalData.groupWidth(groupSpace: groupSpace, barSpace: barSpace)
+        print("Groupspace: \(gg)")
+        let startIndex: Double = 0.0
+        let groupCount = Double(filterOption.duration == .weak ? 7 : 30)
+        
+        groupBarChartView.xAxis.axisMinimum = 0
+        groupBarChartView.xAxis.axisMaximum = startIndex + gg * groupCount
+        
+        finalData.groupBars(fromX: startIndex, groupSpace: groupSpace, barSpace: barSpace)
+        
+        groupBarChartView.data = finalData
+        
+        groupBarChartView.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)
     }
     
     private func getBiggestValueInArray(_ array1:[Int], _ array2: [Int], _ array3: [Int]) -> Double {
