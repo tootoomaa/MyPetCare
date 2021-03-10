@@ -8,11 +8,6 @@
 import Foundation
 import RealmSwift
 
-enum PetState: String, CaseIterable {
-    case nomal = "기본"
-    case sleep = "수면"
-}
-
 class BRObject: Object {
     
     @objc dynamic var id: String?
@@ -20,8 +15,8 @@ class BRObject: Object {
     @objc dynamic var createDate: Date?
     @objc dynamic var originalBR: Int = 0
     @objc dynamic var resultBR: Int = 0
-    @objc dynamic var userSettingTime: Int = 0
-    @objc dynamic var petState: PetState.RawValue = "기본"
+    @objc dynamic var userSettingTime: Int = 10
+    @objc dynamic var measureType: MeasureServiceType.RawValue? = MeasureServiceType.breathRate.rawValue
     
     override static func primaryKey() -> String? {
         return "id"
@@ -35,7 +30,7 @@ struct BrObject {
     var sectionDate: String!
     var dayDate: String!
     var resultBR: Int!
-    var petState: PetState.RawValue!
+    var measureServiceType: MeasureServiceType!
     
     init(brObj: BRObject) {
         
@@ -52,8 +47,11 @@ struct BrObject {
             self.dayDate = TimeUtil().getString(date, .hhmm)
         }
         
+        if let measureServiceType = brObj.measureType {
+            self.measureServiceType = MeasureServiceType(rawValue: measureServiceType)
+        }
+        
         self.resultBR = brObj.resultBR
-        self.petState = brObj.petState
         
     }
 }

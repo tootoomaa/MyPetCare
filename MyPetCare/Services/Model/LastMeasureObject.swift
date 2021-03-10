@@ -15,7 +15,7 @@ class LastMeasureObject: Object {
     @objc dynamic var lastBrCountMeasureTime: Date?
     @objc dynamic var weight: Double = 0.0
     @objc dynamic var lastweightMeasureTime: Date?
-    @objc dynamic var petState: PetState.RawValue = "기본"
+    @objc dynamic var measureType: MeasureServiceType.RawValue = MeasureServiceType.breathRate.getTitle()
     
     override static func primaryKey() -> String? {
         return "petId"

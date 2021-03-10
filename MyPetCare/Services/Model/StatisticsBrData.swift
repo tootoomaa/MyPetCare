@@ -17,7 +17,7 @@ struct StatisticsBrData {
     
     var originalBR: Int!
     var userSettingTime: Int!
-    var petState: PetState.RawValue!
+    var measureType: MeasureServiceType!
 
     init(brObj: BRObject) {
         
@@ -34,9 +34,12 @@ struct StatisticsBrData {
             self.dayIndex = TimeUtil().getMonthAndDayString(date: date)
         }
         
+        if let measureType = brObj.measureType {
+            self.measureType = MeasureServiceType(rawValue: measureType)
+        }
+        
         self.resultBR = brObj.resultBR
         self.originalBR = brObj.originalBR
         self.userSettingTime = brObj.userSettingTime
-        self.petState = brObj.petState
     }
 }

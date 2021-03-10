@@ -12,7 +12,7 @@ import Charts
 class StatisticChartView: UIView {
     
     let brColor: UIColor = MeasureServiceType.breathRate.getColor()
-    let sleepBrColor: UIColor = MeasureServiceType.breathRateInput.getColor()
+    let sleepBrColor: UIColor = MeasureServiceType.sleepBreathRate.getColor()
     let wtColor: UIColor = MeasureServiceType.weight.getColor()
     
     // MARK: - Properties
@@ -149,7 +149,7 @@ class StatisticChartView: UIView {
         // 데이터 생성
         var data: [BarChartDataSet] = []
         filterOption.measureData.forEach {
-            let labelString = $0.getTitle()
+            let labelString = $0.rawValue
             
             switch $0 {
             case .breathRate:
@@ -168,7 +168,7 @@ class StatisticChartView: UIView {
                     }
                 data.append(newDataSet)
                 
-            case .breathRateInput:
+            case .sleepBreathRate:
                 var tempDataEntries: [BarChartDataEntry] = []
                 for i in 0..<dayValue.count {
                     let dataEntry = BarChartDataEntry(x: Double(i), y: Double(resultSleepBrList[i]))
@@ -279,7 +279,7 @@ class StatisticChartView: UIView {
             groupBarChartView.rightAxis.enabled = false
         }
         
-        if filterOption.measureData.filter({$0 == .breathRate || $0 == .breathRateInput}).isEmpty {
+        if filterOption.measureData.filter({$0 == .breathRate || $0 == .sleepBreathRate}).isEmpty {
             groupBarChartView.leftAxis.enabled = false
         }
     }

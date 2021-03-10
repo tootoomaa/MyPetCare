@@ -106,7 +106,6 @@ class StatisticsViewController: UIViewController, View {
         configureNavigation()
         
         configureStatisticViewMainFrameTableView()
-        
     }
     
     private func configureNavigation() {
@@ -172,6 +171,7 @@ class StatisticsViewController: UIViewController, View {
                     self.selectedPetName.text = ""
                     self.selectedPetMaleImageView.image = UIImage()
                     self.selectPetImageView.image = UIImage()
+                    self.statisticView.statisticChartView.groupBarChartView.clear()
                 }
             })
             .compactMap{$0}
@@ -200,11 +200,17 @@ class StatisticsViewController: UIViewController, View {
             .withUnretained(self)
             .subscribe(onNext: { owner, _ in
                 
-                guard !reactor.currentState.petList.isEmpty else { return }
+                // 차트 데이터 갱신
+                guard !reactor.currentState.petList.isEmpty else {
+                    owner.statisticView.statisticChartView.groupBarChartView.clear()
+                    return
+                }
                 owner.configureChart(reactor.currentState.filterOption,
                                      reactor.currentState.normalBrChartData,
                                      reactor.currentState.sleepBrChartData,
                                      reactor.currentState.phyData)
+                // 디테일 테이블 데이터 갱신
+                reactor.action.onNext(.reloadDetailTableViewData)
                 
             }).disposed(by: disposeBag)
         
@@ -295,7 +301,7 @@ class StatisticsViewController: UIViewController, View {
                             
                             let button = UIButton().then {
                                 cell.contentView.addSubview($0)
-                                $0.setTitle(type.getTitle(), for: .normal)
+                                $0.setTitle(type.rawValue, for: .normal)
                                 $0.setTitleColor(.black, for: .normal)
                                 $0.setTitleColor(.white, for: .selected)
                                 $0.setBackgroundColor(color: .white, forState: .normal)
@@ -354,15 +360,22 @@ class StatisticsViewController: UIViewController, View {
                                 _ sleepBrData: [StatisticsBrData],
                                 _ phyData: [StatisticPhyData]) {
         
+//        guard normalBrData.count +
+//              sleepBrData.count +
+//              phyData.count != 0 else {
+//            statisticView.statisticChartView.groupBarChartView.clear()
+//            return
+//        }
+        
         var resultNormalBrList: [Int] = []               // 휴식 BR 이력 저장
         var resultSleepBrList: [Int] = []                // 수면 Br 이력 저장
         var resultPhyList: [Double] = []                 // Phy 이력 저장
         
         // 당일을 기준으로 [1달/7일]데이터 추출
-        let indexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)
+        let dayIndexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)
         
         // 데이터 생성 부분
-        indexlist.forEach { index in
+        dayIndexlist.forEach { index in
             /// 일반 호흡수 데이터 추출 --------------------------------------- -------------------------------------
             let normalBrCount = normalBrData                                    // 호흡수 측정 갯수
                 .filter{$0.dayIndex == index}

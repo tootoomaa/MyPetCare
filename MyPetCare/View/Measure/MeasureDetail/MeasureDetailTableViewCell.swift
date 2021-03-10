@@ -72,7 +72,7 @@ class MeasureDetailTableViewCell: UITableViewCell {
         mainValueLabel.text = "\(data.resultBR)회/분"
         valueLabel.text = "\(data.originalBR)회/\(data.userSettingTime)초"
         
-        if data.petState == PetState.sleep.rawValue {
+        if data.measureType == MeasureServiceType.sleepBreathRate.rawValue {
             petStateLabel.isHidden = false              // 수면 상태일 때 보여줌
         }
     }
@@ -158,7 +158,7 @@ class MeasureDetailTableViewCell: UITableViewCell {
         
         switch data.type {
         
-        case .breathRate, .breathRateInput:
+        case .breathRate, .sleepBreathRate:
             configureBROBbjectLayout()
             valueLabel.textColor = .systemGray2
             
@@ -169,7 +169,7 @@ class MeasureDetailTableViewCell: UITableViewCell {
             guard let userMeasureDetailData = data.brOptionValue else { return }
             valueLabel.text = "\(userMeasureDetailData.value)회/\(userMeasureDetailData.userMeasuerTiem)초"
             
-            if data.brType == .sleep  {
+            if data.type == .sleepBreathRate  {
                 petStateLabel.isHidden = false              // 수면 상태일 때 보여줌
             }
             
