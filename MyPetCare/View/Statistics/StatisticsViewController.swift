@@ -108,6 +108,11 @@ class StatisticsViewController: UIViewController, View {
         configureStatisticViewMainFrameTableView()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.backgroundColor = .white
+    }
+    
     private func configureNavigation() {
         self.navigationController?.configureNavigationBarAppearance(.white)
         self.navigationController?.navigationBar.prefersLargeTitles = true

@@ -162,7 +162,6 @@ class MeasureDetailTableViewCell: UITableViewCell {
             configureBROBbjectLayout()
             valueLabel.textColor = .systemGray2
             
-//            dateLabel.text = TimeUtil().getString(data.createDate, .yymmdd)
             detailDateLabel.text = TimeUtil().getString(data.createDate, .hhmm)
             mainValueLabel.text = "\(data.value)회/분"
             

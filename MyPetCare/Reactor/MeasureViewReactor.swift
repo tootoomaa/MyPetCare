@@ -73,7 +73,7 @@ class MeasureViewReactor: Reactor {
     var selectedPet: PetObject
     let waitingForCount: Int = 3
     var initialState: State
-    var petId: String {
+    var selectedPetId: String {
         return selectedPet.id ?? ""
     }
     
@@ -153,7 +153,7 @@ class MeasureViewReactor: Reactor {
             provider.dataBaseService.add(bpObject)
             
             // Last Data Save
-            self.lastDataSave(petId: petId,
+            self.lastDataSave(petId: selectedPetId,
                               resultBr: Double(resultBRCount),
                               lastBrCountMeasureTime: Date(),
                               measureType: currentState.isPetSleep)
@@ -173,7 +173,7 @@ class MeasureViewReactor: Reactor {
             }
             
             // 최근 데이터 저장
-            self.lastDataSave(petId: petId,
+            self.lastDataSave(petId: selectedPetId,
                               weight: weight,
                               lastWeightMeasureTime: currentState.userSelectedMeasureTime)
             
@@ -205,7 +205,7 @@ class MeasureViewReactor: Reactor {
             provider.dataBaseService.add(bpObject)
 
             // Last Data Save
-            self.lastDataSave(petId: petId,
+            self.lastDataSave(petId: selectedPetId,
                               resultBr: brCount,
                               lastBrCountMeasureTime: currentState.userSelectedMeasureTime,
                               measureType: currentState.isPetSleep)
@@ -217,11 +217,11 @@ class MeasureViewReactor: Reactor {
             return .just(.setUserSelectedMeasureTime(date))
             
         case .loadBrCountData:
-            let list = provider.dataBaseService.laodBrCountDataHistory(petId)
+            let list = provider.dataBaseService.laodBrCountDataHistory(selectedPetId)
             return .just(.setBrCountLiat(list))
             
         case .loadPhysicsData:
-            let list = provider.dataBaseService.loadPhysicsDataHistory(petId)
+            let list = provider.dataBaseService.loadPhysicsDataHistory(selectedPetId)
             return .just(.setPhysicsList(list))
             
         case .removeMeasureData(let index, let type):
@@ -232,28 +232,38 @@ class MeasureViewReactor: Reactor {
                 let deleteObj = list.remove(at: index)
                 provider.dataBaseService.delete(deleteObj)
                 
-                if index == 0 {
-                    let obj = provider.dataBaseService.loadLastData(petId).first
+                if index == 0 { // 최근 데이터 삭제한 경우 메인 화면의 최근 호흡수 수정
+                    let obj = provider.dataBaseService.loadLastData(selectedPetId).first
                     provider.dataBaseService.write {
                         obj?.resultBR = list.first?.resultBR ?? 0
                     }
-                    GlobalState.lastDateUpdate.onNext(Void())                      // 최근 측정 데이터 갱신
+                    GlobalState.lastDateUpdate.onNext(Void())              // 최근 측정 데이터 갱신
                 }
-                GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())         // 데이터 갱신 업데이트
+                
+                GlobalState.MeasureDataUpdateAndChartReload.onNext(Void()) // 데이터 갱신 업데이트
                 return .just(.setBrCountLiat(list))
                 
             case .physicsSV:
                 var list = currentState.physicsHistory
                 let deleteObj = list.remove(at: index)
-                
                 provider.dataBaseService.delete(deleteObj)
-                if index == 0 {
-                    let obj = provider.dataBaseService.loadLastData(petId).first
+                
+                if list.isEmpty { // 마지막 데이터 삭제 일때 0으로 수정
+                    if let petObject = provider.dataBaseService.loadPet(petId: selectedPetId).first {
+                        provider.dataBaseService.write {
+                            petObject.weight = 0
+                        }
+                    }
+                }
+                
+                if index == 0 { // 최근 데이터 삭제한 경우 메인 화면의 최근 체중 수정
+                    let obj = provider.dataBaseService.loadLastData(selectedPetId).first
                     provider.dataBaseService.write {
                         obj?.weight = list.first?.weight ?? 0
                     }
                     GlobalState.lastDateUpdate.onNext(Void())                      // 최근 측정 데이터 갱신
                 }
+                
                 GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())         // 데이터 갱신 업데이트
                 return .just(.setPhysicsList(list))
                 

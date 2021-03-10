@@ -167,8 +167,6 @@ class StatisticsViewReactor: Reactor {
                     
                     /// 호흡 데이터 생성 ------------------------------------------
                     // 차트 데이터 생성
-                    print(brData)
-                    
                     let brDataForChart = brData.map{StatisticsBrData(brObj: $0)}
                     nomalBrDatas.append(brDataForChart.filter{$0.measureType == .breathRate})
                     sleepBrDatas.append(brDataForChart.filter{$0.measureType == .sleepBreathRate})
