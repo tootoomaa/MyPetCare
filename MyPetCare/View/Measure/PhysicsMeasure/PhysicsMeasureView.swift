@@ -86,9 +86,9 @@ class PhysicsMeasureView: UIView {
         self.measureType = type
         super.init(frame: .zero)
         
-        petStateButton .isHidden = measureType != .breathRateInput
-        petStateLabel.isHidden = measureType != .breathRateInput
-        brInputCountInfoLabel.isHidden = measureType != .breathRateInput
+        petStateButton .isHidden = measureType != .sleepBreathRate
+        petStateLabel.isHidden = measureType != .sleepBreathRate
+        brInputCountInfoLabel.isHidden = measureType != .sleepBreathRate
         weightValueLabel.text = measureType == .weight ? "kg" : "회"
         weightTitleLabel.text = measureType == .weight ? "체중" : "호흡수"
         

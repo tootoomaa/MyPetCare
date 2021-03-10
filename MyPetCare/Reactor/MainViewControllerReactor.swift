@@ -11,16 +11,16 @@ import RxSwift
 import RxCocoa
 
 enum MeasureServiceType: String, CaseIterable {
-    case breathRate = "호흡수\n측정"
-    case breathRateInput = "호흡수\n수동 입력"
-    case weight = "체중\n측정"
+    case breathRate = "호흡수"
+    case sleepBreathRate = "수면호흡수"
+    case weight = "체중"
     
     func getColor() -> UIColor {
         switch self {
         case .breathRate:
             return .cViolet
             
-        case .breathRateInput:
+        case .sleepBreathRate:
             return .systemTeal
             
         case .weight:
@@ -31,11 +31,11 @@ enum MeasureServiceType: String, CaseIterable {
     func getTitle() -> String {
         switch self {
         case .breathRate:
-            return "호흡수"
-        case .breathRateInput:
-            return "수면호흡수"
+            return "호흡수\n측정"
+        case .sleepBreathRate:
+            return "수면호흡수\n측정"
         case .weight:
-            return "몸무게"
+            return "몸무게\n측정"
         }
     }
 }

@@ -17,7 +17,7 @@ class Constants {
         static let maxDevice: CGFloat = 900        // max
     }
     
-    static let DB_VERSION: UInt64 = 8
+    static let DB_VERSION: UInt64 = 11
     
     // Measure View
     static let maxMeasureCount: Int = 60
@@ -56,5 +56,14 @@ class Constants {
     enum duration: Int, CaseIterable {
         case weak = 0
         case month = 1
+        
+        func getDayForStatistics() -> Double {
+            switch self {
+            case .month:
+                return 30.0
+            case .weak:
+                return 7.0
+            }
+        }
     }
 }

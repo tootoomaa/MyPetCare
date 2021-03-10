@@ -61,7 +61,7 @@ class MeasureViewReactor: Reactor {
         var countDownLabelText: String?             // Count Down Label
         var countTimeNumber: Int                    // Count Down Time
         var brCount: Int                            // 호흡수 측정값
-        var petState: Bool                          // 펫 상태 (휴식, 수면)
+        var isPetSleep: Bool                          // 펫 상태 (휴식, 수면)
         var userSelectedMeasureTime: Date           // 사용자가 수동으로 입력한 시간
         var saveCompleteAndDismiss: Bool?           // 저장 완료 및 dismiss
         // MeasureDetailVC
@@ -73,7 +73,7 @@ class MeasureViewReactor: Reactor {
     var selectedPet: PetObject
     let waitingForCount: Int = 3
     var initialState: State
-    var petId: String {
+    var selectedPetId: String {
         return selectedPet.id ?? ""
     }
     
@@ -90,13 +90,13 @@ class MeasureViewReactor: Reactor {
     }
     
     var petState: Bool {
-        return currentState.petState
+        return currentState.isPetSleep
     }
     
     var currentPetState: String {
-        return currentState.petState
-                    ? PetState.sleep.rawValue
-                    : PetState.nomal.rawValue
+        return currentState.isPetSleep
+            ? MeasureServiceType.sleepBreathRate.rawValue
+            : MeasureServiceType.breathRate.rawValue
     }
     
     init(selectedPat: PetObject, provider: ServiceProviderType) {
@@ -108,7 +108,7 @@ class MeasureViewReactor: Reactor {
                              countDownLabelText: nil,
                              countTimeNumber: 0,
                              brCount: 0,
-                             petState: false,
+                             isPetSleep: false,
                              userSelectedMeasureTime: Date(),
                              saveCompleteAndDismiss: nil,
                              brCountHistory: [],
@@ -147,16 +147,16 @@ class MeasureViewReactor: Reactor {
                 $0.originalBR = currentState.brCount
                 $0.resultBR = resultBRCount
                 $0.userSettingTime = currentState.selectedMeatureTime
-                $0.petState = currentPetState
+                $0.measureType = currentPetState
             }
             
             provider.dataBaseService.add(bpObject)
             
             // Last Data Save
-            self.lastDataSave(petId: petId,
+            self.lastDataSave(petId: selectedPetId,
                               resultBr: Double(resultBRCount),
                               lastBrCountMeasureTime: Date(),
-                              petState: currentState.petState)
+                              measureType: currentState.isPetSleep)
             
             GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())     // 데이터 갱신 업데이트
             return .just(.saveCompleteAndDismiss)
@@ -173,7 +173,7 @@ class MeasureViewReactor: Reactor {
             }
             
             // 최근 데이터 저장
-            self.lastDataSave(petId: petId,
+            self.lastDataSave(petId: selectedPetId,
                               weight: weight,
                               lastWeightMeasureTime: currentState.userSelectedMeasureTime)
             
@@ -200,25 +200,15 @@ class MeasureViewReactor: Reactor {
                 $0.originalBR = Int(brCount/60)
                 $0.resultBR = Int(brCount)
                 $0.userSettingTime = 60
-                $0.petState = currentPetState
+                $0.measureType = currentPetState
             }
             provider.dataBaseService.add(bpObject)
 
             // Last Data Save
-            self.lastDataSave(petId: petId,
+            self.lastDataSave(petId: selectedPetId,
                               resultBr: brCount,
                               lastBrCountMeasureTime: currentState.userSelectedMeasureTime,
-                              petState: currentState.petState)
-//            if let lastData = provider.dataBaseService
-//                            .loadLastData(currentState.selectedPet.id!)
-//                            .toArray().first {
-//
-//                provider.dataBaseService.write {
-//                    lastData.resultBR = Int(brCount)
-//                    lastData.petState = currentPetState
-//                    lastData.lastBrCountMeasureTime = currentState.userSelectedMeasureTime
-//                }
-//            }
+                              measureType: currentState.isPetSleep)
             
             GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
             return .empty()
@@ -227,11 +217,11 @@ class MeasureViewReactor: Reactor {
             return .just(.setUserSelectedMeasureTime(date))
             
         case .loadBrCountData:
-            let list = provider.dataBaseService.laodBrCountDataHistory(petId)
+            let list = provider.dataBaseService.laodBrCountDataHistory(selectedPetId)
             return .just(.setBrCountLiat(list))
             
         case .loadPhysicsData:
-            let list = provider.dataBaseService.loadPhysicsDataHistory(petId)
+            let list = provider.dataBaseService.loadPhysicsDataHistory(selectedPetId)
             return .just(.setPhysicsList(list))
             
         case .removeMeasureData(let index, let type):
@@ -242,28 +232,38 @@ class MeasureViewReactor: Reactor {
                 let deleteObj = list.remove(at: index)
                 provider.dataBaseService.delete(deleteObj)
                 
-                if index == 0 {
-                    let obj = provider.dataBaseService.loadLastData(petId).first
+                if index == 0 { // 최근 데이터 삭제한 경우 메인 화면의 최근 호흡수 수정
+                    let obj = provider.dataBaseService.loadLastData(selectedPetId).first
                     provider.dataBaseService.write {
                         obj?.resultBR = list.first?.resultBR ?? 0
                     }
-                    GlobalState.lastDateUpdate.onNext(Void())                      // 최근 측정 데이터 갱신
+                    GlobalState.lastDateUpdate.onNext(Void())              // 최근 측정 데이터 갱신
                 }
-                GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())         // 데이터 갱신 업데이트
+                
+                GlobalState.MeasureDataUpdateAndChartReload.onNext(Void()) // 데이터 갱신 업데이트
                 return .just(.setBrCountLiat(list))
                 
             case .physicsSV:
                 var list = currentState.physicsHistory
                 let deleteObj = list.remove(at: index)
-                
                 provider.dataBaseService.delete(deleteObj)
-                if index == 0 {
-                    let obj = provider.dataBaseService.loadLastData(petId).first
+                
+                if list.isEmpty { // 마지막 데이터 삭제 일때 0으로 수정
+                    if let petObject = provider.dataBaseService.loadPet(petId: selectedPetId).first {
+                        provider.dataBaseService.write {
+                            petObject.weight = 0
+                        }
+                    }
+                }
+                
+                if index == 0 { // 최근 데이터 삭제한 경우 메인 화면의 최근 체중 수정
+                    let obj = provider.dataBaseService.loadLastData(selectedPetId).first
                     provider.dataBaseService.write {
                         obj?.weight = list.first?.weight ?? 0
                     }
                     GlobalState.lastDateUpdate.onNext(Void())                      // 최근 측정 데이터 갱신
                 }
+                
                 GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())         // 데이터 갱신 업데이트
                 return .just(.setPhysicsList(list))
                 
@@ -296,7 +296,7 @@ class MeasureViewReactor: Reactor {
             newState.brCount = 0
             
         case .setPetState(let state):
-            newState.petState = state
+            newState.isPetSleep = state
             
         case .setUserSelectedMeasureTime(let date):
             newState.userSelectedMeasureTime = date
@@ -316,21 +316,13 @@ class MeasureViewReactor: Reactor {
     }
     
     // MARK: - Last Data Hanlder
-    /*
-     @objc dynamic var petId: String?
-     @objc dynamic var resultBR: Int = 0
-     @objc dynamic var lastBrCountMeasureTime: Date?
-     @objc dynamic var weight: Double = 0.0
-     @objc dynamic var lastweightMeasureTime: Date?
-     @objc dynamic var petState: PetState.RawValue = "기본"
-     */
     /// 최근 데이터 저장
     private func lastDataSave(petId: String,
                               resultBr: Double? = nil,
                               lastBrCountMeasureTime: Date? = nil,
                               weight: Double? = nil,
                               lastWeightMeasureTime: Date? = nil,
-                              petState: Bool? = false
+                              measureType: Bool? = false
     ) {
         
         guard let lastData = provider.dataBaseService.loadLastData(petId).toArray().first else {
@@ -340,11 +332,11 @@ class MeasureViewReactor: Reactor {
         
         // 호흡수 저장
         if let resultBr = resultBr,
-           let petState = petState,
+           let measureType = measureType,
            let lastBrCountMeasureTime = lastBrCountMeasureTime{
             provider.dataBaseService.write {
                 lastData.resultBR = Int(resultBr)
-                lastData.petState = petState == true ? PetState.sleep.rawValue : PetState.nomal.rawValue
+                lastData.measureType = currentPetState
                 lastData.lastBrCountMeasureTime = lastBrCountMeasureTime
             }
         }

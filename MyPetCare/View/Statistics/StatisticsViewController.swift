@@ -16,8 +16,6 @@ class StatisticsViewController: UIViewController, View {
     // MARK: - Properties
     var disposeBag: DisposeBag = DisposeBag()
     
-    var allDetailData: [ChartDetailValue] = []
-    
     let statisticView = StatisticView()
     
     lazy var dataSource = RxTableViewSectionedReloadDataSource<StatisticDetailDataTableViewSection> {
@@ -108,7 +106,11 @@ class StatisticsViewController: UIViewController, View {
         configureNavigation()
         
         configureStatisticViewMainFrameTableView()
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.navigationBar.backgroundColor = .white
     }
     
     private func configureNavigation() {
@@ -174,6 +176,7 @@ class StatisticsViewController: UIViewController, View {
                     self.selectedPetName.text = ""
                     self.selectedPetMaleImageView.image = UIImage()
                     self.selectPetImageView.image = UIImage()
+                    self.statisticView.statisticChartView.groupBarChartView.clear()
                 }
             })
             .compactMap{$0}
@@ -183,18 +186,45 @@ class StatisticsViewController: UIViewController, View {
                 self.selectedPetMaleImageView.image = Male(rawValue: $0.male!)?.getPetMaleImage
             }).disposed(by: disposeBag)
         
+        
         reactor.state.map{$0.petList}
             .map{!$0.isEmpty}
             .bind(to: statisticView.petListEmptyView.rx.isHidden)
             .disposed(by: disposeBag)
         
-        reactor.state.map{$0.allDetailData}
-            .withUnretained(self)
+        // 상세 정보 테이블 뷰 생성
+        reactor.state.map{$0.sectionTableViewData}
+            .filter{!$0.isEmpty}
+            .bind(to: statisticView.mainFrameTable.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
+        
+        // 데이터 변경 트리거 ( 실제 데이터 변경 적용 )
+        reactor.state.map{$0.reloadChartTrigger}
             .observe(on: MainScheduler.asyncInstance)
-            .subscribe(onNext: { owner, list in
-                owner.allDetailData = list
-                owner.statisticView.mainFrameTable.reloadData()
+            .distinctUntilChanged()
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                
+                // 차트 데이터 갱신
+                guard !reactor.currentState.petList.isEmpty else {
+                    owner.statisticView.statisticChartView.groupBarChartView.clear()
+                    return
+                }
+                owner.configureChart(reactor.currentState.filterOption,
+                                     reactor.currentState.normalBrChartData,
+                                     reactor.currentState.sleepBrChartData,
+                                     reactor.currentState.phyData)
+                // 디테일 테이블 데이터 갱신
+                reactor.action.onNext(.reloadDetailTableViewData)
+                
             }).disposed(by: disposeBag)
+        
+        // 펫 선택 변경에 따른 차트 재설정
+        reactor.state.map{$0.selectIndex}
+            .distinctUntilChanged()
+            .map{_ in Reactor.Action.reloadChart}
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
         
         // 필터 옵션 변경에 따른 차트 재설정
         reactor.state.map{$0.filterOption}
@@ -207,41 +237,6 @@ class StatisticsViewController: UIViewController, View {
             .map{ _ in Reactor.Action.reloadChart}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-        
-        // 데이터 변경에 따른 차트 재설정
-        reactor.state.map{$0.reloadChartTrigger}
-            .observe(on: MainScheduler.asyncInstance)
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
-                
-                guard !reactor.currentState.petList.isEmpty else { return }
-                owner.configureChart(reactor.currentState.filterOption,
-                                     reactor.currentState.normalBrChartData,
-                                     reactor.currentState.sleepBrChartData,
-                                     reactor.currentState.phyData)
-                
-            }).disposed(by: disposeBag)
-        
-        reactor.state.map{$0.sectionTableViewData}
-            .filter{!$0.isEmpty}
-            .bind(to: statisticView.mainFrameTable.rx.items(dataSource: dataSource))
-            .disposed(by: disposeBag)
-        
-        // 데이터 변경에 따른 차트 재설정
-        reactor.state.map{$0.selectIndex}
-            .observe(on: MainScheduler.asyncInstance)
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
-                
-                guard !reactor.currentState.petList.isEmpty else { return }
-                owner.configureChart(reactor.currentState.filterOption,
-                                     reactor.currentState.normalBrChartData,
-                                     reactor.currentState.sleepBrChartData,
-                                     reactor.currentState.phyData)
-                
-            }).disposed(by: disposeBag)
         
         // 기간 선택 segment 설정
         statisticView.statisticChartView
@@ -311,7 +306,7 @@ class StatisticsViewController: UIViewController, View {
                             
                             let button = UIButton().then {
                                 cell.contentView.addSubview($0)
-                                $0.setTitle(type.getTitle(), for: .normal)
+                                $0.setTitle(type.rawValue, for: .normal)
                                 $0.setTitleColor(.black, for: .normal)
                                 $0.setTitleColor(.white, for: .selected)
                                 $0.setBackgroundColor(color: .white, forState: .normal)
@@ -370,15 +365,22 @@ class StatisticsViewController: UIViewController, View {
                                 _ sleepBrData: [StatisticsBrData],
                                 _ phyData: [StatisticPhyData]) {
         
+//        guard normalBrData.count +
+//              sleepBrData.count +
+//              phyData.count != 0 else {
+//            statisticView.statisticChartView.groupBarChartView.clear()
+//            return
+//        }
+        
         var resultNormalBrList: [Int] = []               // 휴식 BR 이력 저장
         var resultSleepBrList: [Int] = []                // 수면 Br 이력 저장
         var resultPhyList: [Double] = []                 // Phy 이력 저장
         
         // 당일을 기준으로 [1달/7일]데이터 추출
-        let indexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)
+        let dayIndexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)
         
         // 데이터 생성 부분
-        indexlist.forEach { index in
+        dayIndexlist.forEach { index in
             /// 일반 호흡수 데이터 추출 --------------------------------------- -------------------------------------
             let normalBrCount = normalBrData                                    // 호흡수 측정 갯수
                 .filter{$0.dayIndex == index}

@@ -27,6 +27,8 @@ protocol DatabaseServiceType {
     
     func write(_ block: (() throws -> Void))
     
+    func loadPet(petId: String) -> Results<PetObject>
+    
     func loadPetList() -> Results<PetObject>
     
     func loadPetBRLog() -> Results<BRObject>
@@ -141,6 +143,11 @@ class DatabaseService: BaseService, DatabaseServiceType {
                 try block()
             }
         }
+    }
+    
+    func loadPet(petId: String) -> Results<PetObject> {
+        let predicate = NSPredicate(format: "id = %@", petId)
+        return db().objects(PetObject.self).filter(predicate)
     }
     
     func loadPetList() -> Results<PetObject> {

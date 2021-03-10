@@ -138,7 +138,7 @@ class PhysicsMeasureViewController: UIViewController, View {
                 
             }).disposed(by: disposeBag)
         
-        reactor.state.map{$0.petState}
+        reactor.state.map{$0.isPetSleep}
             .distinctUntilChanged()
             .map{$0 == true ? "수면 on" : "수면 off" }
             .bind(to: mainView.petStateLabel.rx.text)

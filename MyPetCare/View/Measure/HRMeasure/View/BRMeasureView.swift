@@ -219,7 +219,7 @@ class BRMeasureView: UIView {
         }
         
         petStateButton.snp.makeConstraints {
-            $0.trailing.equalTo(safeGuide).offset(-padding*2)
+            $0.trailing.equalTo(safeGuide).offset(-padding*3)
             $0.centerY.equalTo(timeSettingLabel)
             $0.height.equalTo(timeSettingLabel)
         }
