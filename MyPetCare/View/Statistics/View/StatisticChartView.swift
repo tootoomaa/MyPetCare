@@ -129,7 +129,7 @@ class StatisticChartView: UIView {
         groupBarChartView.clear()                               // 기존 옵션 모두 제거
         guard !filterOption.measureData.isEmpty else { return } // 데이터가 없을 경우 방지
         
-        if resultNormalBrList.reduce(0,+) == 0
+        if resultNormalBrList.reduce(0,+) == 0                  // 모든 데이터가 없는 경우
             && resultNormalBrList.reduce(0,+) == 0
             && resultSleepBrList.reduce(0,+) == 0 {
             return

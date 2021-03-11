@@ -170,9 +170,8 @@ class MainViewControllerReactor: Reactor {
     
     // MARK: - Transfrom
     func transform(action: Observable<Action>) -> Observable<Action> {
-        let indexPath = currentState.selectedIndexPath
         return Observable.merge([action,
                                  GlobalState.lastDateUpdate
-                                    .map{.selectedIndexPath(indexPath)}])
+                                    .map{.selectedIndexPath(self.currentState.selectedIndexPath)}])
     }
 }

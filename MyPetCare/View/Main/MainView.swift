@@ -154,6 +154,7 @@ class MainView: UIView {
     func setOriginalOffsetPetProfileView() {
         UIView.animate(withDuration: 0.1) {
             self.petProfileView.dashBoardView.center.x = self.petProfileView.center.x
+            self.mainFrameTableView.setContentOffset(.zero, animated: false)
         }
     }
     

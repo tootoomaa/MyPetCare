@@ -185,14 +185,6 @@ class MainViewController: UIViewController, View {
                 
             }.disposed(by: disposeBag)
         
-//        reactor.state.map{$0.selectedLastedPetData}
-//            .compactMap{$0}
-//            .observeOn(MainScheduler.asyncInstance)
-//            .subscribe(onNext: {
-//
-////                self.mainView.mainFrameTableView.reloadData()
-//            }).disposed(by: disposeBag)
-        
         // MARK: - Main Frame TableView Cell
         Observable.of(MainFrameMenuType.allCases)
             .bind(to: mainView.mainFrameTableView.rx.items) { [unowned self] _, row, menuType in
@@ -379,7 +371,9 @@ class MainViewController: UIViewController, View {
                     let naviC = UINavigationController(rootViewController: hrmeasureVC)
                     
                     naviC.modalPresentationStyle = .overFullScreen
-                    self.present(naviC, animated: true, completion: nil)
+                    self.present(naviC, animated: true, completion: {
+                        self.mainView.mainFrameTableView.setContentOffset(.zero, animated: false)
+                    })
                     
                 case .sleepBreathRate, .weight:
                     let physicsMeasureVC = PhysicsMeasureViewController(type: serviceType)
@@ -390,7 +384,9 @@ class MainViewController: UIViewController, View {
                     let naviC = UINavigationController(rootViewController: physicsMeasureVC)
                     
                     naviC.modalPresentationStyle = .overFullScreen
-                    self.present(naviC, animated: true, completion: nil)
+                    self.present(naviC, animated: true, completion: {
+                        self.mainView.mainFrameTableView.setContentOffset(.zero, animated: false)
+                    })
                 }
             }).disposed(by: disposeBag)
         
