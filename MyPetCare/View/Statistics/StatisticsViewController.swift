@@ -241,6 +241,7 @@ class StatisticsViewController: UIViewController, View {
         // 기간 선택 segment 설정
         statisticView.statisticChartView
             .durationSegmentController.rx.value.changed
+            .observe(on: MainScheduler.asyncInstance)
             .distinctUntilChanged()
             .map{ index -> Constants.duration in
                 switch index {
@@ -254,6 +255,7 @@ class StatisticsViewController: UIViewController, View {
         // 필터 버튼 선택
         charDataFilteringButton.rx.tap
             .withUnretained(self)
+            .subscribe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { owner, _ in
                 owner.statisticView.filterOptionShowAnimation()
             }).disposed(by: disposeBag)
@@ -344,6 +346,7 @@ class StatisticsViewController: UIViewController, View {
             }.disposed(by: disposeBag)
         
         petListCollectionView.rx.itemSelected
+            .observe(on: MainScheduler.asyncInstance)
             .map{$0.row}
             .map{Reactor.Action.setSelectedPet($0)}
             .bind(to: reactor.action)

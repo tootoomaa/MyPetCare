@@ -77,7 +77,6 @@ class StatisticsViewReactor: Reactor {
         case setPhyChartData([StatisticPhyData])            // [선택] 차트용 몸무게 데이터
         case setAllDetailDate([ChartDetailValue])           // [선택] 펫 측정 상세 데이터 for TableView
         case setSectionData([StatisticDetailDataTableViewSection])         // 필터 된 데이터
-        case setOriginalSectionData([StatisticDetailDataTableViewSection]) // 원본 데이터
         
         case setNomalBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 보통 호흡 데이터
         case setSleepBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 수면 호흡 데이터
@@ -105,7 +104,6 @@ class StatisticsViewReactor: Reactor {
         var phyDatas: [[StatisticPhyData]]
         var allDetailDatas: [[ChartDetailValue]]
         
-        var originalSectionTableViewData: [StatisticDetailDataTableViewSection]
         var sectionTableViewData: [StatisticDetailDataTableViewSection]
         var sectionTableViewDatas: [[StatisticDetailDataTableViewSection]]
     }
@@ -135,7 +133,6 @@ class StatisticsViewReactor: Reactor {
                              phyDatas: [],
                              allDetailDatas: [],
                              
-                             originalSectionTableViewData: [],
                              sectionTableViewData: [],
                              sectionTableViewDatas: [])
     }
@@ -242,7 +239,6 @@ class StatisticsViewReactor: Reactor {
                                      .just(.setPhyChartDatas(phyDatas)),
                                      .just(.setAllDetailDate(currentAllDetailData)),
                                      .just(.setAllDetailDatas(allDetailDatas)),
-                                     .just(.setOriginalSectionData(curruntSectionData)),
                                      .just(.setSectionData(curruntSectionData)),
                                      .just(.setSectionDatas(sectionDataLists)),
                                      .just(.reloadChartData)])
@@ -262,7 +258,7 @@ class StatisticsViewReactor: Reactor {
             let curruntSectiondData = currentState.sectionTableViewDatas[index]
             
             // 각각의 데이터에서 현제 선택된 필터 값들만 추출
-            currentState.originalSectionTableViewData.forEach {
+            curruntSectiondData.forEach {
                 // 필터에 맞는 값 추출
                 _ = $0.items.filter {
                     return currentState.filterOption.measureData.contains($0.type)
@@ -289,27 +285,19 @@ class StatisticsViewReactor: Reactor {
             return .just(.setMeasureDataOption(list))
             
         case .reloadDetailTableViewData:
-            
-            let curruntSectiondData = currentState.originalSectionTableViewData
+            let index = currentState.selectIndex
+            let curruntSectiondData = currentState.sectionTableViewDatas[index]
             let measureType = currentState.filterOption.measureData
             let duration = currentState.filterOption.duration
             let dayString = TimeUtil().getMonthAndDayString(duration, .yymmdd)
             
-            print(dayString)
-            print(curruntSectiondData)
-            
             let newdata = curruntSectiondData.map { value -> StatisticDetailDataTableViewSection? in
                 
-                print(value.header)
-                
-                if !dayString.contains(value.header) {
-                    return nil
-                }
+                // 기간 설정에 따른 값 필터링
+                if !dayString.contains(value.header) { return nil }
                 
                 // 사용자가 필터한 데이터 여부 체크
-                let list = value.items.filter{
-                    return measureType.contains($0.type)
-                }
+                let list = value.items.filter{ return measureType.contains($0.type) }
                 // 데이터가 빈경우 nil
                 guard !list.isEmpty else { return nil }
                 
@@ -371,9 +359,6 @@ class StatisticsViewReactor: Reactor {
             
         case .setAllDetailDatas(let alldata):
             newState.allDetailDatas = alldata
-            
-        case .setOriginalSectionData(let list):
-            newState.originalSectionTableViewData = list
             
         case .setSectionData(let list):
             newState.sectionTableViewData = list
