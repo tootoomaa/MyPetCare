@@ -32,6 +32,7 @@ PODS:
   - RxUIAlert (1.4.1):
     - RxCocoa
     - RxSwift
+  - SideMenu (6.5.0)
   - SnapKit (5.0.1)
   - Then (2.7.0)
   - WeakMapTable (1.2.0)
@@ -46,6 +47,7 @@ DEPENDENCIES:
   - RxRealm
   - RxSwift
   - RxUIAlert
+  - SideMenu
   - SnapKit
   - Then
 
@@ -63,6 +65,7 @@ SPEC REPOS:
     - RxRelay
     - RxSwift
     - RxUIAlert
+    - SideMenu
     - SnapKit
     - Then
     - WeakMapTable
@@ -80,10 +83,11 @@ SPEC CHECKSUMS:
   RxRelay: 483e1a19fad961b41f0b0c0bee506f46c1ae14fe
   RxSwift: a834e5c538e89eca0cae86f403f4fbf0336786ce
   RxUIAlert: fa9ca44ddd114791a394a14443e40c26127dc049
+  SideMenu: f583187d21c5b1dd04c72002be544b555a2627a2
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   Then: acfe0be7e98221c6204e12f8161459606d5d822d
   WeakMapTable: 05c694ce8439a7a9ebabb56187287a63c57673d6
 
-PODFILE CHECKSUM: 1f85ae4fa7e3f6c0a81e186f5fb1cdcf64f7fb74
+PODFILE CHECKSUM: eecd1e46853d049faa4df1ee70d095aa6937700d
 
 COCOAPODS: 1.10.0
