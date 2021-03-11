@@ -25,6 +25,7 @@ class TimeUtil {
         case hhmm = "HH:mm"
         case callHistoryCellStyle = "yyyy/MM/dd\nHH:mm:dd"
         case yymmdd = "yy.MM.dd"
+        case mmdd = "MMdd"
         case statisticyyMMdd = "yyyyMMdd"
         
         case yyyy = "yyyy"
@@ -32,10 +33,10 @@ class TimeUtil {
         case dd = "dd"
     }
     
-    func getMonthAndDayString(date: Date) -> String {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.month, .day], from: date)
-        return "\(components.month ?? 0)\(components.day ?? 0)"
+    func getMonthAndDayString(date: Date,
+                              presentType: PresentDateString = .mmdd ) -> String {
+        format.dateFormat = presentType.rawValue
+        return format.string(from: date)
     }
     
     func getString(_ dateValue: Date, _ type: PresentDateString) -> String {
@@ -43,34 +44,30 @@ class TimeUtil {
         return format.string(from: dateValue)
     }
     
-    /// 해당일로부터 weak, month 월+일 구하기
-    func getMonthAndDayString(type: Constants.duration) -> [String] {
+    /// 해당일로부터 weak, month 월+일 구하기 ( 형식 0203, 1012)
+    func getMonthAndDayString(_ durationType: Constants.duration, _ presentType: PresentDateString) -> [String] {
         
         var tempTimeInterval: [String] = []
         let currentDate = Date().timeIntervalSince1970
-        let calendar = Calendar.current
         
-        
-        switch type {
+        switch durationType {
         case .weak:
             for i in 0..<sevenDayCount {
                 let temp = currentDate - TimeInterval(i*oneDayBySec)
                 let newDate = Date(timeIntervalSince1970: temp)
-                let components = calendar.dateComponents([.month, .day], from: newDate)
-                tempTimeInterval.append("\(components.month ?? 0)\(components.day ?? 0)")
+                format.dateFormat = presentType.rawValue
+                tempTimeInterval.append(format.string(from: newDate))
             }
         case .month:
             for i in 0..<monthCount {
                 let temp = currentDate - TimeInterval(i*oneDayBySec)
                 let newDate = Date(timeIntervalSince1970: temp)
-                let components = calendar.dateComponents([.month, .day], from: newDate)
-                tempTimeInterval.append("\(components.month ?? 0)\(components.day ?? 0)")
+                format.dateFormat = presentType.rawValue
+                tempTimeInterval.append(format.string(from: newDate))
             }
         }
-        
         return tempTimeInterval.reversed()
     }
-    
     
     /// 요일 구하기
     func getDayStringByCurrentDay(type: Constants.duration) -> [String] {

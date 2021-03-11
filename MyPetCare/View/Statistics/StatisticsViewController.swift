@@ -377,7 +377,7 @@ class StatisticsViewController: UIViewController, View {
         var resultPhyList: [Double] = []                 // Phy 이력 저장
         
         // 당일을 기준으로 [1달/7일]데이터 추출
-        let dayIndexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)
+        let dayIndexlist = TimeUtil().getMonthAndDayString(filterOption.duration, .mmdd)
         
         // 데이터 생성 부분
         dayIndexlist.forEach { index in

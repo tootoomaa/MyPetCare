@@ -14,6 +14,15 @@ class StatisticChartView: UIView {
     let brColor: UIColor = MeasureServiceType.breathRate.getColor()
     let sleepBrColor: UIColor = MeasureServiceType.sleepBreathRate.getColor()
     let wtColor: UIColor = MeasureServiceType.weight.getColor()
+    let yAxisLabelCount: Int = 5
+    let leftYAxisFormat = NumberFormatter().then {
+        $0.allowsFloats = false
+        $0.positiveSuffix = " 회"
+    }
+    let rightYAxisFormat = NumberFormatter().then {
+        $0.allowsFloats = false
+        $0.positiveSuffix = " kg"
+    }
     
     // MARK: - Properties
     let durationString = ["주간","월간"]
@@ -61,7 +70,6 @@ class StatisticChartView: UIView {
     
     // MARK: - Configure Bar Chart
     private func configureBarchart() {
-
         //legend
         _ = groupBarChartView.legend.then {
             $0.enabled = true
@@ -76,7 +84,6 @@ class StatisticChartView: UIView {
         
         _ = groupBarChartView.xAxis.then {
             $0.labelFont = .systemFont(ofSize: 10, weight: .bold)
-//            $0.forceLabelsEnabled = true
             $0.granularity = 1
             $0.granularityEnabled = true
             $0.drawGridLinesEnabled = true
@@ -89,40 +96,26 @@ class StatisticChartView: UIView {
             $0.noDataTextColor = .black
             $0.doubleTapToZoomEnabled = false       // 줌 허용
             
-            // 왼쪽 Y축
-            _ = $0.leftAxis.then {
+            // 공통 사항
+            [$0.leftAxis, $0.rightAxis].forEach {
                 $0.labelFont = .systemFont(ofSize: 10)
-                $0.labelTextColor = brColor
-                $0.labelCount = 5
                 $0.drawGridLinesEnabled = false
-                
-                let format = NumberFormatter()
-                format.minimumFractionDigits = 0
-                format.positiveSuffix = " 회"
-                $0.valueFormatter = DefaultAxisValueFormatter(formatter: format)
-                
                 $0.labelPosition = .outsideChart   //.insideChart
                 $0.spaceTop = 0.15
-                $0.axisMinimum = 0 // FIXME: HUH?? this replaces startAtZero = YES
-                $0.axisMaximum = 50
+                $0.axisMinimum = 0
             }
-            // 오른쪽 Y축
+            
+            // 왼쪽 Y축 - 호흡수
+            _ = $0.leftAxis.then {
+                $0.labelTextColor = brColor
+                $0.labelCount = yAxisLabelCount
+                $0.valueFormatter = DefaultAxisValueFormatter(formatter: leftYAxisFormat)
+            }
+            // 오른쪽 Y축 - 몸무게
             _ = $0.rightAxis.then {
-                $0.labelFont = .systemFont(ofSize: 10)
                 $0.labelTextColor = wtColor
-                $0.labelCount = 5
-                $0.granularity = 1
-                $0.drawGridLinesEnabled = false
-                
-                let format = NumberFormatter()
-                format.minimumFractionDigits = 0
-                format.positiveSuffix = " kg"
-                $0.valueFormatter = DefaultAxisValueFormatter(formatter: format)
-                
-                $0.labelPosition = .outsideChart   //.insideChart
-                $0.spaceTop = 0.15
-                $0.axisMinimum = 0 // FIXME: HUH?? this replaces startAtZero = YES
-                $0.axisMaximum = 30
+                $0.labelCount = yAxisLabelCount
+                $0.valueFormatter = DefaultAxisValueFormatter(formatter: rightYAxisFormat)
             }
         }
     }
@@ -133,10 +126,8 @@ class StatisticChartView: UIView {
                   resultSleepBrList:[Int],
                   resultPhyList:[Double]) {
         
-        guard !filterOption.measureData.isEmpty else {
-            groupBarChartView.clear()
-            return
-        }
+        groupBarChartView.clear()                               // 기존 옵션 모두 제거
+        guard !filterOption.measureData.isEmpty else { return } // 데이터가 없을 경우 방지
         
         // 최대값 설정
         let finalValue = getBiggestValueInArray(resultNormalBrList, resultSleepBrList, resultPhyList.map{Int($0)}) + 5
@@ -203,57 +194,55 @@ class StatisticChartView: UIView {
         }
         
         // MARK: - Common Thing For Chart
-        // y축 보여줄지 여부 체크
+        // y축 보여줄지 여부 체크 - 체중 데이터가 없으면 오른족 Y축 제거, 호흡 데이터가 없으면 왼쪽 Y축 제거
         checkAxisShowedByData(filterOption)
         
-        groupBarChartView.xAxis.centerAxisLabelsEnabled = true
+        // x축 그룹 데이터 설정 관련 옵션들
+        let dataCount = Double(data.count)                                          // 사용자가 선택한 데이터 셋 갯수
+        let startIndex: Double = 0.0                                                // x축 시작 index
+        let groupSpace = 0.5                                                        // x축 그룹간 간격
+        let barSpace = 0.05 // x2 dataset                                           // x축 bar간 간격
+        let barWidth: Double = ((1.0-groupSpace)-barSpace*(dataCount))/dataCount    // 실제 x축 bar 너비
+        let groupCount = filterOption.duration.getDayForStatistics()                // 날자 카운트
         
-        if filterOption.duration == .weak { // x 축 전체 라벨 표시
-            groupBarChartView.xAxis.setLabelCount(dayValue.count, force: false)
-        }
-        
-        let dataCount = Double(data.count)
-        let groupSpace = 0.5
-        let barSpace = 0.05 // x2 dataset
-        let barWidth: Double = ((1.0-groupSpace)-barSpace*(dataCount))/dataCount   //0.29 // x3 dataset
-        // (0.45 + 0.02) * 2 + 0.06 = 1.00 -> interval per "group"
+        // (0.45 + 0.02) * 2 + 0.06 = 1.00 -> interval per "group"                  // 그룹당 1 width를 가져야 함
         // (barWidth+barSpace)*2 + groupSpace = 1.00
         
+        groupBarChartView.xAxis.setLabelCount(dayValue.count, force: false)
+        groupBarChartView.xAxis.centerAxisLabelsEnabled = true
+        groupBarChartView.xAxis.valueFormatter = filterOption.duration == .weak
+            ? IndexAxisValueFormatter(values: dayValue)
+            : IndexAxisValueFormatter(values: dayValue.map{_ in ""})
+        
         // MARK: - Chart for one measure data
-        guard filterOption.measureData.count != 1 else {
+        guard filterOption.measureData.count != 1 else {        // 사용자가 1개의 데이터 필터만 사용한 경우
             
-            let finalData = BarChartData(dataSet: data.first)
+            let finalData = BarChartData(dataSet: data.first)   // 1개만 선택
             finalData.barWidth = barWidth
             groupBarChartView.data = finalData
             
             groupBarChartView.xAxis.axisMinimum = -1
-            groupBarChartView.xAxis.axisMaximum = filterOption.duration.getDayForStatistics()+1
+            groupBarChartView.xAxis.axisMaximum = filterOption.duration.getDayForStatistics()
             groupBarChartView.xAxis.centerAxisLabelsEnabled = false
-            
-            groupBarChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: dayValue)
-            
             groupBarChartView.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)
             return
         }
         
         // MARK: - Chart setting for more two measure data
+        // 데이터 셋팅 - 그룹 바 차트
         let finalData = BarChartData(dataSets: data)
         finalData.barWidth = barWidth
+        finalData.groupBars(fromX: startIndex, groupSpace: groupSpace, barSpace: barSpace)
+        groupBarChartView.data = finalData
 
-        groupBarChartView.xAxis.valueFormatter = IndexAxisValueFormatter(values: dayValue)
-        
+        // x축 라벨 위치 설정
         let gg = finalData.groupWidth(groupSpace: groupSpace, barSpace: barSpace)
         print("Groupspace: \(gg)")
-        let startIndex: Double = 0.0
-        let groupCount = filterOption.duration.getDayForStatistics()
         
-        groupBarChartView.xAxis.axisMinimum = 0
+        groupBarChartView.xAxis.axisMinimum = startIndex
         groupBarChartView.xAxis.axisMaximum = startIndex + gg * groupCount
         
-        finalData.groupBars(fromX: startIndex, groupSpace: groupSpace, barSpace: barSpace)
-        
-        groupBarChartView.data = finalData
-        
+        // 차트 변경 에니메이션 시작
         groupBarChartView.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)
     }
     
