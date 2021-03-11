@@ -188,13 +188,15 @@ class StatisticsViewController: UIViewController, View {
         
         
         reactor.state.map{$0.petList}
+            .observe(on: MainScheduler.asyncInstance)
             .map{!$0.isEmpty}
             .bind(to: statisticView.petListEmptyView.rx.isHidden)
             .disposed(by: disposeBag)
         
         // 상세 정보 테이블 뷰 생성
         reactor.state.map{$0.sectionTableViewData}
-            .filter{!$0.isEmpty}
+            .observe(on: MainScheduler.asyncInstance)
+            .compactMap{$0}
             .bind(to: statisticView.mainFrameTable.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
@@ -222,6 +224,7 @@ class StatisticsViewController: UIViewController, View {
         // 펫 선택 변경에 따른 차트 재설정
         reactor.state.map{$0.selectIndex}
             .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
             .map{_ in Reactor.Action.reloadChart}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -241,6 +244,7 @@ class StatisticsViewController: UIViewController, View {
         // 기간 선택 segment 설정
         statisticView.statisticChartView
             .durationSegmentController.rx.value.changed
+            .observe(on: MainScheduler.asyncInstance)
             .distinctUntilChanged()
             .map{ index -> Constants.duration in
                 switch index {
@@ -254,6 +258,7 @@ class StatisticsViewController: UIViewController, View {
         // 필터 버튼 선택
         charDataFilteringButton.rx.tap
             .withUnretained(self)
+            .subscribe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { owner, _ in
                 owner.statisticView.filterOptionShowAnimation()
             }).disposed(by: disposeBag)
@@ -344,6 +349,7 @@ class StatisticsViewController: UIViewController, View {
             }.disposed(by: disposeBag)
         
         petListCollectionView.rx.itemSelected
+            .observe(on: MainScheduler.asyncInstance)
             .map{$0.row}
             .map{Reactor.Action.setSelectedPet($0)}
             .bind(to: reactor.action)
@@ -377,7 +383,7 @@ class StatisticsViewController: UIViewController, View {
         var resultPhyList: [Double] = []                 // Phy 이력 저장
         
         // 당일을 기준으로 [1달/7일]데이터 추출
-        let dayIndexlist = TimeUtil().getMonthAndDayString(type: filterOption.duration)
+        let dayIndexlist = TimeUtil().getMonthAndDayString(filterOption.duration, .mmdd)
         
         // 데이터 생성 부분
         dayIndexlist.forEach { index in

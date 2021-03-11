@@ -76,8 +76,7 @@ class StatisticsViewReactor: Reactor {
         case setSleepBrChartData([StatisticsBrData])        // [선택] 차트용 수면 호흡 데이터
         case setPhyChartData([StatisticPhyData])            // [선택] 차트용 몸무게 데이터
         case setAllDetailDate([ChartDetailValue])           // [선택] 펫 측정 상세 데이터 for TableView
-        case setSectionData([StatisticDetailDataTableViewSection])         // 필터 된 데이터
-        case setOriginalSectionData([StatisticDetailDataTableViewSection]) // 원본 데이터
+        case setSectionData([StatisticDetailDataTableViewSection]?)         // 필터 된 데이터
         
         case setNomalBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 보통 호흡 데이터
         case setSleepBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 수면 호흡 데이터
@@ -105,8 +104,7 @@ class StatisticsViewReactor: Reactor {
         var phyDatas: [[StatisticPhyData]]
         var allDetailDatas: [[ChartDetailValue]]
         
-        var originalSectionTableViewData: [StatisticDetailDataTableViewSection]
-        var sectionTableViewData: [StatisticDetailDataTableViewSection]
+        var sectionTableViewData: [StatisticDetailDataTableViewSection]?
         var sectionTableViewDatas: [[StatisticDetailDataTableViewSection]]
     }
     
@@ -135,8 +133,7 @@ class StatisticsViewReactor: Reactor {
                              phyDatas: [],
                              allDetailDatas: [],
                              
-                             originalSectionTableViewData: [],
-                             sectionTableViewData: [],
+                             sectionTableViewData: nil,
                              sectionTableViewDatas: [])
     }
     
@@ -209,7 +206,7 @@ class StatisticsViewReactor: Reactor {
             let curruntPhycisData = phyDatas[currentState.selectIndex]
             let currentAllDetailData = allDetailDatas[currentState.selectIndex]
             
-            let list = TimeUtil().getMonthAndDayString(type: .month).reversed()
+            let list = TimeUtil().getMonthAndDayString(.month, .mmdd).reversed()
             // 테이블 뷰 RxDataSource 생성
             allDetailDatas.forEach { detailDataList in
                 
@@ -242,7 +239,6 @@ class StatisticsViewReactor: Reactor {
                                      .just(.setPhyChartDatas(phyDatas)),
                                      .just(.setAllDetailDate(currentAllDetailData)),
                                      .just(.setAllDetailDatas(allDetailDatas)),
-                                     .just(.setOriginalSectionData(curruntSectionData)),
                                      .just(.setSectionData(curruntSectionData)),
                                      .just(.setSectionDatas(sectionDataLists)),
                                      .just(.reloadChartData)])
@@ -261,7 +257,9 @@ class StatisticsViewReactor: Reactor {
             let curruntPhycisData = currentState.phyDatas[index]
             let curruntSectiondData = currentState.sectionTableViewDatas[index]
             
-            currentState.originalSectionTableViewData.forEach {
+            // 각각의 데이터에서 현제 선택된 필터 값들만 추출
+            curruntSectiondData.forEach {
+                // 필터에 맞는 값 추출
                 _ = $0.items.filter {
                     return currentState.filterOption.measureData.contains($0.type)
                 }
@@ -272,7 +270,7 @@ class StatisticsViewReactor: Reactor {
                                      .just(.setNomalBrChartData(currnetNormalBrData)),
                                      .just(.setSleepBrChartData(currnetSleepData)),
                                      .just(.setPhyChartData(curruntPhycisData)),
-                                     .just(.setSectionData(curruntSectiondData))])
+                                     .just(.setSectionData(curruntSectiondData.count == 0 ? nil : curruntSectiondData))])
             
         case .setMeasureOption(let measureServiceType):
             var list = currentState.filterOption.measureData
@@ -287,15 +285,20 @@ class StatisticsViewReactor: Reactor {
             return .just(.setMeasureDataOption(list))
             
         case .reloadDetailTableViewData:
-            
-            let curruntSectiondData = currentState.originalSectionTableViewData
+            let index = currentState.selectIndex
+            let curruntSectiondData = currentState.sectionTableViewDatas[index]
             let measureType = currentState.filterOption.measureData
+            let duration = currentState.filterOption.duration
+            let dayString = TimeUtil().getMonthAndDayString(duration, .yymmdd)
             
             let newdata = curruntSectiondData.map { value -> StatisticDetailDataTableViewSection? in
                 
-                let list = value.items.filter{
-                    return measureType.contains($0.type)
-                }
+                // 기간 설정에 따른 값 필터링
+                if !dayString.contains(value.header) { return nil }
+                
+                // 사용자가 필터한 데이터 여부 체크
+                let list = value.items.filter{ return measureType.contains($0.type) }
+                // 데이터가 빈경우 nil
                 guard !list.isEmpty else { return nil }
                 
                 return StatisticDetailDataTableViewSection(items: list, header: value.header)
@@ -356,9 +359,6 @@ class StatisticsViewReactor: Reactor {
             
         case .setAllDetailDatas(let alldata):
             newState.allDetailDatas = alldata
-            
-        case .setOriginalSectionData(let list):
-            newState.originalSectionTableViewData = list
             
         case .setSectionData(let list):
             newState.sectionTableViewData = list
