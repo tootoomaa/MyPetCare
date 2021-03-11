@@ -37,7 +37,7 @@ class MyPetCustomNavigationController: UITabBarController {
         vc.tabBarItem = tabBar
         
         let naviC = UINavigationController(rootViewController: vc)
-        naviC.configureNavigationBarAppearance(.white)
+        naviC.configureNavigation(Constants.mainColor, largeTitle: true)
         
         return naviC
     }
@@ -52,7 +52,10 @@ class MyPetCustomNavigationController: UITabBarController {
         
         vc.tabBarItem = tabBar
         
-        return UINavigationController(rootViewController: vc)
+        let naviC = UINavigationController(rootViewController: vc)
+        naviC.configureNavigation(.white, largeTitle: true)
+        
+        return naviC
     }
     
     

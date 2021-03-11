@@ -29,6 +29,7 @@ class StatisticView: UIView {
     lazy var mainFrameTable = UITableView().then {
         $0.tableHeaderView = statisticChartView
         $0.separatorStyle = .none
+        $0.backgroundColor = .white
     }
     
     let filterOptionTableView = UITableView().then {

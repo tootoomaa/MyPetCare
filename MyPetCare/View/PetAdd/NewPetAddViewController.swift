@@ -20,7 +20,6 @@ class NewPetAddViewController: UIViewController, View {
         $0.modalPresentationStyle = .overFullScreen
     }
     
-    
     let addNaviButton: UIBarButtonItem
     let closeNanviButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: nil, action: nil)
     
@@ -61,7 +60,7 @@ class NewPetAddViewController: UIViewController, View {
     }
     
     private func configureNavigationBar() {
-        self.navigationController?.configureNavigationBarAppearance(.extraLightPink)
+        self.navigationController?.configureNavigation(.extraLightPink, largeTitle: false)
         self.navigationItem.leftBarButtonItem = closeNanviButton
         self.navigationController?.navigationBar.backgroundColor = .extraGray
         

@@ -17,8 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
         configureTestData()
         
-        configureNavigation()
-        
         let tabBarC = MyPetCustomNavigationController(provider: provider)
         
         window = UIWindow(frame: UIScreen.main.bounds)
@@ -72,18 +70,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        }
 //        
 //        provider.dataBaseService.set([value1, value2, value3, value4])
-    }
-    
-    private func configureNavigation() {
-        let appearance = UINavigationBarAppearance(idiom: .phone)
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
-        appearance.shadowColor = .clear
-        appearance.backgroundColor = Constants.mainColor
-        
-        let navigationBarApear = UINavigationBar.appearance()
-        navigationBarApear.compactAppearance = appearance
-        navigationBarApear.standardAppearance = appearance
-        navigationBarApear.scrollEdgeAppearance = appearance
     }
 }
 

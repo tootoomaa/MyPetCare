@@ -104,8 +104,7 @@ class MeasureDetailViewController: UIViewController, View {
     
     private func configureNavigationController() {
         navigationItem.title = "\(mainFrameMenuType.rawValue) 측정 이력"
-        self.navigationController?.navigationBar.prefersLargeTitles = true
-        self.navigationController?.configureNavigationBarAppearance(.white)
+        self.navigationController?.configureNavigation(.white, largeTitle: true)
     }
     
     private func configureLayout() {

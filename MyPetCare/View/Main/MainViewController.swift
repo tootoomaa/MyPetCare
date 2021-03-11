@@ -20,11 +20,26 @@ class MainViewController: UIViewController, View {
     let plusImageData = UIImage(systemName: "plus.circle.fill")?
         .withRenderingMode(.alwaysOriginal)
         .withTintColor(.deepGreen)
-//        .pngData()!
     
     let mainView = MainView(frame: CGRect(x: 0, y: 0,
                                           width: Constants.viewWidth,
                                           height: Constants.viewHeigth))
+    
+    let selectedPetName = UILabel().then {
+        $0.font = UIFont(name: "Cafe24Syongsyong", size: 20)
+        $0.alpha = 0
+    }
+    
+    let selectPetImageView = UIImageView().then {
+        $0.clipsToBounds = true
+        $0.layer.cornerRadius = 15
+        $0.alpha = 0
+    }
+    
+    var selectedPetMaleImageView = UIImageView().then {
+        $0.contentMode = .scaleAspectFill
+        $0.alpha = 0
+    }
     
     let servicelayout = ServiceCollecionViewFlowLayout()
     var serviceCollectionView: UICollectionView = {
@@ -41,19 +56,38 @@ class MainViewController: UIViewController, View {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureNavigationBar()
+        
         configureServiceCollectionView()
         
         configurePanGuesture()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = true
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.navigationBar.isHidden = false
+    private func configureNavigationBar() {        
+        navigationItem.title = "My Pets"
+        
+        // For Selcted Pet Info When MainFrame TableView Scrolled
+        [selectedPetMaleImageView, selectedPetName, selectPetImageView].forEach {
+            self.navigationController?.navigationBar.addSubview($0)
+        }
+        
+        selectPetImageView.snp.makeConstraints {
+            $0.bottom.equalToSuperview().offset(-8)
+            $0.trailing.equalToSuperview().offset(-20)
+            $0.width.height.equalTo(30)
+        }
+        
+        selectedPetName.snp.makeConstraints {
+            $0.trailing.equalTo(selectPetImageView.snp.leading).offset(-3)
+            $0.centerY.equalTo(selectPetImageView)
+        }
+        
+        selectedPetMaleImageView.snp.makeConstraints {
+            $0.trailing.equalTo(selectedPetName.snp.leading).offset(-5)
+            $0.centerY.equalTo(selectPetImageView)
+            $0.height.equalTo(15)
+            $0.width.equalTo(9)
+        }
     }
     
     private func configureServiceCollectionView() {
@@ -105,8 +139,24 @@ class MainViewController: UIViewController, View {
             }).disposed(by: disposeBag)
 
         mainView.mainFrameTableView.rx.didScroll
-            .subscribe(onNext: { [unowned self] in
-                mainView.mainFrameTableViewAnimationByScroll()
+            .observe(on: MainScheduler.asyncInstance)
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+                
+                owner.mainView.mainFrameTableViewAnimationByScroll()
+                
+                let offset = owner.mainView.mainFrameTableView.contentOffset.y
+                
+                if offset > 80 && owner.mainView.isMainFrameScrolled == true {
+                    owner.selectedPetMaleImageView.alpha = 1
+                    owner.selectedPetName.alpha = 1
+                    owner.selectPetImageView.alpha = 1
+                } else if offset < 80 && owner.mainView.isMainFrameScrolled == true {
+                    owner.selectedPetMaleImageView.alpha = 0
+                    owner.selectedPetName.alpha = 0
+                    owner.selectPetImageView.alpha = 0
+                }
+                
             }).disposed(by: disposeBag)
 
     }
@@ -137,11 +187,12 @@ class MainViewController: UIViewController, View {
             }) // 상태에 따른 UI 변화
             .compactMap{$0}
             .filter{$0.id != Constants.mainViewPetPlusButtonUUID} // Plus Button 처리
-            .subscribe(onNext: { [unowned self] pet in
+            .withUnretained(self)
+            .subscribe(onNext: { owner, pet in
 
-                mainView.configureSelectedPetData(pet: pet)
-                mainView.petProfileView.configurePetView(pet: pet)
-                mainView.mainFrameTableView.reloadData()
+                owner.configureSelectedPetData(pet: pet)
+                owner.mainView.petProfileView.configurePetView(pet: pet)
+                owner.mainView.mainFrameTableView.reloadData()
 
             }).disposed(by: disposeBag)
         
@@ -165,9 +216,9 @@ class MainViewController: UIViewController, View {
         // 펫 CollectionView 리스트 생성
         reactor.state.map{$0.petList}
             .distinctUntilChanged()
-            .do(onNext: {
+            .do(onNext: { [unowned self] in
                 if $0.isEmpty {
-                    self.mainView.configureSelectedPetData(pet: PetObject())
+                    self.configureSelectedPetData(pet: PetObject())
                 }
             })
             .compactMap{$0}
@@ -306,8 +357,15 @@ class MainViewController: UIViewController, View {
                     .bind(to: reactor.action)
                     .disposed(by: self.disposeBag)
                 
-                self.present(naviC, animated: true, completion: {
+                self.present(naviC, animated: true, completion: { [unowned self] in
                     mainView.setOriginalOffsetPetProfileView()
+                    self.navigationController?.navigationBar.sizeToFit()
+                    if self.mainView.isMainFrameScrolled {
+                        self.mainView.mainFrameTableView.setContentOffset(
+                            self.mainView.mainFrameTableView.contentOffset,
+                            animated: false
+                        )
+                    }
                 })
                 
             }).disposed(by: disposeBag)
@@ -369,8 +427,8 @@ class MainViewController: UIViewController, View {
                         }).disposed(by: owner.disposeBag)
                     
                     let naviC = UINavigationController(rootViewController: hrmeasureVC)
-                    
                     naviC.modalPresentationStyle = .overFullScreen
+                    
                     self.present(naviC, animated: true, completion: {
                         self.mainView.mainFrameTableView.setContentOffset(.zero, animated: false)
                     })
@@ -382,8 +440,8 @@ class MainViewController: UIViewController, View {
                                                     provider: reactor.provider)
                     
                     let naviC = UINavigationController(rootViewController: physicsMeasureVC)
-                    
                     naviC.modalPresentationStyle = .overFullScreen
+                    
                     self.present(naviC, animated: true, completion: {
                         self.mainView.mainFrameTableView.setContentOffset(.zero, animated: false)
                     })
@@ -397,5 +455,20 @@ class MainViewController: UIViewController, View {
         let okButton = UIAlertAction(title: "확인", style: .default) { _ in }
         alertC.addAction(okButton)
         self.present(alertC, animated: true, completion: nil)
+    }
+    
+    // MARK: - UI Data Setter
+    private func configureSelectedPetData(pet: PetObject) {
+        guard let petMale = pet.male,
+              let petImage = pet.image,
+              let petName = pet.name else { // 초기화
+            selectedPetName.text = ""
+            selectPetImageView.image = nil
+            selectedPetMaleImageView.image = nil
+            return
+        }
+        selectedPetMaleImageView.image = Male(rawValue: petMale)?.getPetMaleImage
+        selectedPetName.text = petName
+        selectPetImageView.image = UIImage(data: petImage)
     }
 }

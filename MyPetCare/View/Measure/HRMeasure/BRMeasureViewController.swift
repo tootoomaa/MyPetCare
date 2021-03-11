@@ -40,8 +40,7 @@ class BRMeasureViewController: UIViewController, View {
     }
     
     private func configureNavigation() {
-        
-        navigationController?.configureNavigationBarAppearance(.hrMeasureBottomViewColor)
+        navigationController?.configureNavigation(.hrMeasureBottomViewColor, largeTitle: false)
         navigationItem.title = "호흡수 측정"
         
         let closeNanviButton = UIBarButtonItem(image: UIImage(systemName: "xmark"), style: .plain, target: nil, action: nil)
