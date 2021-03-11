@@ -188,13 +188,15 @@ class StatisticsViewController: UIViewController, View {
         
         
         reactor.state.map{$0.petList}
+            .observe(on: MainScheduler.asyncInstance)
             .map{!$0.isEmpty}
             .bind(to: statisticView.petListEmptyView.rx.isHidden)
             .disposed(by: disposeBag)
         
         // 상세 정보 테이블 뷰 생성
         reactor.state.map{$0.sectionTableViewData}
-            .filter{!$0.isEmpty}
+            .observe(on: MainScheduler.asyncInstance)
+            .compactMap{$0}
             .bind(to: statisticView.mainFrameTable.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         
@@ -222,6 +224,7 @@ class StatisticsViewController: UIViewController, View {
         // 펫 선택 변경에 따른 차트 재설정
         reactor.state.map{$0.selectIndex}
             .distinctUntilChanged()
+            .observe(on: MainScheduler.asyncInstance)
             .map{_ in Reactor.Action.reloadChart}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)

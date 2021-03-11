@@ -129,6 +129,12 @@ class StatisticChartView: UIView {
         groupBarChartView.clear()                               // 기존 옵션 모두 제거
         guard !filterOption.measureData.isEmpty else { return } // 데이터가 없을 경우 방지
         
+        if resultNormalBrList.reduce(0,+) == 0
+            && resultNormalBrList.reduce(0,+) == 0
+            && resultSleepBrList.reduce(0,+) == 0 {
+            return
+        }
+        
         // 최대값 설정
         let finalValue = getBiggestValueInArray(resultNormalBrList, resultSleepBrList, resultPhyList.map{Int($0)}) + 5
         groupBarChartView.leftAxis.axisMaximum = finalValue     // top padding

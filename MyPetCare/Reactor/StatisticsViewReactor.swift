@@ -76,7 +76,7 @@ class StatisticsViewReactor: Reactor {
         case setSleepBrChartData([StatisticsBrData])        // [선택] 차트용 수면 호흡 데이터
         case setPhyChartData([StatisticPhyData])            // [선택] 차트용 몸무게 데이터
         case setAllDetailDate([ChartDetailValue])           // [선택] 펫 측정 상세 데이터 for TableView
-        case setSectionData([StatisticDetailDataTableViewSection])         // 필터 된 데이터
+        case setSectionData([StatisticDetailDataTableViewSection]?)         // 필터 된 데이터
         
         case setNomalBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 보통 호흡 데이터
         case setSleepBrChartDatas([[StatisticsBrData]])     // [전체] 차트용 수면 호흡 데이터
@@ -104,7 +104,7 @@ class StatisticsViewReactor: Reactor {
         var phyDatas: [[StatisticPhyData]]
         var allDetailDatas: [[ChartDetailValue]]
         
-        var sectionTableViewData: [StatisticDetailDataTableViewSection]
+        var sectionTableViewData: [StatisticDetailDataTableViewSection]?
         var sectionTableViewDatas: [[StatisticDetailDataTableViewSection]]
     }
     
@@ -133,7 +133,7 @@ class StatisticsViewReactor: Reactor {
                              phyDatas: [],
                              allDetailDatas: [],
                              
-                             sectionTableViewData: [],
+                             sectionTableViewData: nil,
                              sectionTableViewDatas: [])
     }
     
@@ -270,7 +270,7 @@ class StatisticsViewReactor: Reactor {
                                      .just(.setNomalBrChartData(currnetNormalBrData)),
                                      .just(.setSleepBrChartData(currnetSleepData)),
                                      .just(.setPhyChartData(curruntPhycisData)),
-                                     .just(.setSectionData(curruntSectiondData))])
+                                     .just(.setSectionData(curruntSectiondData.count == 0 ? nil : curruntSectiondData))])
             
         case .setMeasureOption(let measureServiceType):
             var list = currentState.filterOption.measureData
