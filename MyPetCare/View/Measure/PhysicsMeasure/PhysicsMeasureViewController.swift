@@ -63,7 +63,7 @@ class PhysicsMeasureViewController: UIViewController, View {
                 self.dismiss(animated: true, completion: nil)
             }).disposed(by: disposeBag)
         
-        navigationItem.leftBarButtonItem = closeNanviButton
+        navigationItem.rightBarButtonItem = closeNanviButton
     }
     
     // MARK: - custom Keyboar & TextField

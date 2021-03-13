@@ -11,7 +11,7 @@ import SideMenu
 import RxSwift
 
 class MyPetCustomNavigationController: UITabBarController {
-    
+    // MARK: - Properties
     private let disposeBag = DisposeBag()
     
     private let provider: ServiceProviderType
@@ -19,24 +19,17 @@ class MyPetCustomNavigationController: UITabBarController {
     private var sideMenuRootVC: SideMenuViewController!
     private lazy var sideMenuNav = SideMenuNavigationController(rootViewController: sideMenuRootVC)
     
-    private let sideMenuButton = UIButton().then {
-        let image = UIImage(systemName: "line.horizontal.3")?
-            .withRenderingMode(.alwaysOriginal)
-            .withTintColor(.black)
-        $0.setImage(image, for: .normal)
-        $0.imageView?.frame.size = CGSize(width: 30, height: 30)
-    }
-    
+    // MARK: - Init
     init(provider: ServiceProviderType) {
         self.provider = provider
         super.init(nibName: nil, bundle: nil)
         
         configureSideMenu()
         
-        let first = makeMainViewController("hare.fill")
-        let second = makeStaticticsViewController("chart.bar.xaxis")
+        let mainVC = makeMainViewController("hare.fill")
+        let statisticVC = makeStaticticsViewController("chart.bar.xaxis")
         
-        self.viewControllers = [first, second]
+        self.viewControllers = [mainVC, statisticVC]
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -48,15 +41,6 @@ class MyPetCustomNavigationController: UITabBarController {
         let reactor = SideMenuViewReactor(provider: provider)
         sideMenuRootVC = SideMenuViewController()
         sideMenuRootVC.reactor = reactor
-        
-        sideMenuButton.rx.tap
-            .withUnretained(self)
-            .subscribe(onNext: { owner, _ in
- 
-                let sideMenu = SideMenuManager.default.leftMenuNavigationController!
-                owner.present(sideMenu, animated: true)
-                
-            }).disposed(by: disposeBag)
         
         let presentationStyle = SideMenuPresentationStyle.menuSlideIn
         presentationStyle.backgroundColor = .black
@@ -89,11 +73,12 @@ class MyPetCustomNavigationController: UITabBarController {
         let image = makeNomalSelectedImage(imageName)
         let tabBar = UITabBarItem(title: nil, image: image.0, selectedImage: image.1)
         
-        vc.tabBarItem = tabBar
-        vc.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: sideMenuButton)
+        vc.tabBarItem = tabBar                                              // 텝바 버튼 추가
+        configureSideBarMenuButtonAdd(vc)                                   // 네비게이션 사이드 메뉴 버튼 생성
         
-        let naviC = SideMenuNavigationController(rootViewController: vc)
-        naviC.configureNavigation(Constants.mainColor, largeTitle: true)
+        let naviC = SideMenuNavigationController(rootViewController: vc)    // 네비게이션 컨트롤러 생성
+        naviC.configureNavigation(Constants.mainColor, largeTitle: true)    // 네이게이션 바 설정
+        
         
         SideMenuManager.default.addPanGestureToPresent(toView: naviC.view)
         SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: naviC.view)
@@ -109,11 +94,11 @@ class MyPetCustomNavigationController: UITabBarController {
         let image = makeNomalSelectedImage(imageName)
         let tabBar = UITabBarItem(title: nil, image: image.0, selectedImage: image.1)
         
-        vc.tabBarItem = tabBar
-        vc.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: sideMenuButton)
+        vc.tabBarItem = tabBar                                              // 텝바 버튼 추가
+        configureSideBarMenuButtonAdd(vc)                                   // 네비게이션 사이드 메뉴 버튼 생성
     
-        let naviC = SideMenuNavigationController(rootViewController: vc)
-        naviC.configureNavigation(.white, largeTitle: true)
+        let naviC = SideMenuNavigationController(rootViewController: vc)    // 네비게이션 컨트롤러 생성
+        naviC.configureNavigation(.white, largeTitle: true)    // 네이게이션 바 설정
         
         SideMenuManager.default.addPanGestureToPresent(toView: naviC.view)
         SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: naviC.view)
@@ -121,8 +106,8 @@ class MyPetCustomNavigationController: UITabBarController {
         return naviC
     }
     
-    
-    func makeNomalSelectedImage(_ name: String) -> (UIImage, UIImage) {
+    // MARK: - TabBar Image handler
+    private func makeNomalSelectedImage(_ name: String) -> (UIImage, UIImage) {
         
         let image = UIImage(systemName: name)!.withRenderingMode(.alwaysOriginal)
         
@@ -130,5 +115,27 @@ class MyPetCustomNavigationController: UITabBarController {
         let selected = image.withTintColor(.black)
         
         return (nomal, selected)
+    }
+    
+    private func configureSideBarMenuButtonAdd(_ vc: UIViewController) {
+        
+        let sideMenuButton = UIButton().then {
+            let image = UIImage(systemName: "line.horizontal.3")?
+                .withRenderingMode(.alwaysOriginal)
+                .withTintColor(.black)
+            $0.setImage(image, for: .normal)
+            $0.imageView?.frame.size = CGSize(width: 30, height: 30)
+        }
+        
+        sideMenuButton.rx.tap
+            .withUnretained(self)
+            .subscribe(onNext: { owner, _ in
+ 
+                let sideMenu = SideMenuManager.default.leftMenuNavigationController!
+                owner.present(sideMenu, animated: true)
+                
+            }).disposed(by: disposeBag)
+        
+        vc.navigationItem.leftBarButtonItem = UIBarButtonItem(customView: sideMenuButton)
     }
 }

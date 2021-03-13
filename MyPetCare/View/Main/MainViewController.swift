@@ -63,9 +63,12 @@ class MainViewController: UIViewController, View {
         configurePanGuesture()
     }
     
-    private func configureNavigationBar() {        
-        navigationItem.title = "My Pets"
-        
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.configureNavigation(Constants.mainColor, largeTitle: true)    // 네이게이션 바 설정
+    }
+    
+    private func configureNavigationBar() {
         // For Selcted Pet Info When MainFrame TableView Scrolled
         [selectedPetMaleImageView, selectedPetName, selectPetImageView].forEach {
             self.navigationController?.navigationBar.addSubview($0)
@@ -177,6 +180,11 @@ class MainViewController: UIViewController, View {
                                 animated: false,
                                 scrollPosition: .centeredVertically)
             }).disposed(by: disposeBag)
+        
+        self.rx.viewWillAppear
+            .map{ _ in "My Pets"}
+            .bind(to: self.navigationItem.rx.title)
+            .disposed(by: disposeBag)
         
         // 펫 선택 시 처리 사항
         reactor.state.map{$0.selectedPet}
