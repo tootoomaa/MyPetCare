@@ -51,7 +51,10 @@ class SideMenuView: UIView {
         $0.font = .dynamicFont(name: "Cafe24Syongsyong", size: 20)
     }
     
-    let sideMenuTableView = UITableView()
+    let sideMenuTableView = UITableView().then {
+        $0.separatorStyle = .none
+        $0.selectionFollowsFocus = false
+    }
     
     // MARK: - Init
     override init(frame: CGRect) {
@@ -90,8 +93,6 @@ class SideMenuView: UIView {
             $0.top.equalTo(titleLabel.snp.bottom).offset(padding)
             $0.centerX.equalToSuperview()
             $0.size.equalTo(150)
-//            $0.leading.trailing.equalTo(safeAreaLayoutGuide).inset(padding*2)
-//            $0.height.equalTo(Constants.sideMenuWidth-padding*4)
         }
         
         userNameLabel.snp.makeConstraints {
@@ -100,7 +101,7 @@ class SideMenuView: UIView {
         }
         
         sideMenuTableView.snp.makeConstraints {
-            $0.top.equalTo(userNameLabel.snp.bottom).offset(padding)
+            $0.top.equalTo(userNameLabel.snp.bottom).offset(padding*2)
             $0.leading.trailing.bottom.equalToSuperview()
         }
     }

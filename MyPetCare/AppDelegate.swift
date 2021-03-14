@@ -17,6 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
         configureTestData()
         
+        configureiCloud()
+        
         let tabBarC = MyPetCustomNavigationController(provider: provider)
         
         window = UIWindow(frame: UIScreen.main.bounds)
@@ -70,6 +72,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        }
 //        
 //        provider.dataBaseService.set([value1, value2, value3, value4])
+    }
+    
+    private func configureiCloud() {
+        
+        guard let id = FileManager.default.ubiquityIdentityToken else { return }
+        
+        #if DEBUG
+        print("currnet iCloud Key : ", id)
+        
+        #endif
+        
+    }
+    
+    // 회전 방지 추가
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return  [.portrait]
     }
 }
 
