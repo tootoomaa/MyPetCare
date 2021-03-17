@@ -85,7 +85,7 @@ class LastMeasureServiceCell: UITableViewCell {
         contentView.addSubview(customBackgroundView)
         customBackgroundView.snp.makeConstraints {
             $0.top.leading.trailing.equalToSuperview()
-            $0.height.equalTo(120*Constants.widthRatio)
+            $0.height.greaterThanOrEqualTo(120)
             $0.bottom.equalToSuperview().offset(-10)
         }
         

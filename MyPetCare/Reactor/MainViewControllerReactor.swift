@@ -106,14 +106,19 @@ class MainViewControllerReactor: Reactor {
             list.append(emptyPet)
             self.plusButtonIndex = list.count - 1
             
-            if list.count != 1 {
+            if list.count == 1 {                
+                return Observable.merge([.just(.setPetObjectList(list)),
+                                         .just(.setSelectedLastedPerData(LastMeasureObject()))])
+            }
+            
+            if list.count == 2 {
                 
                 let currentIndex = initialState.selectedIndexPath
                 let petData = list[currentIndex.row]
                 
                 let lastData = provider.dataBaseService.loadLastData(petData.id!)
                 
-                return Observable.concat([.just(.setSelectedIndex(currentIndex)),
+                return Observable.merge([.just(.setSelectedIndex(currentIndex)),
                                           .just(.setPetObjectList(list)),
                                           .just(.setSelectedPetData(petData)),
                                           .just(.setSelectedLastedPerData(lastData.first!))])
@@ -122,7 +127,9 @@ class MainViewControllerReactor: Reactor {
             return .just(.setPetObjectList(list))
             
         case .selectedIndexPath(let indexPath):
-            
+            guard !currentState.petList.isEmpty else {
+                return .just(.setSelectedIndex(initialState.selectedIndexPath))
+            }
             let petData = currentState.petList[indexPath.row]
             let lastData = provider.dataBaseService.loadLastData(petData.id!)
             
@@ -135,7 +142,9 @@ class MainViewControllerReactor: Reactor {
             
         case .deletePet:
             
-            provider.dataBaseService.delete(currentState.selectedPet)
+            guard let deletePetId = currentState.selectedPet?.id else { return .empty() }
+            
+            provider.dataBaseService.deletePetAllData(deletePetId)
             
             GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
             

@@ -68,7 +68,7 @@ class StatisticsViewReactor: Reactor {
         case resetState
         case setSelectPetIndex(Int)                         // 펫 선택 인덱스
         case setPetObjectList([PetObject])                  // 펫 리스트 저장
-        case setSelectedPet(PetObject)                      // [필터] 펫 설정
+        case setSelectedPet(PetObject?)                      // [필터] 펫 설정
         case setMeasureDataOption([MeasureServiceType])     // [필터] 데이터 선택
         case setDuration(Constants.duration)                // [필터] 기간 저장
         
@@ -153,6 +153,10 @@ class StatisticsViewReactor: Reactor {
             
             guard !petList.isEmpty else {
                 return .just(.resetState)
+//                return Observable.concat([.just(.setSelectedPet(nil)),
+//                                          .just(.resetState),
+//                                          .just(.setAllDetailDate([])),
+//                                          .just(.setAllDetailDatas([[]]))])
             }
             
             petList.compactMap{$0.id}
@@ -200,11 +204,11 @@ class StatisticsViewReactor: Reactor {
                     allDetailDatas.append(currentPetAllData)
                 }
             
-            let pet = petList[currentState.selectIndex]
-            let currnetNormalBrData = nomalBrDatas[currentState.selectIndex]
-            let currnetSleepData = sleepBrDatas[currentState.selectIndex]
-            let curruntPhycisData = phyDatas[currentState.selectIndex]
-            let currentAllDetailData = allDetailDatas[currentState.selectIndex]
+            let pet = petList[initialState.selectIndex]
+            let currnetNormalBrData = nomalBrDatas[initialState.selectIndex]
+            let currnetSleepData = sleepBrDatas[initialState.selectIndex]
+            let curruntPhycisData = phyDatas[initialState.selectIndex]
+            let currentAllDetailData = allDetailDatas[initialState.selectIndex]
             
             let list = TimeUtil().getMonthAndDayString(.month, .mmdd).reversed()
             // 테이블 뷰 RxDataSource 생성
@@ -227,7 +231,7 @@ class StatisticsViewReactor: Reactor {
                 sectionDataLists.append(sectionDataList)
             }
             
-            let curruntSectionData = sectionDataLists[currentState.selectIndex]
+            let curruntSectionData = sectionDataLists[initialState.selectIndex]
             
             return Observable.merge([.just(.setSelectedPet(pet)),
                                      .just(.setPetObjectList(petList)),
@@ -319,6 +323,7 @@ class StatisticsViewReactor: Reactor {
         switch mutation {
         case .resetState:
             newState = initialState
+            return newState
         
         case .setSelectPetIndex(let index):
             newState.selectIndex = index
@@ -328,7 +333,9 @@ class StatisticsViewReactor: Reactor {
         
         case .setSelectedPet(let petObj):
             newState.selectedPet = petObj
-            newState.filterOption.pet = petObj
+            if let pet = petObj {
+                newState.filterOption.pet = pet
+            }
             
         case .setDuration(let duration):
             newState.filterOption.duration = duration

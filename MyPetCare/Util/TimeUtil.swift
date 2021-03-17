@@ -27,7 +27,7 @@ class TimeUtil {
         case yymmdd = "yy.MM.dd"
         case mmdd = "MMdd"
         case statisticyyMMdd = "yyyyMMdd"
-        
+        case foriCloudSave = "yyyyMMddHHmmddsss"
         case yyyy = "yyyy"
         case MM = "MM"
         case dd = "dd"

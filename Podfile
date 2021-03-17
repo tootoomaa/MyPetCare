@@ -17,6 +17,7 @@ target 'MyPetCare' do
   # UI Util
   pod 'SnapKit'
   pod 'Then'
+  pod 'SideMenu'
 
   # Realm
   pod 'RealmSwift'

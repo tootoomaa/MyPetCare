@@ -18,6 +18,8 @@ class StatisticsViewController: UIViewController, View {
     
     let statisticView = StatisticView()
     
+    var talbeViewDispose: Disposable? = nil
+    
     lazy var dataSource = RxTableViewSectionedReloadDataSource<StatisticDetailDataTableViewSection> {
         (dataSource, tableView, indexPath, item) in
         
@@ -97,25 +99,13 @@ class StatisticsViewController: UIViewController, View {
         
         view.backgroundColor = .white
         
-        self.rx.viewWillAppear
-            .withUnretained(self)
-            .subscribe(onNext: { _ in
-                self.configureNavigation()
-            }).disposed(by: disposeBag)
-        
         configureNavigation()
         
         configureStatisticViewMainFrameTableView()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.navigationBar.backgroundColor = .white
-    }
-    
     private func configureNavigation() {
-        self.navigationController?.configureNavigationBarAppearance(.white)
-        self.navigationController?.navigationBar.prefersLargeTitles = true
+
         navigationItem.title = "통계"
         
         [charDataFilteringButton, selectedPetMaleImageView, selectedPetName, selectPetImageView].forEach {
@@ -149,16 +139,13 @@ class StatisticsViewController: UIViewController, View {
     
     private func configureStatisticViewMainFrameTableView() {
         
-        dataSource.titleForHeaderInSection = { ds, index in
-            return ds.sectionModels[index].header
-        }
-        
         statisticView.mainFrameTable.rx.setDelegate(self)
             .disposed(by: disposeBag)
         statisticView.mainFrameTable.rowHeight = 70
         statisticView.mainFrameTable
             .register(MeasureDetailTableViewCell.self,
                       forCellReuseIdentifier: MeasureDetailTableViewCell.identifier)
+        
     }
     
     // MARK: - ReactorKit Binder
@@ -168,6 +155,10 @@ class StatisticsViewController: UIViewController, View {
             .map{Reactor.Action.loadInitialData}
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        
+        dataSource.titleForHeaderInSection = { ds, index in
+            return ds.sectionModels[index].header
+        }
         
         reactor.state.map{$0.selectedPet}
             .distinctUntilChanged()
@@ -189,14 +180,18 @@ class StatisticsViewController: UIViewController, View {
         
         reactor.state.map{$0.petList}
             .observe(on: MainScheduler.asyncInstance)
+            .do(onNext: { [unowned self] value in
+                if value.isEmpty {
+                    statisticView.mainFrameTable.reloadData()
+                }
+            })
             .map{!$0.isEmpty}
             .bind(to: statisticView.petListEmptyView.rx.isHidden)
             .disposed(by: disposeBag)
         
         // 상세 정보 테이블 뷰 생성
-        reactor.state.map{$0.sectionTableViewData}
+        reactor.state.map{($0.sectionTableViewData ?? [])}
             .observe(on: MainScheduler.asyncInstance)
-            .compactMap{$0}
             .bind(to: statisticView.mainFrameTable.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
         

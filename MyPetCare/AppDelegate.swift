@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
         configureTestData()
         
-        configureNavigation()
+        configureiCloud()
         
         let tabBarC = MyPetCustomNavigationController(provider: provider)
         
@@ -74,16 +74,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        provider.dataBaseService.set([value1, value2, value3, value4])
     }
     
-    private func configureNavigation() {
-        let appearance = UINavigationBarAppearance(idiom: .phone)
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
-        appearance.shadowColor = .clear
-        appearance.backgroundColor = Constants.mainColor
+    private func configureiCloud() {
         
-        let navigationBarApear = UINavigationBar.appearance()
-        navigationBarApear.compactAppearance = appearance
-        navigationBarApear.standardAppearance = appearance
-        navigationBarApear.scrollEdgeAppearance = appearance
+        guard let id = FileManager.default.ubiquityIdentityToken else { return }
+        
+        #if DEBUG
+        print("currnet iCloud Key : ", id)
+        
+        #endif
+        
+    }
+    
+    // 회전 방지 추가
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        return  [.portrait]
     }
 }
 

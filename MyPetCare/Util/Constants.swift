@@ -17,7 +17,7 @@ class Constants {
         static let maxDevice: CGFloat = 900        // max
     }
     
-    static let DB_VERSION: UInt64 = 11
+    static let DB_VERSION: UInt64 = 12
     
     // Measure View
     static let maxMeasureCount: Int = 60
@@ -35,10 +35,19 @@ class Constants {
     static let heightRatio = UIScreen.main.bounds.height / Constants.heigthbase
     static let widthRatio = UIScreen.main.bounds.width / Constants.widthbase
     
-    static let emptyImage = UIImage(systemName: "questionmark.circle")?
+    static let emptyImage = UIImage(systemName: "questionmark.circle")!
                                     .withRenderingMode(.alwaysOriginal)
                                     .withTintColor(.black)
                                     .pngData()!
+    
+    static let userEmptyImage = UIImage(systemName: "person.crop.circle.badge.plus")!
+                                    .withRenderingMode(.alwaysOriginal)
+                                    .withTintColor(.black)
+    /// Side Menu
+    static let sideMenuWidthSizeRatio: CGFloat = 0.7
+    static var sideMenuWidth: CGFloat {
+        return viewWidth*sideMenuWidthSizeRatio
+    }
     
     // Color
     static var mainColor = UIColor.lightGreen

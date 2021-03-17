@@ -52,8 +52,7 @@ class PhysicsMeasureViewController: UIViewController, View {
     }
     
     private func configureNavigation() {
-        
-        navigationController?.configureNavigationBarAppearance(.hrMeasureBottomViewColor)
+        navigationController?.configureNavigation(.hrMeasureBottomViewColor, largeTitle: false)
         navigationItem.title = measureType
                                     .rawValue
                                     .components(separatedBy: .newlines)
@@ -64,7 +63,7 @@ class PhysicsMeasureViewController: UIViewController, View {
                 self.dismiss(animated: true, completion: nil)
             }).disposed(by: disposeBag)
         
-        navigationItem.leftBarButtonItem = closeNanviButton
+        navigationItem.rightBarButtonItem = closeNanviButton
     }
     
     // MARK: - custom Keyboar & TextField
