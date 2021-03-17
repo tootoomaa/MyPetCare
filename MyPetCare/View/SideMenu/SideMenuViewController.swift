@@ -13,11 +13,13 @@ import CloudKit
 
 class SideMenuViewController: UIViewController, View {
     
+    // MARK: - Properteis
     var disposeBag: DisposeBag = DisposeBag()
     var sideMenus: [SideMenus] = []
     
     let mainView = SideMenuView()
     
+    // MARK: - Init
     override func loadView() {
         super.loadView()
         view = mainView
@@ -78,51 +80,49 @@ class SideMenuViewController: UIViewController, View {
 extension SideMenuViewController {
     
     struct DocumentsDirectory {
-        static let localDocumentsURL = FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: .userDomainMask).last!
-        static let iCloudDocumentsURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents")
+        static let localDocumentsURL = FileManager.default.urls(for: FileManager.SearchPathDirectory.documentDirectory, in: .userDomainMask).last
+        static let iCloudDocumentsURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents", isDirectory: true)
     }
     
-    func isCloudEnabled() -> Bool {
+    private func isCloudEnabled() -> Bool {
         if DocumentsDirectory.iCloudDocumentsURL != nil { return true }
         else { return false }
     }
     
-    
-    private func iCloudSetupNotAvailable() {
-        print("iCloudSetupNotAvailable")
+    private func checkForExistingDir() -> Bool {
+        if DocumentsDirectory.localDocumentsURL != nil { return true}
+        else { return false}
     }
     
     func uploadDatabaseToCloudDrive() {
         
-        if(isCloudEnabled() == false) {
-            self.iCloudSetupNotAvailable()
+        guard let iCloutDocumentURL = DocumentsDirectory.iCloudDocumentsURL,
+              let localDocumentsURL = DocumentsDirectory.localDocumentsURL else {
+            print("iCloudSetupNotAvailable")
             return
         }
         
+        let myContainter = CKContainer.default()
+        let publicDatabase = myContainter.publicCloudDatabase
+        
         let fileManager = FileManager.default
         
-//        self.checkForExistingDir()
-        
-        let iCloudDocumentsURL = FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("Documents", isDirectory: true)
-        
         let datePadding = TimeUtil().getString(Date(), .foriCloudSave)
-        let iCloudDocumentToCheckURL = iCloudDocumentsURL?.appendingPathComponent("\(datePadding)_MyPetCareData.realm", isDirectory: false)
+        let iCloudDocumentToCheckURL = iCloutDocumentURL.appendingPathComponent("\(datePadding)_MyPetCareData.realm", isDirectory: false)
         let realmArchiveURL = iCloudDocumentToCheckURL//containerURL?.appendingPathComponent("MyArchivedRealm.realm")
         
-        if(fileManager.fileExists(atPath: realmArchiveURL?.path ?? "")) {
+        if(fileManager.fileExists(atPath: realmArchiveURL.path )) {
             do {
-                try fileManager.removeItem(at: realmArchiveURL!)
+                try fileManager.removeItem(at: realmArchiveURL)
                 print("REPLACE")
-                try self.reactor?.provider.dataBaseService.realm.writeCopy(toFile: realmArchiveURL!)
-//                try! realm.writeCopy(toFile: realmArchiveURL!)
-                
+                try self.reactor?.provider.dataBaseService.realm.writeCopy(toFile: realmArchiveURL)
             } catch {
                 print("ERR")
             }
         }
         else {
             print("Need to store ")
-            try! self.reactor?.provider.dataBaseService.realm.writeCopy(toFile: realmArchiveURL!)
+            try! self.reactor?.provider.dataBaseService.realm.writeCopy(toFile: realmArchiveURL)
         }
     }
     

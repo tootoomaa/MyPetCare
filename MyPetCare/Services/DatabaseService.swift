@@ -21,6 +21,7 @@ protocol DatabaseServiceType {
     
     func delete(_ Object: Object?)
     func delete(_ Object: [Object]?)
+    func deletePetAllData(_ petId: String)
     
     func update(_ objects: Object?)
     func update(_ objects: [Object]?)
@@ -114,6 +115,15 @@ class DatabaseService: BaseService, DatabaseServiceType {
                     realm.delete(obj)
                 }
             }
+        }
+    }
+    
+    func deletePetAllData(_ deletePetId: String) {
+        try! db().write {
+            db().delete(loadPhysicsDataHistory(deletePetId))        // 신체 측정 데이터 삭제
+            db().delete(loadPetBRLog(deletePetId))                  // 호흡 데이터 삭제
+            db().delete(loadLastData(deletePetId))                  // 마지막 데이터 삭제
+            db().delete(loadPet(petId: deletePetId))                // 펫 데이터 삭제
         }
     }
     

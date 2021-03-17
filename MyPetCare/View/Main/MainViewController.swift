@@ -269,7 +269,7 @@ class MainViewController: UIViewController, View {
                     $0.customBackgroundView.backgroundColor = UIColor(rgb: 0xf1d4d4)
                     let resultBR = lastData == nil ? " - 회/분" : "\(lastData?.resultBR ?? 0)회/분"
                     $0.valeuLabel.text = "\(resultBR)"
-                    $0.petStateLabel.isHidden = !(lastData?.measureType == MeasureServiceType.sleepBreathRate.getTitle())
+                    $0.petStateLabel.isHidden = !(lastData?.measureType == MeasureServiceType.sleepBreathRate.rawValue)
                     $0.showMoreButton.rx.tap
                         .subscribe(on: MainScheduler.asyncInstance)
                         .subscribe(onNext: {
@@ -380,6 +380,7 @@ class MainViewController: UIViewController, View {
         
         // 삭제 버튼 처리
         mainView.petProfileView.deleteButton.rx.tap
+            .subscribe(on: MainScheduler.asyncInstance)
             .subscribe(onNext: { [unowned self] in
                 
                 let cancel = AlertAction(title: "취소", type: 0, style: .cancel)
@@ -394,8 +395,10 @@ class MainViewController: UIViewController, View {
                         
                         if action.index == 1 { // 삭제 선택
                             reactor.action.onNext(.deletePet)
-                            reactor.action.onNext(.loadInitialData)
+                            GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
+                            GlobalState.lastDateUpdate.onNext(Void())
                             mainView.setOriginalOffsetPetProfileView()
+                            mainView.mainFrameTableView.reloadData()
                         }
                         
                     }).disposed(by: disposeBag)

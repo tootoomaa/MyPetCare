@@ -241,9 +241,13 @@ class PetProfileView: UIView {
             $0.height.equalTo(20*Constants.widthRatio)
         }
         
-        petMaleImageView.image = Male(rawValue: pet.male!)?.getPetMaleImage
         ageValueLabel.text = "\(pet.age) yrs"
         weightValueLabel.text = Int(pet.weight) == 0 ? "-" : "\(pet.weight) kg"
         heightValueLabel.text = pet.species
+        
+        if let male = pet.male {
+            petMaleImageView.image = Male(rawValue: male)?.getPetMaleImage ?? UIImage(data: Constants.emptyImage)
+        }
+        
     }
 }
