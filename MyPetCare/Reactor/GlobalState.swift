@@ -15,4 +15,5 @@ class GlobalState {
     
     static let MeasureDataUpdateAndChartReload = PublishSubject<Void>()
     
+    static let petDeleted = PublishSubject<Void>()
 }

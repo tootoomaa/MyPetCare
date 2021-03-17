@@ -211,6 +211,11 @@ class MainViewController: UIViewController, View {
             .compactMap{$0}
             .subscribe(onNext: { [unowned self] indexPath in
                 
+                guard reactor.currentState.petList.count != 1 else {
+                    print("등록된 펫이 없습니다, Plus Button")
+                    return
+                }
+                
                 //select를 통해 pet사진 테투리 체크표시 나타냄
                 let view = mainView.petProfileCollectionView
                 view.selectItem(at: indexPath, animated: false, scrollPosition: .centeredVertically)
@@ -396,7 +401,8 @@ class MainViewController: UIViewController, View {
                         if action.index == 1 { // 삭제 선택
                             reactor.action.onNext(.deletePet)
                             GlobalState.MeasureDataUpdateAndChartReload.onNext(Void())
-                            GlobalState.lastDateUpdate.onNext(Void())
+                            GlobalState.petDeleted.onNext(Void())
+//                            GlobalState.lastDateUpdate.onNext(Void())
                             mainView.setOriginalOffsetPetProfileView()
                             mainView.mainFrameTableView.reloadData()
                         }

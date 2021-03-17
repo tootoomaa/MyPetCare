@@ -106,11 +106,6 @@ class MainViewControllerReactor: Reactor {
             list.append(emptyPet)
             self.plusButtonIndex = list.count - 1
             
-            if list.count == 1 {                
-                return Observable.merge([.just(.setPetObjectList(list)),
-                                         .just(.setSelectedLastedPerData(LastMeasureObject()))])
-            }
-            
             if list.count == 2 {
                 
                 let currentIndex = initialState.selectedIndexPath
@@ -181,6 +176,8 @@ class MainViewControllerReactor: Reactor {
     func transform(action: Observable<Action>) -> Observable<Action> {
         return Observable.merge([action,
                                  GlobalState.lastDateUpdate
-                                    .map{.selectedIndexPath(self.currentState.selectedIndexPath)}])
+                                    .map{.selectedIndexPath(self.currentState.selectedIndexPath)},
+                                 GlobalState.petDeleted
+                                    .map{.loadInitialData}])
     }
 }
