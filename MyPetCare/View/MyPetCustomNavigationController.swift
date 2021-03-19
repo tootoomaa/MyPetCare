@@ -74,7 +74,7 @@ class MyPetCustomNavigationController: UITabBarController {
         let tabBar = UITabBarItem(title: nil, image: image.0, selectedImage: image.1)
         
         vc.tabBarItem = tabBar                                              // 텝바 버튼 추가
-//        configureSideBarMenuButtonAdd(vc)                                   // 네비게이션 사이드 메뉴 버튼 생성
+        configureSideBarMenuButtonAdd(vc)                                   // 네비게이션 사이드 메뉴 버튼 생성
         
         let naviC = SideMenuNavigationController(rootViewController: vc)    // 네비게이션 컨트롤러 생성
         naviC.configureNavigation(Constants.mainColor, largeTitle: true)    // 네이게이션 바 설정
@@ -95,7 +95,7 @@ class MyPetCustomNavigationController: UITabBarController {
         let tabBar = UITabBarItem(title: nil, image: image.0, selectedImage: image.1)
         
         vc.tabBarItem = tabBar                                              // 텝바 버튼 추가
-//        configureSideBarMenuButtonAdd(vc)                                   // 네비게이션 사이드 메뉴 버튼 생성
+        configureSideBarMenuButtonAdd(vc)                                   // 네비게이션 사이드 메뉴 버튼 생성
     
         let naviC = SideMenuNavigationController(rootViewController: vc)    // 네비게이션 컨트롤러 생성
         naviC.configureNavigation(.white, largeTitle: true)    // 네이게이션 바 설정
