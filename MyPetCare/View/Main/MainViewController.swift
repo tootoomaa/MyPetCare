@@ -107,7 +107,10 @@ class MainViewController: UIViewController, View {
                     cellIdentifier: MeasureServiceCell.identifier,
                     cellType: MeasureServiceCell.self)) { row, measureServiceType, cell in
                 
-                cell.titleLabel.text = measureServiceType.getTitle()
+                let title = measureServiceType == .sleepBreathRate
+                                                    ? "수동 호흡수\n측정"
+                                                    : measureServiceType.getTitle()
+                cell.titleLabel.text = title
                 cell.cellType = measureServiceType
                 
             }.disposed(by: disposeBag)
@@ -310,7 +313,6 @@ class MainViewController: UIViewController, View {
                             measureDetailVC.reactor = MeasureViewReactor(selectedPat: selectedPet,
                                                                          provider: reactor.provider)
                             self.navigationController?.pushViewController(measureDetailVC, animated: true)
-                            
                         }).disposed(by: disposeBag)
                 }
             }

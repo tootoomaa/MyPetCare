@@ -80,8 +80,8 @@ class MyPetCustomNavigationController: UITabBarController {
         naviC.configureNavigation(Constants.mainColor, largeTitle: true)    // 네이게이션 바 설정
         
         
-//        SideMenuManager.default.addPanGestureToPresent(toView: naviC.view)
-//        SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: naviC.view)
+        SideMenuManager.default.addPanGestureToPresent(toView: naviC.view)
+        SideMenuManager.default.addScreenEdgePanGesturesToPresent(toView: naviC.view)
         
         return naviC
     }

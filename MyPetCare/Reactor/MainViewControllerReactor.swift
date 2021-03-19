@@ -12,7 +12,7 @@ import RxCocoa
 
 enum MeasureServiceType: String, CaseIterable {
     case breathRate = "호흡수"
-    case sleepBreathRate = "수면호흡수"
+    case sleepBreathRate = "수동 호흡수"
     case weight = "체중"
     
     func getColor() -> UIColor {
