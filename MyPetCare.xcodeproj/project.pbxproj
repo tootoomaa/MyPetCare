@@ -1,0 +1,1172 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5F6D98A52C903195CBBD72A2 /* Pods_MyPetCareTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7155B2EE709D69BCC963541E /* Pods_MyPetCareTests.framework */; };
+		A6ACDE00ED103BDE31EA9DC8 /* Pods_MyPetCare.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52E73751C9F293C0B1A851F4 /* Pods_MyPetCare.framework */; };
+		C7604EE925CAD814008B8C1F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7604EE825CAD814008B8C1F /* AppDelegate.swift */; };
+		C7604EF225CAD815008B8C1F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C7604EF125CAD815008B8C1F /* Assets.xcassets */; };
+		C7604EF525CAD815008B8C1F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7604EF325CAD815008B8C1F /* LaunchScreen.storyboard */; };
+		C7604F0025CAD815008B8C1F /* MyPetCareTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7604EFF25CAD815008B8C1F /* MyPetCareTests.swift */; };
+		C7604F0B25CAD815008B8C1F /* MyPetCareUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7604F0A25CAD815008B8C1F /* MyPetCareUITests.swift */; };
+		C7604F3325CADE63008B8C1F /* MainViewControllerReactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7604F3225CADE63008B8C1F /* MainViewControllerReactor.swift */; };
+		C7604F5625CAE4A3008B8C1F /* PetObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7604F5525CAE4A3008B8C1F /* PetObject.swift */; };
+		C76AA04925EBD26700F58364 /* PetOptionCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76AA04825EBD26700F58364 /* PetOptionCollectionViewCell.swift */; };
+		C76AA06725EE530E00F58364 /* StatisticsBrData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76AA06625EE530E00F58364 /* StatisticsBrData.swift */; };
+		C76AA07F25EE802F00F58364 /* StatisticPhyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = C76AA07E25EE802E00F58364 /* StatisticPhyData.swift */; };
+		C779FA6725CE2F7400039076 /* MyPetCustomNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C779FA6625CE2F7400039076 /* MyPetCustomNavigationController.swift */; };
+		C779FA7325CE2FB600039076 /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C779FA7225CE2FB600039076 /* ServiceProvider.swift */; };
+		C779FA7B25CE2FE600039076 /* BaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C779FA7A25CE2FE600039076 /* BaseService.swift */; };
+		C779FA8025CE303200039076 /* DatabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C779FA7F25CE303200039076 /* DatabaseService.swift */; };
+		C779FA8F25CE37EE00039076 /* StatisticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C779FA8E25CE37EE00039076 /* StatisticsViewController.swift */; };
+		C779FA9525CEAD7800039076 /* PetInputValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C779FA9425CEAD7800039076 /* PetInputValidatorTests.swift */; };
+		C779FA9E25CEADD500039076 /* PetInputValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C779FA9D25CEADD500039076 /* PetInputValidator.swift */; };
+		C779FAC025D0186D00039076 /* UINavigation+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C779FABF25D0186D00039076 /* UINavigation+Extension.swift */; };
+		C77E825325D01C2A00B198E6 /* icCmBack.png in Resources */ = {isa = PBXBuildFile; fileRef = C77E825025D01C2A00B198E6 /* icCmBack.png */; };
+		C77E825425D01C2A00B198E6 /* icCmBack@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C77E825125D01C2A00B198E6 /* icCmBack@2x.png */; };
+		C77E825525D01C2A00B198E6 /* icCmBack@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = C77E825225D01C2A00B198E6 /* icCmBack@3x.png */; };
+		C77E828025D16E8E00B198E6 /* NewPetAddViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E827F25D16E8E00B198E6 /* NewPetAddViewController.swift */; };
+		C77E828525D171F300B198E6 /* NewPetAddView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E828425D171F300B198E6 /* NewPetAddView.swift */; };
+		C77E829125D1825100B198E6 /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E829025D1825100B198E6 /* UIView+Extension.swift */; };
+		C77E829A25D2A5FF00B198E6 /* PetAddViewReactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E829925D2A5FF00B198E6 /* PetAddViewReactor.swift */; };
+		C77E82A225D2B82D00B198E6 /* UIViewController+Rx+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E82A125D2B82D00B198E6 /* UIViewController+Rx+Extension.swift */; };
+		C77E82A725D2B9B800B198E6 /* Results+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E82A625D2B9B800B198E6 /* Results+Extension.swift */; };
+		C77E82C025D5539800B198E6 /* BaseRealm.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E82BF25D5539800B198E6 /* BaseRealm.swift */; };
+		C77E82E325D801C900B198E6 /* BRMeasureViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E82E225D801C900B198E6 /* BRMeasureViewController.swift */; };
+		C77E82EB25D8026000B198E6 /* BRMeasureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E82EA25D8026000B198E6 /* BRMeasureView.swift */; };
+		C77E82F325D8036E00B198E6 /* MeasureViewReactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E82F225D8036E00B198E6 /* MeasureViewReactor.swift */; };
+		C77E82F825D8062100B198E6 /* BRObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E82F725D8062100B198E6 /* BRObject.swift */; };
+		C77E830025D8C8BB00B198E6 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E82FF25D8C8BB00B198E6 /* MainView.swift */; };
+		C77E830525D8C8E200B198E6 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E830425D8C8E200B198E6 /* MainViewController.swift */; };
+		C77E830A25D8D6FE00B198E6 /* PetProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77E830925D8D6FE00B198E6 /* PetProfileView.swift */; };
+		C785982425CD6DC600252ACB /* boy.png in Resources */ = {isa = PBXBuildFile; fileRef = C785982225CD6DC600252ACB /* boy.png */; };
+		C785982525CD6DC600252ACB /* girl.png in Resources */ = {isa = PBXBuildFile; fileRef = C785982325CD6DC600252ACB /* girl.png */; };
+		C785982A25CD839600252ACB /* UIColor+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C785982925CD839600252ACB /* UIColor+Extension.swift */; };
+		C785983025CD9CD400252ACB /* PetProfileCollecionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C785982F25CD9CD400252ACB /* PetProfileCollecionViewFlowLayout.swift */; };
+		C785983825CD9EA600252ACB /* ServiceCollecionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C785983725CD9EA600252ACB /* ServiceCollecionViewFlowLayout.swift */; };
+		C785984025CD9F3F00252ACB /* MeasureServiceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C785983F25CD9F3F00252ACB /* MeasureServiceCell.swift */; };
+		C786EEE225FA7DE90037CDE0 /* SideMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C786EEE125FA7DE90037CDE0 /* SideMenuViewController.swift */; };
+		C786EEEB25FB982C0037CDE0 /* SideMenuViewReactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C786EEEA25FB982C0037CDE0 /* SideMenuViewReactor.swift */; };
+		C786EEF325FB9D060037CDE0 /* SideMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C786EEF225FB9D060037CDE0 /* SideMenuView.swift */; };
+		C786EEFB25FBA3B90037CDE0 /* UserObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C786EEFA25FBA3B90037CDE0 /* UserObject.swift */; };
+		C786EF1C25FDCA800037CDE0 /* SideMenuTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C786EF1B25FDCA800037CDE0 /* SideMenuTableViewCell.swift */; };
+		C786EF2825FDDC7F0037CDE0 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C786EF2725FDDC7F0037CDE0 /* CloudKit.framework */; };
+		C787AF9725DFF30E00786169 /* BRMeasureResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C787AF9625DFF30E00786169 /* BRMeasureResultView.swift */; };
+		C787AFA025E0AB4900786169 /* BRMeasureHowInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C787AF9F25E0AB4900786169 /* BRMeasureHowInfoViewController.swift */; };
+		C787AFAE25E0B8A300786169 /* UIFont+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C787AFAD25E0B8A300786169 /* UIFont+Extension.swift */; };
+		C788640B25E68E06001307CD /* PhysicsObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C788640A25E68E06001307CD /* PhysicsObject.swift */; };
+		C788641325E68FC3001307CD /* MeasureDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C788641225E68FC3001307CD /* MeasureDetailViewController.swift */; };
+		C788641925E7BB38001307CD /* MeasureDetailTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C788641825E7BB38001307CD /* MeasureDetailTableViewCell.swift */; };
+		C788641E25E7C361001307CD /* TimeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = C788641D25E7C361001307CD /* TimeUtil.swift */; };
+		C797973E25DA9CE500B1778D /* Cafe24Syongsyong.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C797973C25DA9CC600B1778D /* Cafe24Syongsyong.ttf */; };
+		C7AB39B525E2934900E51766 /* StatisticsViewReactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AB39B425E2934900E51766 /* StatisticsViewReactor.swift */; };
+		C7AB39BA25E3D13300E51766 /* LastMeasureServiceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AB39B925E3D13300E51766 /* LastMeasureServiceCell.swift */; };
+		C7AB39C225E3E28600E51766 /* LastMeasureObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AB39C125E3E28600E51766 /* LastMeasureObject.swift */; };
+		C7AB39C725E3F19700E51766 /* GlobalState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AB39C625E3F19700E51766 /* GlobalState.swift */; };
+		C7AB39D025E516D300E51766 /* PhysicsMeasureViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7AB39CF25E516D300E51766 /* PhysicsMeasureViewController.swift */; };
+		C7B3259F25E518A600626DD8 /* PhysicsMeasureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B3259E25E518A600626DD8 /* PhysicsMeasureView.swift */; };
+		C7C266E025CC40E3001C9C24 /* PetProfileImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C266DF25CC40E3001C9C24 /* PetProfileImageCell.swift */; };
+		C7C266E525CD5D2F001C9C24 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C266E425CD5D2F001C9C24 /* Constants.swift */; };
+		C7C266EB25CD5EEE001C9C24 /* UISegmentedControll+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C266EA25CD5EEE001C9C24 /* UISegmentedControll+Extension.swift */; };
+		C7C266F325CD5F0A001C9C24 /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7C266F225CD5F0A001C9C24 /* UIImage+Extension.swift */; };
+		C7CAA0E425E1573A00420F19 /* UIButton+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7CAA0E325E1573A00420F19 /* UIButton+Extension.swift */; };
+		C7D6B09425E25404009E806B /* StatisticView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D6B09325E25404009E806B /* StatisticView.swift */; };
+		C7D6B09C25E287FB009E806B /* StatisticChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7D6B09B25E287FB009E806B /* StatisticChartView.swift */; };
+		E550360D587C796018AD5B36 /* Pods_MyPetCare_MyPetCareUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52D3D3741D6119FC01C20005 /* Pods_MyPetCare_MyPetCareUITests.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C7604EFC25CAD815008B8C1F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C7604EDD25CAD814008B8C1F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C7604EE425CAD814008B8C1F;
+			remoteInfo = MyPetCare;
+		};
+		C7604F0725CAD815008B8C1F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C7604EDD25CAD814008B8C1F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C7604EE425CAD814008B8C1F;
+			remoteInfo = MyPetCare;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		300F2D065D39A7819E73AD22 /* Pods-MyPetCareTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPetCareTests.debug.xcconfig"; path = "Target Support Files/Pods-MyPetCareTests/Pods-MyPetCareTests.debug.xcconfig"; sourceTree = "<group>"; };
+		48431BAB776A6194495C4175 /* Pods-MyPetCare-MyPetCareUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPetCare-MyPetCareUITests.debug.xcconfig"; path = "Target Support Files/Pods-MyPetCare-MyPetCareUITests/Pods-MyPetCare-MyPetCareUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		52D3D3741D6119FC01C20005 /* Pods_MyPetCare_MyPetCareUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyPetCare_MyPetCareUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		52E73751C9F293C0B1A851F4 /* Pods_MyPetCare.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyPetCare.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		627E685B9A4BEFB3F59B09B5 /* Pods-MyPetCareTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPetCareTests.release.xcconfig"; path = "Target Support Files/Pods-MyPetCareTests/Pods-MyPetCareTests.release.xcconfig"; sourceTree = "<group>"; };
+		7155B2EE709D69BCC963541E /* Pods_MyPetCareTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MyPetCareTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE1FBB1CC637BECE3AD0C47C /* Pods-MyPetCare-MyPetCareUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPetCare-MyPetCareUITests.release.xcconfig"; path = "Target Support Files/Pods-MyPetCare-MyPetCareUITests/Pods-MyPetCare-MyPetCareUITests.release.xcconfig"; sourceTree = "<group>"; };
+		C7604EE525CAD814008B8C1F /* MyPetCare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyPetCare.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7604EE825CAD814008B8C1F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		C7604EF125CAD815008B8C1F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C7604EF425CAD815008B8C1F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		C7604EF625CAD815008B8C1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C7604EFB25CAD815008B8C1F /* MyPetCareTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyPetCareTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7604EFF25CAD815008B8C1F /* MyPetCareTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPetCareTests.swift; sourceTree = "<group>"; };
+		C7604F0125CAD815008B8C1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C7604F0625CAD815008B8C1F /* MyPetCareUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MyPetCareUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C7604F0A25CAD815008B8C1F /* MyPetCareUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPetCareUITests.swift; sourceTree = "<group>"; };
+		C7604F0C25CAD815008B8C1F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C7604F3225CADE63008B8C1F /* MainViewControllerReactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewControllerReactor.swift; sourceTree = "<group>"; };
+		C7604F5525CAE4A3008B8C1F /* PetObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetObject.swift; sourceTree = "<group>"; };
+		C76AA04825EBD26700F58364 /* PetOptionCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetOptionCollectionViewCell.swift; sourceTree = "<group>"; };
+		C76AA06625EE530E00F58364 /* StatisticsBrData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsBrData.swift; sourceTree = "<group>"; };
+		C76AA07E25EE802E00F58364 /* StatisticPhyData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticPhyData.swift; sourceTree = "<group>"; };
+		C779FA6625CE2F7400039076 /* MyPetCustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPetCustomNavigationController.swift; sourceTree = "<group>"; };
+		C779FA7225CE2FB600039076 /* ServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
+		C779FA7A25CE2FE600039076 /* BaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseService.swift; sourceTree = "<group>"; };
+		C779FA7F25CE303200039076 /* DatabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseService.swift; sourceTree = "<group>"; };
+		C779FA8E25CE37EE00039076 /* StatisticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
+		C779FA9425CEAD7800039076 /* PetInputValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetInputValidatorTests.swift; sourceTree = "<group>"; };
+		C779FA9D25CEADD500039076 /* PetInputValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetInputValidator.swift; sourceTree = "<group>"; };
+		C779FABF25D0186D00039076 /* UINavigation+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigation+Extension.swift"; sourceTree = "<group>"; };
+		C77E825025D01C2A00B198E6 /* icCmBack.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icCmBack.png; sourceTree = "<group>"; };
+		C77E825125D01C2A00B198E6 /* icCmBack@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icCmBack@2x.png"; sourceTree = "<group>"; };
+		C77E825225D01C2A00B198E6 /* icCmBack@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icCmBack@3x.png"; sourceTree = "<group>"; };
+		C77E827F25D16E8E00B198E6 /* NewPetAddViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPetAddViewController.swift; sourceTree = "<group>"; };
+		C77E828425D171F300B198E6 /* NewPetAddView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPetAddView.swift; sourceTree = "<group>"; };
+		C77E829025D1825100B198E6 /* UIView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
+		C77E829925D2A5FF00B198E6 /* PetAddViewReactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetAddViewReactor.swift; sourceTree = "<group>"; };
+		C77E82A125D2B82D00B198E6 /* UIViewController+Rx+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Rx+Extension.swift"; sourceTree = "<group>"; };
+		C77E82A625D2B9B800B198E6 /* Results+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Results+Extension.swift"; sourceTree = "<group>"; };
+		C77E82BF25D5539800B198E6 /* BaseRealm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseRealm.swift; sourceTree = "<group>"; };
+		C77E82E225D801C900B198E6 /* BRMeasureViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRMeasureViewController.swift; sourceTree = "<group>"; };
+		C77E82EA25D8026000B198E6 /* BRMeasureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRMeasureView.swift; sourceTree = "<group>"; };
+		C77E82F225D8036E00B198E6 /* MeasureViewReactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasureViewReactor.swift; sourceTree = "<group>"; };
+		C77E82F725D8062100B198E6 /* BRObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRObject.swift; sourceTree = "<group>"; };
+		C77E82FF25D8C8BB00B198E6 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		C77E830425D8C8E200B198E6 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		C77E830925D8D6FE00B198E6 /* PetProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetProfileView.swift; sourceTree = "<group>"; };
+		C785982225CD6DC600252ACB /* boy.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = boy.png; sourceTree = "<group>"; };
+		C785982325CD6DC600252ACB /* girl.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = girl.png; sourceTree = "<group>"; };
+		C785982925CD839600252ACB /* UIColor+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extension.swift"; sourceTree = "<group>"; };
+		C785982F25CD9CD400252ACB /* PetProfileCollecionViewFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetProfileCollecionViewFlowLayout.swift; sourceTree = "<group>"; };
+		C785983725CD9EA600252ACB /* ServiceCollecionViewFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCollecionViewFlowLayout.swift; sourceTree = "<group>"; };
+		C785983F25CD9F3F00252ACB /* MeasureServiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasureServiceCell.swift; sourceTree = "<group>"; };
+		C786EEE125FA7DE90037CDE0 /* SideMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewController.swift; sourceTree = "<group>"; };
+		C786EEEA25FB982C0037CDE0 /* SideMenuViewReactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuViewReactor.swift; sourceTree = "<group>"; };
+		C786EEF225FB9D060037CDE0 /* SideMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuView.swift; sourceTree = "<group>"; };
+		C786EEFA25FBA3B90037CDE0 /* UserObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserObject.swift; sourceTree = "<group>"; };
+		C786EF1B25FDCA800037CDE0 /* SideMenuTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SideMenuTableViewCell.swift; sourceTree = "<group>"; };
+		C786EF2325FDDC0D0037CDE0 /* MyPetCare.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MyPetCare.entitlements; sourceTree = "<group>"; };
+		C786EF2725FDDC7F0037CDE0 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		C787AF9625DFF30E00786169 /* BRMeasureResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRMeasureResultView.swift; sourceTree = "<group>"; };
+		C787AF9F25E0AB4900786169 /* BRMeasureHowInfoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BRMeasureHowInfoViewController.swift; sourceTree = "<group>"; };
+		C787AFAD25E0B8A300786169 /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
+		C788640A25E68E06001307CD /* PhysicsObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsObject.swift; sourceTree = "<group>"; };
+		C788641225E68FC3001307CD /* MeasureDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasureDetailViewController.swift; sourceTree = "<group>"; };
+		C788641825E7BB38001307CD /* MeasureDetailTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasureDetailTableViewCell.swift; sourceTree = "<group>"; };
+		C788641D25E7C361001307CD /* TimeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeUtil.swift; sourceTree = "<group>"; };
+		C797973C25DA9CC600B1778D /* Cafe24Syongsyong.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Cafe24Syongsyong.ttf; sourceTree = "<group>"; };
+		C797973D25DA9CCD00B1778D /* License.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = License.txt; sourceTree = "<group>"; };
+		C7AB39B425E2934900E51766 /* StatisticsViewReactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewReactor.swift; sourceTree = "<group>"; };
+		C7AB39B925E3D13300E51766 /* LastMeasureServiceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastMeasureServiceCell.swift; sourceTree = "<group>"; };
+		C7AB39C125E3E28600E51766 /* LastMeasureObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastMeasureObject.swift; sourceTree = "<group>"; };
+		C7AB39C625E3F19700E51766 /* GlobalState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalState.swift; sourceTree = "<group>"; };
+		C7AB39CF25E516D300E51766 /* PhysicsMeasureViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsMeasureViewController.swift; sourceTree = "<group>"; };
+		C7B3259E25E518A600626DD8 /* PhysicsMeasureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhysicsMeasureView.swift; sourceTree = "<group>"; };
+		C7C266DF25CC40E3001C9C24 /* PetProfileImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetProfileImageCell.swift; sourceTree = "<group>"; };
+		C7C266E425CD5D2F001C9C24 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C7C266EA25CD5EEE001C9C24 /* UISegmentedControll+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UISegmentedControll+Extension.swift"; sourceTree = "<group>"; };
+		C7C266F225CD5F0A001C9C24 /* UIImage+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
+		C7CAA0E325E1573A00420F19 /* UIButton+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+Extension.swift"; sourceTree = "<group>"; };
+		C7D6B09325E25404009E806B /* StatisticView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticView.swift; sourceTree = "<group>"; };
+		C7D6B09B25E287FB009E806B /* StatisticChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticChartView.swift; sourceTree = "<group>"; };
+		D534AFF73F6560D73AA9F289 /* Pods-MyPetCare.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPetCare.debug.xcconfig"; path = "Target Support Files/Pods-MyPetCare/Pods-MyPetCare.debug.xcconfig"; sourceTree = "<group>"; };
+		EA8EF3A56DD22873C5D3DAA8 /* Pods-MyPetCare.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MyPetCare.release.xcconfig"; path = "Target Support Files/Pods-MyPetCare/Pods-MyPetCare.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C7604EE225CAD814008B8C1F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A6ACDE00ED103BDE31EA9DC8 /* Pods_MyPetCare.framework in Frameworks */,
+				C786EF2825FDDC7F0037CDE0 /* CloudKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C7604EF825CAD815008B8C1F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F6D98A52C903195CBBD72A2 /* Pods_MyPetCareTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C7604F0325CAD815008B8C1F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E550360D587C796018AD5B36 /* Pods_MyPetCare_MyPetCareUITests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0BA042740C7283CEA9CCB1F7 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				D534AFF73F6560D73AA9F289 /* Pods-MyPetCare.debug.xcconfig */,
+				EA8EF3A56DD22873C5D3DAA8 /* Pods-MyPetCare.release.xcconfig */,
+				48431BAB776A6194495C4175 /* Pods-MyPetCare-MyPetCareUITests.debug.xcconfig */,
+				AE1FBB1CC637BECE3AD0C47C /* Pods-MyPetCare-MyPetCareUITests.release.xcconfig */,
+				300F2D065D39A7819E73AD22 /* Pods-MyPetCareTests.debug.xcconfig */,
+				627E685B9A4BEFB3F59B09B5 /* Pods-MyPetCareTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		39733CEAD030C61E09CD294F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C786EF2725FDDC7F0037CDE0 /* CloudKit.framework */,
+				52E73751C9F293C0B1A851F4 /* Pods_MyPetCare.framework */,
+				52D3D3741D6119FC01C20005 /* Pods_MyPetCare_MyPetCareUITests.framework */,
+				7155B2EE709D69BCC963541E /* Pods_MyPetCareTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C7604EDC25CAD814008B8C1F = {
+			isa = PBXGroup;
+			children = (
+				C785981625CD6C2000252ACB /* Resource */,
+				C7604EE725CAD814008B8C1F /* MyPetCare */,
+				C7604EFE25CAD815008B8C1F /* MyPetCareTests */,
+				C7604F0925CAD815008B8C1F /* MyPetCareUITests */,
+				C7604EE625CAD814008B8C1F /* Products */,
+				0BA042740C7283CEA9CCB1F7 /* Pods */,
+				39733CEAD030C61E09CD294F /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		C7604EE625CAD814008B8C1F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C7604EE525CAD814008B8C1F /* MyPetCare.app */,
+				C7604EFB25CAD815008B8C1F /* MyPetCareTests.xctest */,
+				C7604F0625CAD815008B8C1F /* MyPetCareUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C7604EE725CAD814008B8C1F /* MyPetCare */ = {
+			isa = PBXGroup;
+			children = (
+				C786EF2325FDDC0D0037CDE0 /* MyPetCare.entitlements */,
+				C7604EE825CAD814008B8C1F /* AppDelegate.swift */,
+				C779FA7125CE2FA600039076 /* Services */,
+				C7604F2125CADDFC008B8C1F /* View */,
+				C7604F2225CADE02008B8C1F /* Reactor */,
+				C7604F4625CADF28008B8C1F /* Util */,
+				C7C266E925CD5ED5001C9C24 /* Extension */,
+				C7604EF125CAD815008B8C1F /* Assets.xcassets */,
+				C7604EF325CAD815008B8C1F /* LaunchScreen.storyboard */,
+				C7604EF625CAD815008B8C1F /* Info.plist */,
+			);
+			path = MyPetCare;
+			sourceTree = "<group>";
+		};
+		C7604EFE25CAD815008B8C1F /* MyPetCareTests */ = {
+			isa = PBXGroup;
+			children = (
+				C779FA9325CEABA100039076 /* Util */,
+				C7604EFF25CAD815008B8C1F /* MyPetCareTests.swift */,
+				C7604F0125CAD815008B8C1F /* Info.plist */,
+			);
+			path = MyPetCareTests;
+			sourceTree = "<group>";
+		};
+		C7604F0925CAD815008B8C1F /* MyPetCareUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C7604F0A25CAD815008B8C1F /* MyPetCareUITests.swift */,
+				C7604F0C25CAD815008B8C1F /* Info.plist */,
+			);
+			path = MyPetCareUITests;
+			sourceTree = "<group>";
+		};
+		C7604F2125CADDFC008B8C1F /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C779FA6625CE2F7400039076 /* MyPetCustomNavigationController.swift */,
+				C786EEE025FA7DDF0037CDE0 /* SideMenu */,
+				C7C266FF25CD60BE001C9C24 /* Main */,
+				C779FA8725CE378100039076 /* Statistics */,
+				C779FABB25D0176C00039076 /* PetAdd */,
+				C7AB39CE25E5169700E51766 /* Measure */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C7604F2225CADE02008B8C1F /* Reactor */ = {
+			isa = PBXGroup;
+			children = (
+				C7AB39C625E3F19700E51766 /* GlobalState.swift */,
+				C786EEEA25FB982C0037CDE0 /* SideMenuViewReactor.swift */,
+				C7604F3225CADE63008B8C1F /* MainViewControllerReactor.swift */,
+				C77E829925D2A5FF00B198E6 /* PetAddViewReactor.swift */,
+				C77E82F225D8036E00B198E6 /* MeasureViewReactor.swift */,
+				C7AB39B425E2934900E51766 /* StatisticsViewReactor.swift */,
+			);
+			path = Reactor;
+			sourceTree = "<group>";
+		};
+		C7604F2325CADE0B008B8C1F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C786EEFA25FBA3B90037CDE0 /* UserObject.swift */,
+				C7604F5525CAE4A3008B8C1F /* PetObject.swift */,
+				C77E82F725D8062100B198E6 /* BRObject.swift */,
+				C7AB39C125E3E28600E51766 /* LastMeasureObject.swift */,
+				C788640A25E68E06001307CD /* PhysicsObject.swift */,
+				C76AA06625EE530E00F58364 /* StatisticsBrData.swift */,
+				C76AA07E25EE802E00F58364 /* StatisticPhyData.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		C7604F4625CADF28008B8C1F /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				C7C266E425CD5D2F001C9C24 /* Constants.swift */,
+				C779FA9D25CEADD500039076 /* PetInputValidator.swift */,
+				C77E82A125D2B82D00B198E6 /* UIViewController+Rx+Extension.swift */,
+				C788641D25E7C361001307CD /* TimeUtil.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		C779FA7125CE2FA600039076 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				C77E828C25D181DF00B198E6 /* Realm */,
+				C7604F2325CADE0B008B8C1F /* Model */,
+				C779FA7225CE2FB600039076 /* ServiceProvider.swift */,
+				C779FA7A25CE2FE600039076 /* BaseService.swift */,
+				C779FA7F25CE303200039076 /* DatabaseService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C779FA8725CE378100039076 /* Statistics */ = {
+			isa = PBXGroup;
+			children = (
+				C7D6B0A025E28809009E806B /* View */,
+				C779FA8E25CE37EE00039076 /* StatisticsViewController.swift */,
+			);
+			path = Statistics;
+			sourceTree = "<group>";
+		};
+		C779FA9325CEABA100039076 /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				C779FA9425CEAD7800039076 /* PetInputValidatorTests.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		C779FABB25D0176C00039076 /* PetAdd */ = {
+			isa = PBXGroup;
+			children = (
+				C77E828425D171F300B198E6 /* NewPetAddView.swift */,
+				C77E827F25D16E8E00B198E6 /* NewPetAddViewController.swift */,
+			);
+			path = PetAdd;
+			sourceTree = "<group>";
+		};
+		C77E828C25D181DF00B198E6 /* Realm */ = {
+			isa = PBXGroup;
+			children = (
+				C77E82BF25D5539800B198E6 /* BaseRealm.swift */,
+			);
+			path = Realm;
+			sourceTree = "<group>";
+		};
+		C77E82E125D8012B00B198E6 /* HRMeasure */ = {
+			isa = PBXGroup;
+			children = (
+				C787AF9E25E0AB3500786169 /* View */,
+				C77E82E225D801C900B198E6 /* BRMeasureViewController.swift */,
+			);
+			path = HRMeasure;
+			sourceTree = "<group>";
+		};
+		C785981625CD6C2000252ACB /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				C797973B25DA9C9000B1778D /* font */,
+				C785981725CD6C2C00252ACB /* ic */,
+			);
+			path = Resource;
+			sourceTree = "<group>";
+		};
+		C785981725CD6C2C00252ACB /* ic */ = {
+			isa = PBXGroup;
+			children = (
+				C785982225CD6DC600252ACB /* boy.png */,
+				C785982325CD6DC600252ACB /* girl.png */,
+				C77E825025D01C2A00B198E6 /* icCmBack.png */,
+				C77E825125D01C2A00B198E6 /* icCmBack@2x.png */,
+				C77E825225D01C2A00B198E6 /* icCmBack@3x.png */,
+			);
+			path = ic;
+			sourceTree = "<group>";
+		};
+		C785982E25CD9CB400252ACB /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C785982F25CD9CD400252ACB /* PetProfileCollecionViewFlowLayout.swift */,
+				C7C266DF25CC40E3001C9C24 /* PetProfileImageCell.swift */,
+				C785983725CD9EA600252ACB /* ServiceCollecionViewFlowLayout.swift */,
+				C785983F25CD9F3F00252ACB /* MeasureServiceCell.swift */,
+				C77E830925D8D6FE00B198E6 /* PetProfileView.swift */,
+				C7AB39B925E3D13300E51766 /* LastMeasureServiceCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C786EEE025FA7DDF0037CDE0 /* SideMenu */ = {
+			isa = PBXGroup;
+			children = (
+				C786EEF225FB9D060037CDE0 /* SideMenuView.swift */,
+				C786EF1B25FDCA800037CDE0 /* SideMenuTableViewCell.swift */,
+				C786EEE125FA7DE90037CDE0 /* SideMenuViewController.swift */,
+			);
+			path = SideMenu;
+			sourceTree = "<group>";
+		};
+		C787AF9E25E0AB3500786169 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C77E82EA25D8026000B198E6 /* BRMeasureView.swift */,
+				C787AF9625DFF30E00786169 /* BRMeasureResultView.swift */,
+				C787AF9F25E0AB4900786169 /* BRMeasureHowInfoViewController.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C788641725E7BB0F001307CD /* MeasureDetail */ = {
+			isa = PBXGroup;
+			children = (
+				C788641225E68FC3001307CD /* MeasureDetailViewController.swift */,
+				C788641825E7BB38001307CD /* MeasureDetailTableViewCell.swift */,
+			);
+			path = MeasureDetail;
+			sourceTree = "<group>";
+		};
+		C797973B25DA9C9000B1778D /* font */ = {
+			isa = PBXGroup;
+			children = (
+				C797973C25DA9CC600B1778D /* Cafe24Syongsyong.ttf */,
+				C797973D25DA9CCD00B1778D /* License.txt */,
+			);
+			path = font;
+			sourceTree = "<group>";
+		};
+		C7AB39CE25E5169700E51766 /* Measure */ = {
+			isa = PBXGroup;
+			children = (
+				C77E82E125D8012B00B198E6 /* HRMeasure */,
+				C7AB39D725E516D600E51766 /* PhysicsMeasure */,
+				C788641725E7BB0F001307CD /* MeasureDetail */,
+			);
+			path = Measure;
+			sourceTree = "<group>";
+		};
+		C7AB39D725E516D600E51766 /* PhysicsMeasure */ = {
+			isa = PBXGroup;
+			children = (
+				C7B3259E25E518A600626DD8 /* PhysicsMeasureView.swift */,
+				C7AB39CF25E516D300E51766 /* PhysicsMeasureViewController.swift */,
+			);
+			path = PhysicsMeasure;
+			sourceTree = "<group>";
+		};
+		C7C266E925CD5ED5001C9C24 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				C7C266EA25CD5EEE001C9C24 /* UISegmentedControll+Extension.swift */,
+				C7C266F225CD5F0A001C9C24 /* UIImage+Extension.swift */,
+				C785982925CD839600252ACB /* UIColor+Extension.swift */,
+				C779FABF25D0186D00039076 /* UINavigation+Extension.swift */,
+				C77E829025D1825100B198E6 /* UIView+Extension.swift */,
+				C77E82A625D2B9B800B198E6 /* Results+Extension.swift */,
+				C787AFAD25E0B8A300786169 /* UIFont+Extension.swift */,
+				C7CAA0E325E1573A00420F19 /* UIButton+Extension.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		C7C266FF25CD60BE001C9C24 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				C785982E25CD9CB400252ACB /* View */,
+				C77E82FF25D8C8BB00B198E6 /* MainView.swift */,
+				C77E830425D8C8E200B198E6 /* MainViewController.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		C7D6B0A025E28809009E806B /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C7D6B09B25E287FB009E806B /* StatisticChartView.swift */,
+				C7D6B09325E25404009E806B /* StatisticView.swift */,
+				C76AA04825EBD26700F58364 /* PetOptionCollectionViewCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C7604EE425CAD814008B8C1F /* MyPetCare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C7604F0F25CAD815008B8C1F /* Build configuration list for PBXNativeTarget "MyPetCare" */;
+			buildPhases = (
+				F20E986DFF8EB8188A4B2383 /* [CP] Check Pods Manifest.lock */,
+				C7604EE125CAD814008B8C1F /* Sources */,
+				C7604EE225CAD814008B8C1F /* Frameworks */,
+				C7604EE325CAD814008B8C1F /* Resources */,
+				4696B631009CEA0B695E9454 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MyPetCare;
+			productName = MyPetCare;
+			productReference = C7604EE525CAD814008B8C1F /* MyPetCare.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C7604EFA25CAD815008B8C1F /* MyPetCareTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C7604F1225CAD815008B8C1F /* Build configuration list for PBXNativeTarget "MyPetCareTests" */;
+			buildPhases = (
+				1D28604C617AF3D5CE8BEEB7 /* [CP] Check Pods Manifest.lock */,
+				C7604EF725CAD815008B8C1F /* Sources */,
+				C7604EF825CAD815008B8C1F /* Frameworks */,
+				C7604EF925CAD815008B8C1F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C7604EFD25CAD815008B8C1F /* PBXTargetDependency */,
+			);
+			name = MyPetCareTests;
+			productName = MyPetCareTests;
+			productReference = C7604EFB25CAD815008B8C1F /* MyPetCareTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C7604F0525CAD815008B8C1F /* MyPetCareUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C7604F1525CAD815008B8C1F /* Build configuration list for PBXNativeTarget "MyPetCareUITests" */;
+			buildPhases = (
+				15D2018108D854DDAD9BABDC /* [CP] Check Pods Manifest.lock */,
+				C7604F0225CAD815008B8C1F /* Sources */,
+				C7604F0325CAD815008B8C1F /* Frameworks */,
+				C7604F0425CAD815008B8C1F /* Resources */,
+				10071E660DBE312B39A53DAF /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C7604F0825CAD815008B8C1F /* PBXTargetDependency */,
+			);
+			name = MyPetCareUITests;
+			productName = MyPetCareUITests;
+			productReference = C7604F0625CAD815008B8C1F /* MyPetCareUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C7604EDD25CAD814008B8C1F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1240;
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					C7604EE425CAD814008B8C1F = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					C7604EFA25CAD815008B8C1F = {
+						CreatedOnToolsVersion = 12.4;
+						TestTargetID = C7604EE425CAD814008B8C1F;
+					};
+					C7604F0525CAD815008B8C1F = {
+						CreatedOnToolsVersion = 12.4;
+						TestTargetID = C7604EE425CAD814008B8C1F;
+					};
+				};
+			};
+			buildConfigurationList = C7604EE025CAD814008B8C1F /* Build configuration list for PBXProject "MyPetCare" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C7604EDC25CAD814008B8C1F;
+			productRefGroup = C7604EE625CAD814008B8C1F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C7604EE425CAD814008B8C1F /* MyPetCare */,
+				C7604EFA25CAD815008B8C1F /* MyPetCareTests */,
+				C7604F0525CAD815008B8C1F /* MyPetCareUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C7604EE325CAD814008B8C1F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C797973E25DA9CE500B1778D /* Cafe24Syongsyong.ttf in Resources */,
+				C785982425CD6DC600252ACB /* boy.png in Resources */,
+				C77E825525D01C2A00B198E6 /* icCmBack@3x.png in Resources */,
+				C785982525CD6DC600252ACB /* girl.png in Resources */,
+				C7604EF525CAD815008B8C1F /* LaunchScreen.storyboard in Resources */,
+				C77E825425D01C2A00B198E6 /* icCmBack@2x.png in Resources */,
+				C7604EF225CAD815008B8C1F /* Assets.xcassets in Resources */,
+				C77E825325D01C2A00B198E6 /* icCmBack.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C7604EF925CAD815008B8C1F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C7604F0425CAD815008B8C1F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		10071E660DBE312B39A53DAF /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyPetCare-MyPetCareUITests/Pods-MyPetCare-MyPetCareUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyPetCare-MyPetCareUITests/Pods-MyPetCare-MyPetCareUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MyPetCare-MyPetCareUITests/Pods-MyPetCare-MyPetCareUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		15D2018108D854DDAD9BABDC /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MyPetCare-MyPetCareUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		1D28604C617AF3D5CE8BEEB7 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MyPetCareTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		4696B631009CEA0B695E9454 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyPetCare/Pods-MyPetCare-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-MyPetCare/Pods-MyPetCare-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MyPetCare/Pods-MyPetCare-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F20E986DFF8EB8188A4B2383 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MyPetCare-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C7604EE125CAD814008B8C1F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C77E829A25D2A5FF00B198E6 /* PetAddViewReactor.swift in Sources */,
+				C787AF9725DFF30E00786169 /* BRMeasureResultView.swift in Sources */,
+				C779FA8025CE303200039076 /* DatabaseService.swift in Sources */,
+				C779FA6725CE2F7400039076 /* MyPetCustomNavigationController.swift in Sources */,
+				C7604EE925CAD814008B8C1F /* AppDelegate.swift in Sources */,
+				C7CAA0E425E1573A00420F19 /* UIButton+Extension.swift in Sources */,
+				C785983025CD9CD400252ACB /* PetProfileCollecionViewFlowLayout.swift in Sources */,
+				C788640B25E68E06001307CD /* PhysicsObject.swift in Sources */,
+				C7604F5625CAE4A3008B8C1F /* PetObject.swift in Sources */,
+				C77E828525D171F300B198E6 /* NewPetAddView.swift in Sources */,
+				C77E82EB25D8026000B198E6 /* BRMeasureView.swift in Sources */,
+				C786EF1C25FDCA800037CDE0 /* SideMenuTableViewCell.swift in Sources */,
+				C7C266E025CC40E3001C9C24 /* PetProfileImageCell.swift in Sources */,
+				C77E82A725D2B9B800B198E6 /* Results+Extension.swift in Sources */,
+				C7C266F325CD5F0A001C9C24 /* UIImage+Extension.swift in Sources */,
+				C779FA7325CE2FB600039076 /* ServiceProvider.swift in Sources */,
+				C785983825CD9EA600252ACB /* ServiceCollecionViewFlowLayout.swift in Sources */,
+				C786EEE225FA7DE90037CDE0 /* SideMenuViewController.swift in Sources */,
+				C76AA06725EE530E00F58364 /* StatisticsBrData.swift in Sources */,
+				C779FA7B25CE2FE600039076 /* BaseService.swift in Sources */,
+				C7604F3325CADE63008B8C1F /* MainViewControllerReactor.swift in Sources */,
+				C7C266E525CD5D2F001C9C24 /* Constants.swift in Sources */,
+				C7AB39C225E3E28600E51766 /* LastMeasureObject.swift in Sources */,
+				C77E830A25D8D6FE00B198E6 /* PetProfileView.swift in Sources */,
+				C786EEFB25FBA3B90037CDE0 /* UserObject.swift in Sources */,
+				C7C266EB25CD5EEE001C9C24 /* UISegmentedControll+Extension.swift in Sources */,
+				C77E82C025D5539800B198E6 /* BaseRealm.swift in Sources */,
+				C7AB39BA25E3D13300E51766 /* LastMeasureServiceCell.swift in Sources */,
+				C77E82F825D8062100B198E6 /* BRObject.swift in Sources */,
+				C77E82A225D2B82D00B198E6 /* UIViewController+Rx+Extension.swift in Sources */,
+				C779FA9E25CEADD500039076 /* PetInputValidator.swift in Sources */,
+				C786EEEB25FB982C0037CDE0 /* SideMenuViewReactor.swift in Sources */,
+				C7AB39C725E3F19700E51766 /* GlobalState.swift in Sources */,
+				C7B3259F25E518A600626DD8 /* PhysicsMeasureView.swift in Sources */,
+				C77E830525D8C8E200B198E6 /* MainViewController.swift in Sources */,
+				C788641325E68FC3001307CD /* MeasureDetailViewController.swift in Sources */,
+				C7D6B09425E25404009E806B /* StatisticView.swift in Sources */,
+				C77E828025D16E8E00B198E6 /* NewPetAddViewController.swift in Sources */,
+				C77E830025D8C8BB00B198E6 /* MainView.swift in Sources */,
+				C77E82E325D801C900B198E6 /* BRMeasureViewController.swift in Sources */,
+				C779FA8F25CE37EE00039076 /* StatisticsViewController.swift in Sources */,
+				C76AA04925EBD26700F58364 /* PetOptionCollectionViewCell.swift in Sources */,
+				C788641925E7BB38001307CD /* MeasureDetailTableViewCell.swift in Sources */,
+				C787AFAE25E0B8A300786169 /* UIFont+Extension.swift in Sources */,
+				C786EEF325FB9D060037CDE0 /* SideMenuView.swift in Sources */,
+				C788641E25E7C361001307CD /* TimeUtil.swift in Sources */,
+				C785982A25CD839600252ACB /* UIColor+Extension.swift in Sources */,
+				C76AA07F25EE802F00F58364 /* StatisticPhyData.swift in Sources */,
+				C7D6B09C25E287FB009E806B /* StatisticChartView.swift in Sources */,
+				C7AB39B525E2934900E51766 /* StatisticsViewReactor.swift in Sources */,
+				C785984025CD9F3F00252ACB /* MeasureServiceCell.swift in Sources */,
+				C77E82F325D8036E00B198E6 /* MeasureViewReactor.swift in Sources */,
+				C77E829125D1825100B198E6 /* UIView+Extension.swift in Sources */,
+				C787AFA025E0AB4900786169 /* BRMeasureHowInfoViewController.swift in Sources */,
+				C7AB39D025E516D300E51766 /* PhysicsMeasureViewController.swift in Sources */,
+				C779FAC025D0186D00039076 /* UINavigation+Extension.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C7604EF725CAD815008B8C1F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C7604F0025CAD815008B8C1F /* MyPetCareTests.swift in Sources */,
+				C779FA9525CEAD7800039076 /* PetInputValidatorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C7604F0225CAD815008B8C1F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C7604F0B25CAD815008B8C1F /* MyPetCareUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C7604EFD25CAD815008B8C1F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C7604EE425CAD814008B8C1F /* MyPetCare */;
+			targetProxy = C7604EFC25CAD815008B8C1F /* PBXContainerItemProxy */;
+		};
+		C7604F0825CAD815008B8C1F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C7604EE425CAD814008B8C1F /* MyPetCare */;
+			targetProxy = C7604F0725CAD815008B8C1F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		C7604EF325CAD815008B8C1F /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C7604EF425CAD815008B8C1F /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C7604F0D25CAD815008B8C1F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C7604F0E25CAD815008B8C1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		C7604F1025CAD815008B8C1F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D534AFF73F6560D73AA9F289 /* Pods-MyPetCare.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyPetCare/MyPetCare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 52ZXCPY3WQ;
+				INFOPLIST_FILE = MyPetCare/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kr.tootoomaa.MyPetCare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		C7604F1125CAD815008B8C1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EA8EF3A56DD22873C5D3DAA8 /* Pods-MyPetCare.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MyPetCare/MyPetCare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = 52ZXCPY3WQ;
+				INFOPLIST_FILE = MyPetCare/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kr.tootoomaa.MyPetCare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		C7604F1325CAD815008B8C1F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 300F2D065D39A7819E73AD22 /* Pods-MyPetCareTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 52ZXCPY3WQ;
+				INFOPLIST_FILE = MyPetCareTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kr.tootoomaa.MyPetCareTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyPetCare.app/MyPetCare";
+			};
+			name = Debug;
+		};
+		C7604F1425CAD815008B8C1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 627E685B9A4BEFB3F59B09B5 /* Pods-MyPetCareTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 52ZXCPY3WQ;
+				INFOPLIST_FILE = MyPetCareTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kr.tootoomaa.MyPetCareTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MyPetCare.app/MyPetCare";
+			};
+			name = Release;
+		};
+		C7604F1625CAD815008B8C1F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 48431BAB776A6194495C4175 /* Pods-MyPetCare-MyPetCareUITests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 52ZXCPY3WQ;
+				INFOPLIST_FILE = MyPetCareUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kr.tootoomaa.MyPetCareUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MyPetCare;
+			};
+			name = Debug;
+		};
+		C7604F1725CAD815008B8C1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = AE1FBB1CC637BECE3AD0C47C /* Pods-MyPetCare-MyPetCareUITests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 52ZXCPY3WQ;
+				INFOPLIST_FILE = MyPetCareUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kr.tootoomaa.MyPetCareUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MyPetCare;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C7604EE025CAD814008B8C1F /* Build configuration list for PBXProject "MyPetCare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7604F0D25CAD815008B8C1F /* Debug */,
+				C7604F0E25CAD815008B8C1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C7604F0F25CAD815008B8C1F /* Build configuration list for PBXNativeTarget "MyPetCare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7604F1025CAD815008B8C1F /* Debug */,
+				C7604F1125CAD815008B8C1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C7604F1225CAD815008B8C1F /* Build configuration list for PBXNativeTarget "MyPetCareTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7604F1325CAD815008B8C1F /* Debug */,
+				C7604F1425CAD815008B8C1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C7604F1525CAD815008B8C1F /* Build configuration list for PBXNativeTarget "MyPetCareUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C7604F1625CAD815008B8C1F /* Debug */,
+				C7604F1725CAD815008B8C1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C7604EDD25CAD814008B8C1F /* Project object */;
+}
