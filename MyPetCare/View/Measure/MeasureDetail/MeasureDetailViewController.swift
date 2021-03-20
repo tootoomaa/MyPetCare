@@ -35,7 +35,7 @@ class MeasureDetailViewController: UIViewController, View {
         $0.backgroundColor = .white
         $0.register(MeasureDetailTableViewCell.self,
                     forCellReuseIdentifier: MeasureDetailTableViewCell.identifier)
-        $0.rowHeight = 70
+        $0.rowHeight = 70*Constants.widthRatio
         $0.separatorStyle = .none
         $0.delegate = self
     }

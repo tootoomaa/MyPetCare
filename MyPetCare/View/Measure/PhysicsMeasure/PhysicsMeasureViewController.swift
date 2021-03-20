@@ -54,7 +54,7 @@ class PhysicsMeasureViewController: UIViewController, View {
     private func configureNavigation() {
         navigationController?.configureNavigation(.hrMeasureBottomViewColor, largeTitle: false)
         navigationItem.title = measureType
-                                    .rawValue
+                                    .getTitle()
                                     .components(separatedBy: .newlines)
                                     .joined(separator: " ")
         

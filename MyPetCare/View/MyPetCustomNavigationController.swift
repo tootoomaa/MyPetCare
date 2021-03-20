@@ -26,7 +26,7 @@ class MyPetCustomNavigationController: UITabBarController {
         
         configureSideMenu()
         
-        let mainVC = makeMainViewController("hare.fill")
+        let mainVC = makeMainViewController("house.fill")
         let statisticVC = makeStaticticsViewController("chart.bar.xaxis")
         
         self.viewControllers = [mainVC, statisticVC]

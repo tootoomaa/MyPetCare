@@ -141,7 +141,7 @@ class StatisticsViewController: UIViewController, View {
         
         statisticView.mainFrameTable.rx.setDelegate(self)
             .disposed(by: disposeBag)
-        statisticView.mainFrameTable.rowHeight = 70
+        statisticView.mainFrameTable.rowHeight = 70*Constants.widthRatio
         statisticView.mainFrameTable
             .register(MeasureDetailTableViewCell.self,
                       forCellReuseIdentifier: MeasureDetailTableViewCell.identifier)
@@ -312,7 +312,7 @@ class StatisticsViewController: UIViewController, View {
                                 $0.setBackgroundColor(color: .white, forState: .normal)
                                 $0.setBackgroundColor(color: type.getColor(),
                                                       forState: .selected)
-                                $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 18)
+                                $0.titleLabel?.font = UIFont(name: "Cafe24Syongsyong", size: 18)
                                 $0.isSelected = true
                                 $0.addCornerRadius(20)
                                 $0.addBorder(.black, 1)
