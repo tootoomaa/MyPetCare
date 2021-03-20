@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
         configureTestData()
         
-        configureiCloud()
+//        configureiCloud()
         
         let tabBarC = MyPetCustomNavigationController(provider: provider)
         

@@ -56,7 +56,7 @@ class LastMeasureServiceCell: UITableViewCell {
         $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 20)
         $0.imageEdgeInsets = UIEdgeInsets(top: 5, left: 40, bottom: 5, right: 0)
         
-        $0.titleLabel?.font = .dynamicFont(name: "Cafe24Syongsyong", size: 13)
+        $0.titleLabel?.font = UIFont(name: "Cafe24Syongsyong", size: 13)
         $0.addCornerRadius(10)
     }
     
